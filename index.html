@@ -1222,7 +1222,7 @@ function matchTrack(base) {
   return t && t.id;
 }
 async function importFiles(files) {
-  let matched = 0, added = 0;
+  let matched = 0, added = 0, saved = 0; const failed = [];
   for (let i = 0; i < files.length; i++) {
     const f = files[i], base = f.name.replace(/\.[^.]+$/, '');
     let id = attachTarget || matchTrack(base);
@@ -1233,15 +1233,23 @@ async function importFiles(files) {
       CUSTOM.push(rec); store.set('custom', CUSTOM);
       const t = { id, ti: base, cop: '', p: 'annuel', ch: null, dur: 0, user: true }; TRACKS.push(t); addTrack(t); added++;
     }
-    try { await DB.put(id, { blob: f, name: f.name }); } catch (e) {}
+    // On enregistre les octets, pas le fichier : sur iPhone, le fichier choisi n'est qu'une copie temporaire qu'iOS efface.
+    try { const buf = await f.arrayBuffer(); await DB.put(id, { buf, type: f.type || 'audio/mp4', name: f.name }); saved++; }
+    catch (e) { failed.push(f.name); }
     setSrc(id, f);
   }
   attachTarget = null;
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-  toast([matched && `${matched} associé${matched > 1 ? 's' : ''} à un chant`, added && `${added} nouveau${added > 1 ? 'x' : ''} chant${added > 1 ? 's' : ''}`].filter(Boolean).join(' · ') || 'Importé');
+  if (failed.length) toast(`${failed.length} fichier${failed.length > 1 ? 's' : ''} non enregistré${failed.length > 1 ? 's' : ''} (espace insuffisant ?) : ${failed.slice(0, 2).join(', ')}`);
+  else toast([`${saved} enregistré${saved > 1 ? 's' : ''} dans l'appli`, matched && `${matched} associé${matched > 1 ? 's' : ''} à un chant`, added && `${added} nouveau${added > 1 ? 'x' : ''}`].filter(Boolean).join(' · '));
   render(true);
 }
-DB.keys().then(keys => Promise.all((keys || []).map(k => DB.get(k).then(v => { if (v && v.blob && TR[k]) setSrc(k, v.blob); })))).catch(() => {});
+// Au démarrage : on recharge l'audio enregistré (format octets ; l'ancien format « fichier » n'est plus lisible sur iPhone)
+DB.keys().then(keys => Promise.all((keys || []).map(k => DB.get(k).then(v => {
+  if (!v || !TR[k]) return;
+  if (v.buf) setSrc(k, new Blob([v.buf], { type: v.type || 'audio/mp4' }));
+  else if (v.blob && v.blob.size) setSrc(k, v.blob);
+})))).then(() => render(true)).catch(() => {});
 
 /* ---------- Feuilles ---------- */
 function openSheet(html) { $('#sheetPanel').innerHTML = `<div class="sh-grab"><span></span></div>` + html; $('#sheet').hidden = false; }
@@ -1400,6 +1408,7 @@ S.queue = listIds('period:annuel'); S.qi = 0; S.qFrom = PERIODS.annuel.name;
 load('tenoueshet');
 render();
 requestAnimationFrame(tick);
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 if (document.querySelector('link[rel=manifest]') && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
 </script>
