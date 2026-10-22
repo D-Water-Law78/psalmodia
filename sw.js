@@ -1,11 +1,20 @@
-// Garde l'appli disponible hors connexion (les chants, eux, sont déjà sur l'iPhone)
-const C = 'psalmodia-a253a599ab';
+// Psalmodia hors connexion. La page est prise sur le réseau d'abord (pour avoir toujours la dernière version),
+// le reste en cache. Le cache « psalmodia-audio » (les chants enregistrés) n'est jamais effacé.
+const C = 'psalmodia-99e1dd2924';
+const KEEP = 'psalmodia-audio';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(SHELL))); self.skipWaiting(); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C && k !== KEEP).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const r = e.request; if (r.method !== 'GET') return;
   const u = new URL(r.url);
+  if (r.mode === 'navigate' || (u.origin === location.origin && /\/(index\.html)?$/.test(u.pathname))) {
+    e.respondWith(fetch(r, { cache: 'no-store' }).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(C).then(c => c.put('./index.html', copy)); }
+      return res;
+    }).catch(() => caches.match('./index.html', { cacheName: C }).then(h => h || caches.match(r))));
+    return;
+  }
   if (u.origin !== location.origin && !/(^|\.)(gstatic|googleapis)\.com$/.test(u.hostname)) return;
   e.respondWith(caches.open(C).then(async c => {
     const hit = await c.match(r, { ignoreSearch: u.origin === location.origin });

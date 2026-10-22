@@ -327,6 +327,13 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 .form input,.form select,.form textarea{min-height:46px;border-radius:12px;border:0;background:var(--raised);color:var(--ivory);padding:0 12px;font:inherit;font-size:16px;width:100%}
 .form textarea{padding:10px 12px;min-height:160px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
 .form .cop{font-family:var(--f-cop)}
+.form.center{text-align:center;align-items:center}
+.pbar{height:8px;border-radius:4px;background:var(--raised);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--gold);transition:width .3s ease}
+.pinfo{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:15px}
+.pname{color:var(--muted);font-size:13px}
+.okbig{width:64px;height:64px;border-radius:50%;background:rgba(219,176,102,.15);color:var(--gold);display:grid;place-items:center;margin-top:6px}
+.warn{color:#e6a37a;font-size:14px;line-height:1.4;margin:0}
 
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-16px);opacity:0;transition:opacity .25s,transform .25s;
   background:var(--raised);color:var(--ivory);padding:10px 16px;border-radius:14px;z-index:80;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;max-width:calc(100% - 32px);text-align:center}
@@ -458,6 +465,8 @@ const IC = {
   gear:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
   calendar:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   loop:'<path d="M7 7h10a4 4 0 0 1 0 8h-1M17 17H7a4 4 0 0 1 0-8h1"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7"/>',
+  warn:'<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>'
 };
 const ic = (n, s = 22) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
@@ -622,6 +631,7 @@ const S = {
   cfg: Object.assign({}, DEF_CFG, store.get('cfg', {})),
   fav: new Set(store.get('fav', ['tenoueshet'])), recent: store.get('recent', []), results: []
 };
+const APP_VERSION = '23.10.2026 · 99e1dd2924'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -750,7 +760,9 @@ function renderSettings() {
   <div class="grp-h">Mes données</div>
   <div class="grp">
     <button class="gr" data-act="exportsync"><span>Copier mes minutages<small>À m’envoyer pour les intégrer à l’appli</small></span><span class="val">${nSync}</span></button>
-    <button class="gr" data-act="import"><span>Importer des fichiers audio</span><span class="val">${listIds('imported').length} sur l’iPhone</span></button>
+    <button class="gr" data-act="import"><span>Importer des fichiers audio</span><span class="val">Fichiers</span></button>
+    <div class="gr"><span>Chants enregistrés dans l’appli</span><span class="val">${S.stored ? `${S.stored.n} · ${mo(S.stored.bytes)}` : '…'}</span></div>
+    <div class="gr"><span>Version de l’appli</span><span class="val">${APP_VERSION}</span></div>
   </div>
   <p class="grp-f">Les fichiers audio et les minutages restent sur cet iPhone. Rien n’est envoyé ailleurs.</p>`;
 }
@@ -1221,35 +1233,89 @@ function matchTrack(base) {
   const t = TRACKS.find(t => t.id === s || slug(t.ti) === s) || TRACKS.find(t => s.startsWith(t.id + '-') || s.startsWith(slug(t.ti) + '-'));
   return t && t.id;
 }
-async function importFiles(files) {
-  let matched = 0, added = 0, saved = 0; const failed = [];
-  for (let i = 0; i < files.length; i++) {
-    const f = files[i], base = f.name.replace(/\.[^.]+$/, '');
-    let id = attachTarget || matchTrack(base);
-    if (id) matched++;
-    else {
-      id = 'u' + Date.now().toString(36) + i;
-      const rec = { id, ti: base };
-      CUSTOM.push(rec); store.set('custom', CUSTOM);
-      const t = { id, ti: base, cop: '', p: 'annuel', ch: null, dur: 0, user: true }; TRACKS.push(t); addTrack(t); added++;
+/* Stockage durable de l'audio : on copie les octets dans un Blob neuf (le fichier choisi dans Fichiers
+   n'est qu'une copie temporaire qu'iOS efface), on l'écrit dans IndexedDB et on relit pour vérifier.
+   Si IndexedDB refuse, on se rabat sur le stockage Cache du navigateur. */
+const AUDIO_CACHE = 'psalmodia-audio';
+async function saveAudio(id, blob, name) {
+  try {
+    await DB.put(id, { blob, type: blob.type, name, size: blob.size });
+    const back = await DB.get(id);
+    if (back && back.blob && back.blob.size === blob.size) return true;
+  } catch (e) {}
+  try {
+    const c = await caches.open(AUDIO_CACHE);
+    await c.put('audio/' + encodeURIComponent(id), new Response(blob, { headers: { 'Content-Type': blob.type || 'audio/mp4' } }));
+    const r = await c.match('audio/' + encodeURIComponent(id));
+    if (r) return true;
+  } catch (e) {}
+  return false;
+}
+async function loadStoredAudio() {
+  let n = 0, bytes = 0;
+  try {
+    for (const k of (await DB.keys()) || []) {
+      const v = await DB.get(k); if (!v || !TR[k]) continue;
+      const b = v.blob && v.blob.size ? v.blob : v.buf ? new Blob([v.buf], { type: v.type || 'audio/mp4' }) : null;
+      if (b) { setSrc(k, b); n++; bytes += b.size; }
     }
-    // On enregistre les octets, pas le fichier : sur iPhone, le fichier choisi n'est qu'une copie temporaire qu'iOS efface.
-    try { const buf = await f.arrayBuffer(); await DB.put(id, { buf, type: f.type || 'audio/mp4', name: f.name }); saved++; }
-    catch (e) { failed.push(f.name); }
-    setSrc(id, f);
-  }
-  attachTarget = null;
-  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-  if (failed.length) toast(`${failed.length} fichier${failed.length > 1 ? 's' : ''} non enregistré${failed.length > 1 ? 's' : ''} (espace insuffisant ?) : ${failed.slice(0, 2).join(', ')}`);
-  else toast([`${saved} enregistré${saved > 1 ? 's' : ''} dans l'appli`, matched && `${matched} associé${matched > 1 ? 's' : ''} à un chant`, added && `${added} nouveau${added > 1 ? 'x' : ''}`].filter(Boolean).join(' · '));
+  } catch (e) {}
+  try {
+    const c = await caches.open(AUDIO_CACHE);
+    for (const req of await c.keys()) {
+      const id = decodeURIComponent(new URL(req.url).pathname.split('/audio/')[1] || '');
+      if (!TR[id] || TR[id].src) continue;
+      const b = await (await c.match(req)).blob(); setSrc(id, b); n++; bytes += b.size;
+    }
+  } catch (e) {}
+  S.stored = { n, bytes };
   render(true);
 }
-// Au démarrage : on recharge l'audio enregistré (format octets ; l'ancien format « fichier » n'est plus lisible sur iPhone)
-DB.keys().then(keys => Promise.all((keys || []).map(k => DB.get(k).then(v => {
-  if (!v || !TR[k]) return;
-  if (v.buf) setSrc(k, new Blob([v.buf], { type: v.type || 'audio/mp4' }));
-  else if (v.blob && v.blob.size) setSrc(k, v.blob);
-})))).then(() => render(true)).catch(() => {});
+const mo = b => (b / 1048576).toLocaleString('fr-FR', { maximumFractionDigits: b < 1e8 ? 1 : 0 }) + ' Mo';
+let importing = false;
+function progressHTML(done, total, pct, name) {
+  return `<div class="form"><h3>Importation des chants</h3>
+    <div class="pbar"><i style="width:${pct}%"></i></div>
+    <div class="pinfo"><b>${pct} %</b><span>${done} / ${total}</span></div>
+    <div class="pname ell">${esc(name)}</div>
+    <p class="grp-f">Garde l'appli ouverte pendant l'enregistrement.</p></div>`;
+}
+async function importFiles(files) {
+  importing = true;
+  const total = files.reduce((a, f) => a + f.size, 0) || 1;
+  let doneBytes = 0, savedBytes = 0; const ok = [], failed = [];
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i], base = f.name.replace(/\.[^.]+$/, '');
+    openSheet(progressHTML(i, files.length, Math.round(doneBytes / total * 100), f.name));
+    let id = attachTarget || matchTrack(base);
+    if (!id) {
+      id = 'u' + Date.now().toString(36) + i;
+      CUSTOM.push({ id, ti: base }); store.set('custom', CUSTOM);
+      const t = { id, ti: base, cop: '', p: 'annuel', ch: null, dur: 0, user: true }; TRACKS.push(t); addTrack(t);
+    }
+    let blob = null;
+    try { blob = new Blob([await f.arrayBuffer()], { type: f.type || 'audio/mp4' }); } catch (e) {}
+    if (blob && await saveAudio(id, blob, f.name)) { ok.push(id); savedBytes += blob.size; setSrc(id, blob); }
+    else { failed.push(f.name); setSrc(id, f); }
+    doneBytes += f.size;
+  }
+  attachTarget = null; importing = false;
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  openSheet(`<div class="form center"><div class="okbig">${ic(ok.length ? 'check' : 'warn', 32)}</div>
+    <h3>${ok.length ? `${ok.length} chant${ok.length > 1 ? 's' : ''} enregistré${ok.length > 1 ? 's' : ''} dans l'appli` : 'Aucun chant enregistré'}</h3>
+    ${ok.length ? `<p class="grp-f">${mo(savedBytes)} copiés sur cet iPhone et vérifiés. Ils restent après la fermeture de l'appli, même sans connexion.</p>` : ''}
+    ${failed.length ? `<p class="warn">Pas pu enregistrer ${failed.length} fichier${failed.length > 1 ? 's' : ''} (espace plein ?) : ${failed.slice(0, 3).map(esc).join(', ')}${failed.length > 3 ? '…' : ''}. Ils se lisent jusqu'à la fermeture.</p>` : ''}
+    <button class="btn pri" data-act="closesheet">OK</button></div>`);
+  render(true);
+  loadStoredCount();
+}
+async function loadStoredCount() {
+  let n = 0, bytes = 0;
+  try { for (const k of (await DB.keys()) || []) { const v = await DB.get(k); const b = v && (v.blob || v.buf); if (b) { n++; bytes += b.size || b.byteLength || 0; } } } catch (e) {}
+  try { const c = await caches.open(AUDIO_CACHE); for (const req of await c.keys()) { n++; bytes += (await (await c.match(req)).blob()).size; } } catch (e) {}
+  S.stored = { n, bytes };
+}
+loadStoredAudio();
 
 /* ---------- Feuilles ---------- */
 function openSheet(html) { $('#sheetPanel').innerHTML = `<div class="sh-grab"><span></span></div>` + html; $('#sheet').hidden = false; }
@@ -1327,7 +1393,7 @@ document.addEventListener('click', e => {
     case 'next': next(); break;
     case 'prev': prev(); break;
     case 'menu': openSheet(menuHTML()); break;
-    case 'closesheet': closeSheet(); break;
+    case 'closesheet': if (!importing) closeSheet(); break;
     case 'edit': openSheet(editHTML(el.dataset.id)); break;
     case 'shuffle':
       S.shuffle = !S.shuffle;
@@ -1409,7 +1475,12 @@ load('tenoueshet');
 render();
 requestAnimationFrame(tick);
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-if (document.querySelector('link[rel=manifest]') && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+if (document.querySelector('link[rel=manifest]') && 'serviceWorker' in navigator) {
+  // Une nouvelle version vient de prendre le relais : on recharge une fois pour l'afficher
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !importing && !S.playing) location.reload(); });
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {});
+}
 })();
 </script>
 
