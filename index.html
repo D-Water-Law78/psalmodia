@@ -36,7 +36,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+html,body{height:100%}
 /* Rien ne se sélectionne en bleu, sauf les champs de saisie */
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
@@ -60,7 +60,7 @@ button:disabled{opacity:.35;cursor:default}
 .tab.on{background:rgba(255,255,255,.09)}
 
 /* ---------- Écrans ---------- */
-#screen{position:fixed;top:env(safe-area-inset-top,0px);bottom:0;left:0;right:0;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;max-width:480px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(170px + env(safe-area-inset-bottom,0px))}
+#screen{max-width:480px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(170px + env(safe-area-inset-bottom,0px))}
 .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-top:6px}
 .brand{font-family:var(--f-cop);color:var(--gold);font-size:17px;letter-spacing:.02em}
 .cdate{font-size:12.5px;color:var(--muted);margin-top:3px}
@@ -556,7 +556,7 @@ const PERIODS = {
   assomption:{name:'Jeûne de la Vierge',word:'Ⲙⲁⲣⲓⲁ',c:['#4a78d4','#14244f'],desc:"Quinze jours de jeûne jusqu'à l'Assomption."}
 };
 const PERIOD_ORDER = ['annuel','nayrouz','kiahk','nativite','theophanie','ninive','careme','rameaux','pascha','resurrection','pentecote','apotres','assomption'];
-const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes'};
+const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits de messe'};
 const OFFICES = {vepres:'Vêpres',tasbeha:'Tasbeha',matines:'Matines',liturgie:'Liturgie',mariage:'Mariage',bapteme:'Baptême',funerailles:'Funérailles'};
 const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 const CH = {ayad:{name:'Ibrahim Ayad'},antonios:{name:'Anba Antonios'},mounir:{name:'Bola Mounir'},raphael:{name:'Anba Raphaël'},anton:{name:'Anton Ibrahim Ayad'},philopater:{name:'Abouna Philopater Kamal'},gad:{name:'Gad Louis'},villejuif:{name:'Chœur de Villejuif'},markmoheb:{name:'Mark Moheb'},fadi:{name:'Fadi William'}, ...store.get('chanters', {})};
@@ -714,7 +714,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '24.10.2026 · 4459f5356a'; // remplacé par tools/build.sh
+const APP_VERSION = '24.10.2026 · c410f46827'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -799,9 +799,19 @@ function tileHTML(id) {
     <span><span class="pt-name">${P.name}</span><span class="pt-date">${rangeText(id)}${n ? ` · ${n} chant${n > 1 ? 's' : ''}` : ''}</span></span>
   </button>`;
 }
+// Collections présentées comme une période (carré de couleur dans l'écran Périodes)
+const COL_TILES = {psaumes:{word:'Ⲯⲁⲗⲙⲟⲥ',c:['#9a7b3c','#2a1d0c'],unit:'psaume'}};
+function colTileHTML(id) {
+  const P = COL_TILES[id], n = listIds('col:' + id).length;
+  return `<button class="ptile" data-act="open" data-type="col" data-id="${id}" style="--c1:${P.c[0]};--c2:${P.c[1]};--ink:#f6ecd9">
+    <span class="pt-glyph">${graph(P.word)[0]}</span>
+    <span class="pt-word">${P.word}</span>
+    <span><span class="pt-name">${COLS[id]}</span><span class="pt-date">${n} ${P.unit}${n > 1 ? 's' : ''}</span></span>
+  </button>`;
+}
 function renderPeriods() {
   return `<h1>Périodes</h1><p class="lead">L'année liturgique copte. Les dates sont calculées pour cette année, Pâques comprise.</p>
-  <div class="pgrid">${PERIOD_ORDER.map(tileHTML).join('')}</div>
+  <div class="pgrid">${PERIOD_ORDER.map(tileHTML).join('') + Object.keys(COL_TILES).map(colTileHTML).join('')}</div>
   <div class="sh"><h2>Offices et collections</h2></div>
   <div class="chips">${chipsHTML()}</div>`;
 }
@@ -874,8 +884,8 @@ function renderDetail(it) {
     head = artHTML('annuel', '☩', 'xl');
   } else if (it.type === 'col') {
     list = 'col:' + it.id; title = COLS[it.id];
-    sub = it.id === 'psaumes' ? 'Numérotation de la Septante' : 'Chants enseignés pas à pas';
-    head = it.id === 'psaumes' ? artHTML('annuel', 'Ⲯ', 'xl') : artHTML('pascha', 'Ⲁ', 'xl');
+    sub = {psaumes:'Numérotation de la Septante', messe:'Passages extraits de liturgies'}[it.id] || 'Chants enseignés pas à pas';
+    head = it.id === 'psaumes' ? artHTML('annuel', 'Ⲯ', 'xl') : it.id === 'messe' ? artHTML('annuel', '☩', 'xl') : artHTML('pascha', 'Ⲁ', 'xl');
   } else if (it.type === 'fav') {
     list = 'fav'; title = 'Favoris'; sub = `${ids0('fav')} chant${ids0('fav') > 1 ? 's' : ''}`;
     head = artHTML('assomption', '♡', 'xl');
@@ -902,12 +912,12 @@ function renderDetail(it) {
 }
 function render(keepScroll) {
   const r = S.route, top = r.stack[r.stack.length - 1];
-  const scr = $('#screen'), y = scr.scrollTop;
+  const y = scrollY;
   $('#screen').innerHTML = top ? renderDetail(top) : { home: renderHome, periods: renderPeriods, library: renderLibrary, search: renderSearch }[r.tab]();
   ['home', 'periods', 'library'].forEach(k => $('#tab-' + k).classList.toggle('on', r.tab === k));
   $('#tab-search').classList.toggle('on', r.tab === 'search');
   if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); }
-  scr.scrollTop = keepScroll ? y : 0;
+  scrollTo(0, keepScroll ? y : 0);
 }
 
 /* ---------- Lecture ---------- */
