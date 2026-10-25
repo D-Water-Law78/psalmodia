@@ -718,7 +718,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '24.10.2026 · 163c370093'; // remplacé par tools/build.sh
+const APP_VERSION = '25.10.2026 · 4bafebf702'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1374,8 +1374,11 @@ function setSrc(id, blob) {
   const tr = TR[id]; if (!tr) return;
   if (tr.src) URL.revokeObjectURL(tr.src);
   tr.src = URL.createObjectURL(blob);
-  const probe = new Audio(); probe.preload = 'metadata'; probe.src = tr.src;
-  probe.addEventListener('loadedmetadata', () => { if (okDur(tr, probe.duration)) tr.dur = probe.duration; render(true); });
+  // durée inconnue seulement (chant importé) : sur iPhone, des dizaines de lecteurs audio ouverts d'un coup bloquent le son
+  if (!tr.dur) {
+    const probe = new Audio(); probe.preload = 'metadata'; probe.src = tr.src;
+    probe.addEventListener('loadedmetadata', () => { if (okDur(tr, probe.duration)) { tr.dur = probe.duration; render(true); } probe.removeAttribute('src'); probe.load(); });
+  }
   // en cours de lecture en ligne : on ne coupe pas, la version enregistrée servira à la prochaine lecture
   if (S.cur === id && !(S.playing && tr.remote && A.src === tr.remote)) { const was = S.playing, t = S.t; A.src = tr.src; A.currentTime = t; if (was) A.play().catch(() => {}); renderPlayer(); }
 }
@@ -1456,6 +1459,8 @@ async function downloadMissing() {
   Object.assign(DL, { active: true, i: 0, n: list.length, got: 0, cur: 0, total: missingBytes(), name: '' });
   let ok = 0, fail = 0;
   for (const tr of list) {
+    // un chant écouté en ligne passe avant : on attend qu'il soit fini pour ne pas lui voler le réseau
+    while (S.playing && curTrack() && !curTrack().src) await new Promise(r => setTimeout(r, 2000));
     DL.i++; DL.name = tr.ti; DL.cur = 0; dlUpdate(true);
     try {
       const res = await fetch(tr.remote, { cache: 'no-store' });
