@@ -717,6 +717,9 @@ function addTrack(t) {
   TR[t.id] = t;
 }
 TRACKS.forEach(addTrack);
+// Date d'arrivée de chaque chant (secondes), assemblée par tools/assembler.py ; un fichier importé : l'heure de son import, lue dans son identifiant
+const AJOUTS = /* @ajouts:start */{"tenoueshet":1792706995.0,"madih":1792706995.001,"nakous-funerailles":1792706995.002,"ethve-ti-anastasis":1792706995.003,"thok-te-ti-gom":1792706995.004,"fai-etafenf":1792706995.005,"tai-shouri":1792706995.006,"ti-shouri":1792706995.007,"ke-iperto-edribi":1792706995.008,"ke-iperto-oanagnosis":1792706995.009,"trouhat-intro-conclusion":1792706995.01,"propheties-intro-conclusion":1792706995.011,"oukatikhisis":1792706995.012,"lecture-evangile-copte":1792706995.013,"ioudas":1792706995.014,"tou-dipnou":1792706995.015,"tabkit-yahouza":1792706995.016,"agios-hazayni":1792706995.017,"pek-thronos":1792706995.018,"omonogenis":1792706995.019,"ti-epistoli":1792706995.02,"amanat-al-less":1792706995.021,"lamentations-jeremie-recit":1792706995.022,"lamentations-jeremie-2024":1792706995.023,"aspasmos-watos-careme":1792708657.0,"asmou-epchois":1792716593.001,"asmou-epchois-hos-3":1792716593.002,"lobsh-hos-1":1792716593.003,"lobsh-hos-2":1792716593.004,"tenen":1792716593.005,"simouti":1792716593.006,"theotokia-jeudi":1792716593.007,"marahimak-ya-ilahi":1792716593.008,"madih-al-sougoud":1792716593.009,"afeen-pi-archi-erefs":1792716593.01,"pek-laos-gar":1792716593.011,"fraction-careme":1792716593.012,"evlogimenos":1792716593.013,"ethve-ti-anastasis-2":1792716593.014,"omonogenis-anton-ayad":1792716593.015,"amanat-al-less-batanouny":1792716593.016,"ioudas-bakir-jeudi":1792716593.017,"anok-pe-pikouji":1792716593.018,"ya-kol-al-soufouf":1792716593.019,"lamentations-jeremie-3":1792758072.042,"golgotha":1792758072.043,"kal-al-rab-li-moussa":1792758072.044,"aftah-fai-bil-tasabih":1792758072.045,"paramoun-noel-cantique":1792758072.046,"ana-awal-kalami":1792758072.047,"aspasmos-watos-careme-ayad":1792758072.048,"shere-ne-maria":1792758072.049,"psaume-6":1792758072.05,"psaume-1":1792762356.05,"psaume-2":1792762356.051,"psaume-3":1792762356.052,"psaume-8":1792762356.054,"psaume-11":1792762356.055,"psaume-12":1792762356.056,"psaume-14":1792762356.057,"psaume-15":1792762356.058,"psaume-18":1792762356.059,"psaume-22":1792762356.06,"psaume-23":1792762356.061,"psaume-25":1792762356.062,"psaume-26":1792762356.063,"psaume-28":1792762356.064,"psaume-29":1792762356.065,"psaume-33":1792762356.066,"psaume-40":1792762356.067,"psaume-44":1792762356.068,"psaume-45":1792762356.069,"psaume-46":1792762356.07,"psaume-50":1792762356.071,"psaume-53":1792762356.072,"psaume-60":1792762356.073,"psaume-62":1792762356.074,"psaume-69":1792762356.075,"psaume-83":1792762356.076,"psaume-84":1792762356.077,"psaume-85":1792762356.078,"psaume-86":1792762356.079,"psaume-90":1792762356.08,"psaume-90-fadi":1792762356.081,"psaume-92":1792762356.082,"psaume-95":1792762356.083,"psaume-96":1792762356.084,"psaume-109":1792762356.085,"psaume-111":1792762356.086,"psaume-112":1792762356.087,"psaume-114":1792762356.088,"tenen-muharraq":1792847076.05,"aftah-fai-muharraq":1792847076.051,"ten-oueh-ensok":1792847076.052,"ana-awal-kalami-muharraq":1792847076.053,"fraction-monogenis-karas":1792847076.054,"madih-trois-jeunes-gens":1793019300.051,"aripsalin-antonios":1793028720.056,"ya-mariam-antonios":1793028720.057,"madih-olleika-antonios":1793028720.058,"erhamna-antonios":1793028720.059,"pchois-efnouti-ayad":1793028720.06,"fraction-isaac-antonios":1793028720.061,"fraction-syriaque-antonios":1793028720.062,"fraction-hoda-kaen-antonios":1793028720.063,"naam-nasaloka-antonios":1793028720.064,"fraction-careme-arsanios":1793028720.065,"reconciliation-gregorien-arsanios":1793028720.066,"reconciliation-cyrille-arsanios":1793028720.067,"commemoration-john-ibrahim":1793028720.068,"fraction-martyrs-antonios":1793028962.069,"fraction-nayrouz-antonios":1793028962.07,"okoti-je-anon-mettias":1793028962.071}/* @ajouts:end */;
+const ajoutDe = t => AJOUTS[t.id] ?? (t.user ? parseInt(t.id.slice(1, -1), 36) / 1000 || 0 : 0);
 const CUSTOM = store.get('custom', []);
 CUSTOM.forEach(r => { const t = { id: r.id, ti: r.ti, cop: '', p: 'annuel', ch: null, dur: 0, user: true }; TRACKS.push(t); addTrack(t); });
 const META = store.get('meta', {});
@@ -738,7 +741,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.10.2026 · 23e68d722f'; // remplacé par tools/build.sh
+const APP_VERSION = '26.10.2026 · b1718cdf3f'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -849,7 +852,7 @@ function renderLibrary() {
   <button class="lrow" data-act="import">${ic('import')}Importer des fichiers audio<span class="cnt">MP3, M4A</span></button>
   <button class="lrow" data-act="open" data-type="settings" data-id="s">${ic('gear')}Réglages</button>
   <div class="sh"><h2>Ajoutés récemment</h2></div>
-  ${TRACKS.slice().reverse().slice(0, 6).map(t => rowHTML(t, 'all', TRACKS.indexOf(t))).join('')}`;
+  ${TRACKS.slice().sort((x, y) => ajoutDe(y) - ajoutDe(x)).slice(0, 6).map(t => rowHTML(t, 'all', TRACKS.indexOf(t))).join('')}`;
 }
 function renderSearch() {
   return `<h1>Recherche</h1>
