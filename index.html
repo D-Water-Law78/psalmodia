@@ -597,7 +597,7 @@ const TRACKS = [
   {id:'madih-al-sougoud',dur:429,ti:"L'adoration convient à la Trinité",cop:'',note:"Madih en arabe",p:'kiahk',of:'tasbeha',ch:'antonios',yt:'PODUiMJvoWY'},
   {id:'afeen-pi-archi-erefs',dur:538,ti:"Ils comparèrent le Grand-prêtre",cop:'Ⲁⲩⲉⲛ ⲡⲓⲁⲣⲭⲏⲉ̀ⲣⲉⲩⲥ',note:"Théotokie du dimanche",p:'annuel',of:'tasbeha',ch:'raphael',yt:'YAo36h0lJnU'},
   {id:'pek-laos-gar',dur:681,ti:"Ton peuple et Ton Église",cop:'Ⲡⲉⲕⲗⲁⲟⲥ ⲅⲁⲣ',p:'annuel',of:'liturgie',ch:'philopater',yt:'XcZB2zWNxBE'},
-  {id:'fraction-careme',dur:324,ti:"Fraction du Grand Carême",cop:'',note:"En arabe",p:'careme',of:'liturgie',ch:'antonios',yt:'6o1Kcw_uqW4'},
+  {id:'fraction-careme',dur:324,ti:"Fraction du Grand Carême",cop:'',note:"En arabe",p:'careme',of:'liturgie',col:'messe',ch:'antonios',yt:'6o1Kcw_uqW4'},
   {id:'evlogimenos',dur:385,ti:"Béni soit celui qui vient",cop:'Ⲉⲩⲗⲟⲅⲓⲙⲉⲛⲟⲥ',p:'rameaux',of:'liturgie',ch:'ayad',yt:'X8J9esmjKbI'},
   {id:'ethve-ti-anastasis-2',dur:494,ti:"Au sujet de la Résurrection",cop:'Ⲉⲑⲃⲉ ϯⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲥ',note:"Avant l'Épître, air de deuil",p:PS,sec:'Toute la semaine',ch:null,yt:'6DwLGMO7-8g'},
   {id:'omonogenis-anton-ayad',dur:337,ti:"Ô Fils unique",cop:'Ⲟ̀ ⲙⲟⲛⲟⲅⲉⲛⲏⲥ',p:PS,sec:'Vendredi saint',ch:'anton',yt:'TYM5snYDfaw'},
@@ -718,7 +718,7 @@ function addTrack(t) {
 }
 TRACKS.forEach(addTrack);
 // Date d'arrivée de chaque chant (secondes), assemblée par tools/assembler.py ; un fichier importé : l'heure de son import, lue dans son identifiant
-const AJOUTS = /* @ajouts:start */{"tenoueshet":1792706995.0,"madih":1792706995.001,"nakous-funerailles":1792706995.002,"ethve-ti-anastasis":1792706995.003,"thok-te-ti-gom":1792706995.004,"fai-etafenf":1792706995.005,"tai-shouri":1792706995.006,"ti-shouri":1792706995.007,"ke-iperto-edribi":1792706995.008,"ke-iperto-oanagnosis":1792706995.009,"trouhat-intro-conclusion":1792706995.01,"propheties-intro-conclusion":1792706995.011,"oukatikhisis":1792706995.012,"lecture-evangile-copte":1792706995.013,"ioudas":1792706995.014,"tou-dipnou":1792706995.015,"tabkit-yahouza":1792706995.016,"agios-hazayni":1792706995.017,"pek-thronos":1792706995.018,"omonogenis":1792706995.019,"ti-epistoli":1792706995.02,"amanat-al-less":1792706995.021,"lamentations-jeremie-recit":1792706995.022,"lamentations-jeremie-2024":1792706995.023,"aspasmos-watos-careme":1792708657.0,"asmou-epchois":1792716593.001,"asmou-epchois-hos-3":1792716593.002,"lobsh-hos-1":1792716593.003,"lobsh-hos-2":1792716593.004,"tenen":1792716593.005,"simouti":1792716593.006,"theotokia-jeudi":1792716593.007,"marahimak-ya-ilahi":1792716593.008,"madih-al-sougoud":1792716593.009,"afeen-pi-archi-erefs":1792716593.01,"pek-laos-gar":1792716593.011,"fraction-careme":1792716593.012,"evlogimenos":1792716593.013,"ethve-ti-anastasis-2":1792716593.014,"omonogenis-anton-ayad":1792716593.015,"amanat-al-less-batanouny":1792716593.016,"ioudas-bakir-jeudi":1792716593.017,"anok-pe-pikouji":1792716593.018,"ya-kol-al-soufouf":1792716593.019,"lamentations-jeremie-3":1792758072.042,"golgotha":1792758072.043,"kal-al-rab-li-moussa":1792758072.044,"aftah-fai-bil-tasabih":1792758072.045,"paramoun-noel-cantique":1792758072.046,"ana-awal-kalami":1792758072.047,"aspasmos-watos-careme-ayad":1792758072.048,"shere-ne-maria":1792758072.049,"psaume-6":1792758072.05,"psaume-1":1792762356.05,"psaume-2":1792762356.051,"psaume-3":1792762356.052,"psaume-8":1792762356.054,"psaume-11":1792762356.055,"psaume-12":1792762356.056,"psaume-14":1792762356.057,"psaume-15":1792762356.058,"psaume-18":1792762356.059,"psaume-22":1792762356.06,"psaume-23":1792762356.061,"psaume-25":1792762356.062,"psaume-26":1792762356.063,"psaume-28":1792762356.064,"psaume-29":1792762356.065,"psaume-33":1792762356.066,"psaume-40":1792762356.067,"psaume-44":1792762356.068,"psaume-45":1792762356.069,"psaume-46":1792762356.07,"psaume-50":1792762356.071,"psaume-53":1792762356.072,"psaume-60":1792762356.073,"psaume-62":1792762356.074,"psaume-69":1792762356.075,"psaume-83":1792762356.076,"psaume-84":1792762356.077,"psaume-85":1792762356.078,"psaume-86":1792762356.079,"psaume-90":1792762356.08,"psaume-90-fadi":1792762356.081,"psaume-92":1792762356.082,"psaume-95":1792762356.083,"psaume-96":1792762356.084,"psaume-109":1792762356.085,"psaume-111":1792762356.086,"psaume-112":1792762356.087,"psaume-114":1792762356.088,"tenen-muharraq":1792847076.05,"aftah-fai-muharraq":1792847076.051,"ten-oueh-ensok":1792847076.052,"ana-awal-kalami-muharraq":1792847076.053,"fraction-monogenis-karas":1792847076.054,"madih-trois-jeunes-gens":1793019300.051,"aripsalin-antonios":1793028720.056,"ya-mariam-antonios":1793028720.057,"madih-olleika-antonios":1793028720.058,"erhamna-antonios":1793028720.059,"pchois-efnouti-ayad":1793028720.06,"fraction-isaac-antonios":1793028720.061,"fraction-syriaque-antonios":1793028720.062,"fraction-hoda-kaen-antonios":1793028720.063,"naam-nasaloka-antonios":1793028720.064,"fraction-careme-arsanios":1793028720.065,"reconciliation-gregorien-arsanios":1793028720.066,"reconciliation-cyrille-arsanios":1793028720.067,"commemoration-john-ibrahim":1793028720.068,"fraction-martyrs-antonios":1793028962.069,"fraction-nayrouz-antonios":1793028962.07,"okoti-je-anon-mettias":1793028962.071}/* @ajouts:end */;
+const AJOUTS = /* @ajouts:start */{"afeen-pi-archi-erefs":1792716593.01,"aftah-fai-bil-tasabih":1792758072.045,"aftah-fai-muharraq":1792847076.051,"agios-hazayni":1792706995.017,"amanat-al-less":1792706995.021,"amanat-al-less-batanouny":1792716593.016,"ana-awal-kalami":1792758072.047,"ana-awal-kalami-muharraq":1792847076.053,"anok-pe-pikouji":1792716593.018,"aripsalin-antonios":1793028720.056,"asmou-epchois":1792716593.001,"asmou-epchois-hos-3":1792716593.002,"aspasmos-watos-careme":1792708657.0,"aspasmos-watos-careme-ayad":1792758072.048,"commemoration-john-ibrahim":1793028720.068,"erhamna-antonios":1793028720.059,"ethve-ti-anastasis":1792706995.003,"ethve-ti-anastasis-2":1792716593.014,"evlogimenos":1792716593.013,"fai-etafenf":1792706995.005,"fraction-careme":1792716593.012,"fraction-careme-arsanios":1793028720.065,"fraction-hoda-kaen-antonios":1793028720.063,"fraction-isaac-antonios":1793028720.061,"fraction-martyrs-antonios":1793028962.069,"fraction-monogenis-karas":1792847076.054,"fraction-nayrouz-antonios":1793028962.07,"fraction-syriaque-antonios":1793028720.062,"golgotha":1792758072.043,"ioudas":1792706995.014,"ioudas-bakir-jeudi":1792716593.017,"kal-al-rab-li-moussa":1792758072.044,"ke-iperto-edribi":1792706995.008,"ke-iperto-oanagnosis":1792706995.009,"lamentations-jeremie-2024":1792706995.023,"lamentations-jeremie-3":1792758072.042,"lamentations-jeremie-recit":1792706995.022,"lecture-evangile-copte":1792706995.013,"lobsh-hos-1":1792716593.003,"lobsh-hos-2":1792716593.004,"madih":1792706995.001,"madih-al-sougoud":1792716593.009,"madih-olleika-antonios":1793028720.058,"madih-trois-jeunes-gens":1793019300.051,"marahimak-ya-ilahi":1792716593.008,"naam-nasaloka-antonios":1793028720.064,"nakous-funerailles":1792706995.002,"okoti-je-anon-mettias":1793028962.071,"omonogenis":1792706995.019,"omonogenis-anton-ayad":1792716593.015,"oukatikhisis":1792706995.012,"paramoun-noel-cantique":1792758072.046,"pchois-efnouti-ayad":1793028720.06,"pek-laos-gar":1792716593.011,"pek-thronos":1792706995.018,"propheties-intro-conclusion":1792706995.011,"psaume-1":1792762356.05,"psaume-109":1792762356.085,"psaume-11":1792762356.055,"psaume-111":1792762356.086,"psaume-112":1792762356.087,"psaume-114":1792762356.088,"psaume-12":1792762356.056,"psaume-14":1792762356.057,"psaume-15":1792762356.058,"psaume-18":1792762356.059,"psaume-2":1792762356.051,"psaume-22":1792762356.06,"psaume-23":1792762356.061,"psaume-25":1792762356.062,"psaume-26":1792762356.063,"psaume-28":1792762356.064,"psaume-29":1792762356.065,"psaume-3":1792762356.052,"psaume-33":1792762356.066,"psaume-40":1792762356.067,"psaume-44":1792762356.068,"psaume-45":1792762356.069,"psaume-46":1792762356.07,"psaume-50":1792762356.071,"psaume-53":1792762356.072,"psaume-6":1792758072.05,"psaume-60":1792762356.073,"psaume-62":1792762356.074,"psaume-69":1792762356.075,"psaume-8":1792762356.054,"psaume-83":1792762356.076,"psaume-84":1792762356.077,"psaume-85":1792762356.078,"psaume-86":1792762356.079,"psaume-90":1792762356.08,"psaume-90-fadi":1792762356.081,"psaume-92":1792762356.082,"psaume-95":1792762356.083,"psaume-96":1792762356.084,"reconciliation-cyrille-arsanios":1793028720.067,"reconciliation-gregorien-arsanios":1793028720.066,"shere-ne-maria":1792758072.049,"simouti":1792716593.006,"tabkit-yahouza":1792706995.016,"tai-shouri":1792706995.006,"ten-oueh-ensok":1792847076.052,"tenen":1792716593.005,"tenen-muharraq":1792847076.05,"tenoueshet":1792706995.0,"theotokia-jeudi":1792716593.007,"thok-te-ti-gom":1792706995.004,"ti-epistoli":1792706995.02,"ti-shouri":1792706995.007,"tou-dipnou":1792706995.015,"trouhat-intro-conclusion":1792706995.01,"ya-kol-al-soufouf":1792716593.019,"ya-mariam-antonios":1793028720.057}/* @ajouts:end */;
 const ajoutDe = t => AJOUTS[t.id] ?? (t.user ? parseInt(t.id.slice(1, -1), 36) / 1000 || 0 : 0);
 const CUSTOM = store.get('custom', []);
 CUSTOM.forEach(r => { const t = { id: r.id, ti: r.ti, cop: '', p: 'annuel', ch: null, dur: 0, user: true }; TRACKS.push(t); addTrack(t); });
@@ -741,7 +741,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.10.2026 · b1718cdf3f'; // remplacé par tools/build.sh
+const APP_VERSION = '26.10.2026 · 061f0685b0'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -763,17 +763,35 @@ function rowHTML(tr, list, i, numbered) {
     <button class="fav${isFav(tr.id) ? ' on' : ''}" data-act="fav" data-id="${tr.id}" aria-label="${isFav(tr.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ic(isFav(tr.id) ? 'heartf' : 'heart', 18)}</button>
   </div>`;
 }
+// Rangement des listes : par période (ordre de l'année), puis extraits de messe, psaumes (par numéro) et fichiers importés ;
+// dans une période : section, office, puis titre — les versions d'un même chant se suivent
+const GROUPS = [...PERIOD_ORDER, 'messe', 'psaumes', 'user'];
+const groupOf = t => t.user ? 'user' : t.col === 'psaumes' ? 'psaumes' : t.col === 'messe' ? 'messe' : t.p;
+const groupName = g => g === 'messe' ? COLS.messe : g === 'psaumes' ? COLS.psaumes : g === 'user' ? 'Mes fichiers' : (PERIODS[g] || {}).name || '';
+const OFF_ORDER = Object.keys(OFFICES);
+const rank = (arr, x) => { const i = arr.indexOf(x); return i < 0 ? arr.length : i; };
+const psNum = t => parseInt((t.id.match(/^psaume-(\d+)/) || [])[1]) || 0;
+function sortTracks(list) {
+  return list.slice().sort((a, b) =>
+    rank(GROUPS, groupOf(a)) - rank(GROUPS, groupOf(b))
+    || psNum(a) - psNum(b)
+    || rank(SECTIONS, a.sec) - rank(SECTIONS, b.sec)
+    || rank(OFF_ORDER, a.of) - rank(OFF_ORDER, b.of)
+    || a.ti.localeCompare(b.ti, 'fr', { sensitivity: 'base' })
+    || (CH[a.ch]?.name || '').localeCompare(CH[b.ch]?.name || '', 'fr'));
+}
 function listIds(key) {
   const [k, id] = key.split(':');
-  if (k === 'period') return TRACKS.filter(t => t.p === id && t.col !== 'psaumes' && t.col !== 'messe').map(t => t.id);   // psaumes et extraits de messe ont leur propre collection
-  if (k === 'chanter') return TRACKS.filter(t => t.ch === id).map(t => t.id);
-  if (k === 'office') return TRACKS.filter(t => t.of === id).map(t => t.id);
-  if (k === 'col') return TRACKS.filter(t => t.col === id).map(t => t.id);
+  const sorted = f => sortTracks(TRACKS.filter(f)).map(t => t.id);
+  if (k === 'period') return sorted(t => t.p === id && t.col !== 'psaumes' && t.col !== 'messe');   // psaumes et extraits de messe ont leur propre collection
+  if (k === 'chanter') return sorted(t => t.ch === id);
+  if (k === 'office') return sorted(t => t.of === id);
+  if (k === 'col') return sorted(t => t.col === id);
   if (k === 'fav') return TRACKS.filter(t => S.fav.has(t.id)).map(t => t.id);
   if (k === 'recent') return recentIds();
   if (k === 'imported') return TRACKS.filter(t => t.src).map(t => t.id);
   if (k === 'search') return S.results;
-  return TRACKS.map(t => t.id);
+  return sorted(() => true);
 }
 const listName = key => { const [k, id] = key.split(':'); return k === 'period' ? PERIODS[id].name : k === 'chanter' ? CH[id].name : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : 'Tous les chants'; };
 function recentIds() {
@@ -926,7 +944,9 @@ function renderDetail(it) {
   const ids = listIds(list);
   const numbered = ['period', 'chanter', 'office', 'col'].includes(it.type);
   const secs = it.type === 'period' ? SECTIONS.filter(sc => ids.some(id => TR[id].sec === sc)) : [];
-  const body = !ids.length ? '' : secs.length
+  const body = !ids.length ? '' : list === 'all'
+    ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + rowHTML(TR[id], list, i)).join('')
+    : secs.length
     ? [...secs, null].map(sc => { const sub = ids.filter(id => sc ? TR[id].sec === sc : !SECTIONS.includes(TR[id].sec)); return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
     : ids.map((id, i) => rowHTML(TR[id], list, i, numbered)).join('');
   return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div>
