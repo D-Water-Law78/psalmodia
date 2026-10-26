@@ -562,7 +562,7 @@ const OFFICES = {vepres:'Vêpres',tasbeha:'Tasbeha',matines:'Matines',liturgie:'
 const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 // Rond du chantre : sa photo s'il en a une, sinon ses initiales
 const avHTML = (c, cls = '') => c.img ? `<span class="av ${cls} ph" style="background-image:url(${c.img})"></span>` : `<span class="av ${cls}">${initials(c.name)}</span>`;
-const CH = {ayad:{name:'Ibrahim Ayad'},antonios:{name:'Anba Antonios',img:'chantres/antonios.jpg'},mounir:{name:'Bola Mounir'},raphael:{name:'Anba Raphaël'},anton:{name:'Anton Ibrahim Ayad'},philopater:{name:'Abouna Philopater Kamal'},gad:{name:'Gad Louis'},villejuif:{name:'Chœur de Villejuif'},markmoheb:{name:'Mark Moheb'},muharraq:{name:'Monastère d’Al-Muharraq'},seminaire:{name:'Chœur du Séminaire'},karas:{name:'Anba Karas'},arsanios:{name:'Abouna Arsanios El-Baramousy'},johnibrahim:{name:'Abouna John Ibrahim'}, ...store.get('chanters', {})};
+const CH = {ayad:{name:'Ibrahim Ayad'},antonios:{name:'Anba Antonios',img:'chantres/antonios.jpg'},mounir:{name:'Bola Mounir'},raphael:{name:'Anba Raphaël'},anton:{name:'Anton Ibrahim Ayad'},philopater:{name:'Abouna Philopater Kamal'},gad:{name:'Gad Louis'},villejuif:{name:'Chœur de Villejuif'},markmoheb:{name:'Mark Moheb'},muharraq:{name:'Monastère d’Al-Muharraq'},seminaire:{name:'Chœur du Séminaire'},karas:{name:'Anba Karas'},arsanios:{name:'Abouna Arsanios El-Baramousy'},johnibrahim:{name:'Abouna John Ibrahim'},mettias:{name:'Abouna Mettias Nasr'}, ...store.get('chanters', {})};
 
 // Sections affichées dans une période, dans cet ordre
 const SECTIONS = ['Funérailles générales', 'Toute la semaine', 'Jeudi saint', 'Vendredi saint', 'Samedi de la Joie'];
@@ -654,6 +654,9 @@ const TRACKS = [
   {id:'reconciliation-gregorien-arsanios',dur:578,ti:"Prière de réconciliation de saint Grégoire",cop:'Ⲫⲏⲉⲧϣⲟⲡ ⲫⲏⲉ̀ⲛⲁϥϣⲟⲡ',note:"En copte et en arabe",p:'annuel',of:'liturgie',col:'messe',ch:'arsanios',yt:'RTdcRjMtAvk'},
   {id:'reconciliation-cyrille-arsanios',dur:313,ti:"Prière de réconciliation de saint Cyrille",cop:'',note:"En arabe",p:'annuel',of:'liturgie',col:'messe',ch:'arsanios',yt:'sc:logia-amir-502536828/fr-arsanios-elbaramousy-1'},
   {id:'commemoration-john-ibrahim',dur:536,ti:"Commémoration des saints",cop:'Ⲉⲡⲓⲇⲏ ⲠϬⲟⲓⲥ',note:"Liturgie de saint Basile · copte, arabe et anglais (traduit)",p:'annuel',of:'liturgie',col:'messe',ch:'johnibrahim',yt:'sc:jacob-mikhail/fr-john-ibrahim-commemoration-of-the-saints-and-owoh-nai-nem'},
+  {id:'fraction-martyrs-antonios',dur:414,ti:"Fraction pour les martyrs",cop:'',note:"En arabe · sans paroles",p:'annuel',of:'liturgie',col:'messe',ch:'antonios',yt:'3CnmP_uyMuA'},
+  {id:'fraction-nayrouz-antonios',dur:392,ti:"Fraction du Nayrouz",cop:'',note:"En arabe · sans paroles",p:'nayrouz',of:'liturgie',col:'messe',ch:'antonios',yt:'MPdld9ThJy8'},
+  {id:'okoti-je-anon-mettias',dur:599,ti:"Okoti je anon",cop:'',note:"Conclusion de la commémoration des saints, liturgie de saint Cyrille · sans paroles",p:'annuel',of:'liturgie',col:'messe',ch:'mettias',yt:'sc:sotem-efnoti/okoti-je-anon'},
   {id:'psaume-1',dur:90,ti:"Psaume 1 · Heureux l'homme",cop:'',note:'En arabe · Agpia, Prime',p:'annuel',col:'psaumes',ch:null,yt:'BOuxoTLWwFU'},
   {id:'psaume-2',dur:144,ti:"Psaume 2 · Pourquoi les nations ont-elles frémi",cop:'',note:'En arabe · Agpia, Prime',p:'annuel',col:'psaumes',ch:null,yt:'z9rztqaU4PU'},
   {id:'psaume-3',dur:102,ti:"Psaume 3 · Seigneur, pourquoi sont-ils si nombreux",cop:'',note:'En arabe · Agpia, Prime',p:'annuel',col:'psaumes',ch:null,yt:'IZypyiANZ_M'},
@@ -735,7 +738,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.10.2026 · 264c4c5d26'; // remplacé par tools/build.sh
+const APP_VERSION = '26.10.2026 · 23e68d722f'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
