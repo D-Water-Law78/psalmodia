@@ -12,6 +12,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head><body>
 <title>Psalmodia</title>
+<script>try{var th=JSON.parse(localStorage.getItem('psalmodia:theme')||'null');if(th&&th!=='cierge')document.documentElement.dataset.theme=th}catch(e){}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,15 +34,31 @@
   --f-lettrine:"Psalmodia Lettrine","Psalmodia Coptic","Noto Sans Coptic",serif;
   --lfs:30px;
   --spring:cubic-bezier(.22,1,.36,1);
+  /* Couleurs propres au thème (Réglages → Thème) */
+  --glass:rgba(38,31,26,.78); --glass-sh:inset 0 0 0 .5px rgba(255,255,255,.09),0 8px 24px rgba(0,0,0,.35);
+  --sheet:rgba(36,30,25,.94); --fade:15,12,10; --wash:255,255,255; --top:var(--night);
+  --av1:#4b3a2a; --av2:#1e1712; --avph:#2a211b; --pop-sh:0 10px 30px rgba(0,0,0,.5); --warn:#e6a37a;
   color-scheme:dark;
 }
+/* Thèmes : seul le fond change, l'or, l'ivoire, les vignettes et le lecteur restent ceux du Cierge */
+:root[data-theme="velours"]{--night:#061123;--surface:#0b1c35;--raised:#0c254b;--glass:rgba(17,38,70,.78);--sheet:rgba(15,32,56,.94);--fade:6,17,35;--av1:#1e375c;--av2:#0b1728;--avph:#112440}
+:root[data-theme="nuit"]{--night:#030c1b;--surface:#07142b;--raised:#071c3f;--glass:rgba(11,29,59,.78);--sheet:rgba(13,30,59,.94);--fade:3,12,27;--av1:#1b345f;--av2:#09152a;--avph:#0f2243}
+/* Nacre (clair) : texte bleu marine, or assombri pour rester lisible. Sous l'heure de l'iPhone, une bande bleu nuit, car l'heure y est toujours écrite en blanc. */
+:root[data-theme="nacre"]{--night:#f7f8fb;--surface:#ffffff;--raised:#eaeef2;--ivory:#142039;--muted:#5a6680;--faint:#7d879b;--gold:#a67a24;--on-gold:#ffffff;
+  --line:rgba(20,33,61,.09);--glass:rgba(255,255,255,.8);--glass-sh:0 1px 0 rgba(20,33,61,.06),0 8px 24px rgba(20,33,61,.10);
+  --sheet:rgba(247,248,251,.96);--fade:247,248,251;--wash:20,33,61;--top:#18294a;--av1:#d7dfea;--av2:#bdc9db;--avph:#dee4ed;--pop-sh:0 10px 30px rgba(20,33,61,.18);--warn:#b4532a;color-scheme:light}
+/* Boutons du formulaire « Modifier les infos » (prévus pour fond sombre) */
+:root[data-theme="nacre"] #sheet .sy-btns .btn{background:var(--raised);color:var(--ivory)}
+:root[data-theme="nacre"] #sheet .sy-btns .btn.pri{background:var(--gold);color:var(--on-gold)}
+/* Le lecteur plein écran garde ses couleurs sombres dans tous les thèmes */
+:root[data-theme="nacre"] #player{--night:#0f0c0a;--surface:#1a1512;--raised:#272019;--ivory:#f3e9d6;--muted:#a7988a;--faint:#7a6d61;--gold:#dbb066;--on-gold:#1b140c;--line:rgba(243,233,214,.09);--wash:255,255,255;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
 /* Rien ne se sélectionne en bleu, sauf les champs de saisie */
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text}
 body{margin:0;background:var(--night);color:var(--ivory);font-family:var(--f-ui);font-size:15px;line-height:1.35;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--night)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--top)}
 body.locked{overflow:hidden}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
@@ -50,14 +67,14 @@ button:disabled{opacity:.35;cursor:default}
 .cop{font-family:var(--f-cop)}
 .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ic{flex:none;display:block}
-.glass{background:rgba(38,31,26,.78);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
-  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.09),0 8px 24px rgba(0,0,0,.35)}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  box-shadow:var(--glass-sh)}
 .gbtn,.xb,.chip-c{background:rgba(255,255,255,.12)}
 .chip,.gear,.sbox,.h-actions .btn:not(.pri){background:var(--raised)}
 .s-btn:not(.pri){background:rgba(0,0,0,.25)}
 .bb.on{background:rgba(255,255,255,.18)}
 .xb.on{background:rgba(255,255,255,.9);color:#1a130d}
-.tab.on{background:rgba(255,255,255,.09)}
+.tab.on{background:rgba(var(--wash),.09)}
 
 /* ---------- Écrans ---------- */
 #screen{max-width:480px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(170px + env(safe-area-inset-bottom,0px));min-height:100vh;min-height:100lvh}
@@ -90,7 +107,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .s-word{position:absolute;right:-6px;bottom:-14px;font-family:var(--f-cop);font-size:82px;line-height:1;opacity:.13;pointer-events:none;white-space:nowrap}
 .s-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
 .s-btn{height:40px;padding:0 16px;border-radius:99px;color:#f6ecd9;font-weight:600;display:inline-flex;align-items:center;gap:7px}
-.s-btn.pri{background:#f6ecd9;color:var(--on-gold)}
+.s-btn.pri{background:#f6ecd9;color:#1b140c}
 .s-next{margin-top:14px;font-size:13px;opacity:.85}
 
 .hscroll{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
@@ -102,8 +119,8 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .card .c2{font-size:12.5px;color:var(--muted)}
 .chan{flex:none;width:96px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;text-align:center;scroll-snap-align:start}
 .av{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;flex:none;font-family:var(--f-display);font-size:28px;color:var(--gold);
-  background:radial-gradient(circle at 30% 25%,#4b3a2a,#1e1712);box-shadow:inset 0 0 0 1px rgba(219,176,102,.35)}
-.av.ph{background:#2a211b center/cover no-repeat}
+  background:radial-gradient(circle at 30% 25%,var(--av1),var(--av2));box-shadow:inset 0 0 0 1px rgba(219,176,102,.35)}
+.av.ph{background:var(--avph) center/cover no-repeat}
 .av.lg{width:150px;height:150px;font-size:50px}
 .av.sm{width:44px;height:44px;font-size:16px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -162,17 +179,22 @@ body:not(.playing) .eq i{animation-play-state:paused}
 .gr small{display:block;color:var(--faint);font-size:12.5px;margin-top:2px}
 .gr .val{color:var(--faint);font-size:15px}
 .grp-f{font-size:13px;color:var(--faint);margin:8px 4px 0;line-height:1.4}
-.sw{width:51px;height:31px;border-radius:16px;background:rgba(255,255,255,.16);position:relative;flex:none;transition:background .25s}
+.sw{width:51px;height:31px;border-radius:16px;background:rgba(var(--wash),.16);position:relative;flex:none;transition:background .25s}
 .sw::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.3);transition:transform .28s cubic-bezier(.3,1.3,.5,1)}
 .sw[aria-checked="true"]{background:var(--gold)}
 .sw[aria-checked="true"]::after{transform:translateX(20px)}
-.seg{display:inline-flex;background:rgba(255,255,255,.08);border-radius:9px;padding:2px;flex:none}
+.seg{display:inline-flex;background:rgba(var(--wash),.08);border-radius:9px;padding:2px;flex:none}
 .seg button{padding:5px 12px;border-radius:7px;font-size:14px;color:var(--muted)}
 .seg button.on{background:var(--raised);color:var(--gold)}
+.thm{display:flex;flex-wrap:wrap;gap:14px;padding:14px 14px 4px}
+.thd{width:46px;height:46px;border-radius:50%;flex:none;position:relative;box-shadow:inset 0 0 0 1px rgba(var(--wash),.18)}
+.thd i{position:absolute;right:6px;bottom:6px;width:12px;height:12px;border-radius:50%}
+.thd.on{box-shadow:inset 0 0 0 1px rgba(var(--wash),.18),0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
+.thn{padding:6px 14px 14px;font-size:14px;color:var(--muted)}
 
 /* ---------- Dock : mini-lecteur + onglets flottants ---------- */
 .dock-fade{position:fixed;left:0;right:0;bottom:0;height:calc(160px + env(safe-area-inset-bottom,0px));z-index:29;pointer-events:none;
-  background:linear-gradient(rgba(15,12,10,0),rgba(15,12,10,.9) 62%)}
+  background:linear-gradient(rgba(var(--fade),0),rgba(var(--fade),.9) 62%)}
 #dock{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;z-index:30;display:flex;flex-direction:column;gap:8px;pointer-events:none;
   padding:0 max(14px,env(safe-area-inset-right,0px)) max(8px,calc(env(safe-area-inset-bottom,0px) - 6px)) max(14px,env(safe-area-inset-left,0px))}
 #dock > *{pointer-events:auto}
@@ -181,14 +203,14 @@ body:not(.playing) .eq i{animation-play-state:paused}
 #mini .meta{flex:1;min-width:0}
 #mini .t1{font-size:14.5px;font-weight:600}
 #mini .t2{font-size:12.5px}
-.mprog{position:absolute;left:24px;right:24px;bottom:0;height:2px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+.mprog{position:absolute;left:24px;right:24px;bottom:0;height:2px;border-radius:2px;background:rgba(var(--wash),.08);overflow:hidden}
 .mprog i{display:block;height:100%;width:0;background:var(--gold)}
 .mbtn{width:42px;height:42px;display:grid;place-items:center;flex:none;border-radius:50%}
-.mbtn:active{background:rgba(255,255,255,.1)}
+.mbtn:active{background:rgba(var(--wash),.1)}
 .tabrow{display:flex;gap:10px;align-items:center}
 .tabcap{flex:1;display:grid;grid-template-columns:repeat(3,1fr);height:62px;border-radius:31px;padding:4px}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10.5px;font-weight:500;color:var(--ivory);border-radius:27px;transition:background .25s,color .25s}
-.tab.on{color:var(--gold);background:rgba(255,255,255,.1)}
+.tab.on{color:var(--gold);background:rgba(var(--wash),.1)}
 .srch{width:62px;height:62px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--ivory)}
 .srch.on{color:var(--gold)}
 
@@ -326,11 +348,11 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 #sheet{position:fixed;inset:0;z-index:70}
 .sh-back{position:absolute;inset:0;background:rgba(0,0,0,.45);animation:fadein .25s ease}
 .sh-panel{position:absolute;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;max-height:86%;overflow:auto;border-radius:28px 28px 0 0;
-  background:rgba(36,30,25,.94);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);animation:sheetup .38s cubic-bezier(.32,.72,0,1);
+  background:var(--sheet);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);animation:sheetup .38s cubic-bezier(.32,.72,0,1);
   padding:8px max(18px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(18px,env(safe-area-inset-left,0px))}
 @keyframes sheetup{from{transform:translateY(100%)}}
 .sh-grab{height:20px;display:grid;place-items:center}
-.sh-grab span{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.25)}
+.sh-grab span{width:38px;height:5px;border-radius:3px;background:rgba(var(--wash),.25)}
 .sh-head{display:flex;align-items:center;gap:12px;padding:6px 0 12px;border-bottom:1px solid var(--line)}
 .sh-head .tt2{color:var(--muted)}
 .mi{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:52px;font-size:16.5px;border-bottom:1px solid var(--line)}
@@ -354,13 +376,13 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 .dl-s{font-size:13px;color:var(--muted);line-height:1.4}
 .dlcard .btn{height:40px;border-radius:20px}
 .okbig{width:64px;height:64px;border-radius:50%;background:rgba(219,176,102,.15);color:var(--gold);display:grid;place-items:center;margin-top:6px}
-.warn{color:#e6a37a;font-size:14px;line-height:1.4;margin:0}
+.warn{color:var(--warn);font-size:14px;line-height:1.4;margin:0}
 
 #rot{display:none;position:fixed;inset:0;z-index:200;background:var(--night);color:var(--ivory);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;font-size:16px;line-height:1.45}
 #rot svg{color:var(--gold)}
 @media (orientation:landscape) and (max-height:520px){#rot{display:flex}}
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-16px);opacity:0;transition:opacity .25s,transform .25s;
-  background:var(--raised);color:var(--ivory);padding:10px 16px;border-radius:14px;z-index:80;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+  background:var(--raised);color:var(--ivory);padding:10px 16px;border-radius:14px;z-index:80;font-size:14px;box-shadow:var(--pop-sh);pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
@@ -796,7 +818,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '29.10.2026 · 3fc873f4f1'; // remplacé par tools/build.sh
+const APP_VERSION = '29.10.2026 · 0811c79527'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -944,6 +966,10 @@ const sw = (k, label, sub) => `<div class="gr"><span>${label}${sub ? `<small>${s
 function renderSettings() {
   const nSync = TRACKS.filter(t => store.get('sync2:' + t.id, null)).length;
   return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div><h1>Réglages</h1>
+  <div class="grp-h">Thème</div>
+  <div class="grp"><div class="thm">${THEMES.map(t => `<button class="thd${t.k === curTheme().k ? ' on' : ''}" data-act="theme" data-v="${t.k}" aria-label="${t.name}" style="background:linear-gradient(135deg,${t.up},${t.bg})"><i style="background:${t.ac}"></i></button>`).join('')}</div>
+    <div class="thn">${curTheme().name}</div></div>
+  <p class="grp-f">Le thème choisi reste enregistré sur cet iPhone.</p>
   <div class="grp-h">Boutons du lecteur</div>
   <div class="grp">${sw('skipBtns', 'Reculer / avancer', 'Deux petits boutons sous la barre de lecture')}
     <div class="gr"><span>Durée du saut</span><div class="seg">${[5, 10, 15, 30].map(v => `<button class="${S.cfg.skipSec === v ? 'on' : ''}" data-act="skipsec" data-v="${v}">${v} s</button>`).join('')}</div></div>
@@ -1687,6 +1713,19 @@ function setFav(id) {
   if (S.fav.has(id)) { S.fav.delete(id); toast('Retiré des favoris'); } else { S.fav.add(id); toast('Ajouté aux favoris'); }
   store.set('fav', [...S.fav]); render(true); if (S.cur) { const v = S.pview; renderPlayer(); S.pview = v; }
 }
+const THEMES = [
+  {k:'cierge', name:'Cierge', bg:'#0f0c0a', up:'#272019', ac:'#dbb066'},
+  {k:'velours', name:'Saphir velours', bg:'#061123', up:'#0c254b', ac:'#dbb066'},
+  {k:'nuit', name:'Saphir de nuit', bg:'#030c1b', up:'#071c3f', ac:'#dbb066'},
+  {k:'nacre', name:'Nacre (clair)', bg:'#f7f8fb', up:'#eaeef2', ac:'#a67a24'}
+];
+const curTheme = () => THEMES.find(t => t.k === store.get('theme', 'cierge')) || THEMES[0];
+function applyTheme() {
+  const t = curTheme();
+  if (t.k === 'cierge') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t.k;
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t.k === 'nacre' ? '#18294a' : t.bg;
+}
+function setTheme(k) { store.set('theme', k); applyTheme(); render(true); }
 function setCfg(k, v) { S.cfg[k] = v; store.set('cfg', S.cfg); render(true); updateUI(); if (S.full && S.pview === 'lyrics') { renderPBody(); } pokeControls(); }
 
 $('#player').addEventListener('pointerdown', () => pokeControls(), true);
@@ -1738,6 +1777,7 @@ document.addEventListener('click', e => {
     case 'squit': S.sync = null; renderPBody(); updateUI(); pokeControls(); toast('Synchronisation annulée'); break;
     case 'cfg': setCfg(el.dataset.k, !S.cfg[el.dataset.k]); break;
     case 'lsz': setCfg('lsize', +el.dataset.v); break;
+    case 'theme': setTheme(el.dataset.v); break;
     case 'skipsec': setCfg('skipSec', +el.dataset.v); break;
     case 'skip': seek(S.t + (+el.dataset.d) * S.cfg.skipSec); pokeControls(); break;
     case 'wseek': {
@@ -1800,6 +1840,7 @@ $('#tab-library').innerHTML = ic('library') + 'Bibliothèque';
 $('#tab-search').innerHTML = ic('search', 24);
 S.queue = listIds('period:annuel'); S.qi = 0; S.qFrom = PERIODS.annuel.name;
 load(S.recent.find(id => TR[id]) || S.queue[0]);
+applyTheme();
 render();
 requestAnimationFrame(tick);
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
