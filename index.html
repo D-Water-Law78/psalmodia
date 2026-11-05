@@ -902,7 +902,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '05.11.2026 · 6a50a55b61'; // remplacé par tools/build.sh
+const APP_VERSION = '05.11.2026 · fb7b3f3432'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1145,7 +1145,7 @@ let simLast = performance.now();
    personnelle, vers le compteur GoatCounter : chemin /e/<m|a>/<appareil>/<date>/<chant>/<c|p>/<secondes>
    (m = l'iPhone du propriétaire, a = les autres ; c = écouté jusqu'au bout, p = en partie). La date est dans le
    chemin : une écoute gardée en attente (hors connexion, compteur pas encore prêt) garde son vrai jour. */
-const GC = '';   // adresse du compteur, ex. 'psalmodia' pour https://psalmodia.goatcounter.com
+const GC = 'psalmodia';   // adresse du compteur, ex. 'psalmodia' pour https://psalmodia.goatcounter.com
 const EC = {
   dev: store.get('dev', null) || (() => { const d = Math.random().toString(36).slice(2, 8); store.set('dev', d); return d; })(),
   cur: store.get('ecEnCours', null), last: null, saveAt: 0,
