@@ -953,7 +953,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '10.11.2026 · 1897dfbf4c'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · 5edfa1498e'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1101,7 +1101,7 @@ function renderLibrary() {
 /* ---------- Recherche ----------
    Les titres coptes se cherchent au clavier français, comme on les prononce : « ten thino », « tai shori », « esveti anastasis ».
    Copte, translittérations et fautes de frappe sont ramenés à un même squelette (canon), puis comparés avec une petite tolérance (fuzzy). */
-const COP_LAT = {'ⲁ':'a','ⲃ':'v','ⲅ':'g','ⲇ':'d','ⲉ':'e','ⲍ':'z','ⲏ':'i','ⲑ':'th','ⲓ':'i','ⲕ':'k','ⲗ':'l','ⲙ':'m','ⲛ':'n','ⲝ':'ks','ⲟ':'o','ⲡ':'p','ⲣ':'r','ⲥ':'s','ⲧ':'t','ⲫ':'f','ⲭ':'kh','ⲯ':'ps','ⲱ':'o','ϣ':'sh','ϥ':'f','ϧ':'kh','ϩ':'h','ϫ':'g','ϭ':'sh','ϯ':'ti','ⲋ':'s'};
+const COP_LAT = {'ⲁ':'a','ⲃ':'v','ⲅ':'g','ⲇ':'d','ⲉ':'e','ⲍ':'z','ⲏ':'i','ⲑ':'th','ⲓ':'i','ⲕ':'k','ⲗ':'l','ⲙ':'m','ⲛ':'n','ⲝ':'x','ⲟ':'o','ⲡ':'p','ⲣ':'r','ⲥ':'s','ⲧ':'t','ⲫ':'f','ⲭ':'kh','ⲯ':'ps','ⲱ':'o','ϣ':'sh','ϥ':'f','ϧ':'kh','ϩ':'h','ϫ':'g','ϭ':'sh','ϯ':'ti','ⲋ':'s'};
 // copte → lettres latines (ⲩ : v après ⲁ/ⲉ/ⲏ, u après ⲟ, sinon i)
 function copLat(s) {
   const c = String(s || '').toLowerCase().replace(/\p{M}/gu, '');
@@ -1115,26 +1115,64 @@ function copLat(s) {
 }
 // squelette phonétique : th=t, ph=f, ch/sh=S, ou/u/o/w=o, e/i/y=i, h muet, lettres doublées simples
 function canon(s) {
-  s = copLat(s).normalize('NFD').replace(/\p{M}/gu, '').replace(/œ|æ/g, 'e').replace(/[^a-z]/g, '');
-  return s.replace(/sch|sh|ch/g, 'S').replace(/c(?=[eiy])/g, 's').replace(/c/g, 'k')
-    .replace(/ph/g, 'f').replace(/th/g, 't').replace(/kh/g, 'k').replace(/gh/g, 'g').replace(/dj|j/g, 'g').replace(/q/g, 'k').replace(/x/g, 'ks')
+  s = copLat(s).normalize('NFD').replace(/\p{M}/gu, '').replace(/œ/g, 'oe').replace(/æ/g, 'e').replace(/[^a-z]/g, '');
+  // c : « ch » = ϣ, c devant e/i ou devant une consonne = s (le ⲥ copte a la forme d'un c : « ctavros »), sinon k
+  return s.replace(/t?sch|t?sh|t?ch/g, 'S').replace(/c(?=[eiybdfgjlmnpstvz]|$)/g, 's').replace(/c/g, 'k')
+    .replace(/ph/g, 'f').replace(/th/g, 't').replace(/kh/g, 'k').replace(/gh/g, 'g').replace(/dj|j/g, 'g').replace(/q/g, 'k').replace(/ks/g, 'x')
     .replace(/ou|w|u/g, 'o').replace(/[ey]/g, 'i').replace(/h/g, '').replace(/(.)\1+/g, '$1');
 }
 // arabe : sans voyelles brèves ni tatwil, hamzas et alifs ramenés à la lettre simple, sans espaces
 const arNorm = s => String(s || '').normalize('NFKD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u0640\u06D6-\u06ED]/g, '').replace(/\u0671/g, '\u0627').replace(/\u0649/g, '\u064A').replace(/\u0629/g, '\u0647').replace(/[^\u0621-\u064A]/g, '');
 const isAr = s => /[\u0600-\u06FF]/.test(s);
 const VOW = 'aio';
-const NEAR = {bv:.2, bp:.3, ts:.5, Ss:.5, Sk:.6, kg:.5, dt:.5, fv:.6, sz:.4, mn:.6, io:.6, ai:.7, ao:.7};
+// sons voisins (copte bohaïrique, prononciation grecque ou arabe) : ⲃ v/b, ⲡ p/b, ⲫ f/p, ⲑ t/s, ⲇ ϯ d/t, ϣ ϭ ⲭ sh/s/k,
+// ϫ ϭ g/j/ch, ⲝ ϧ x/k, ⲩ v/f/i/u, ⲥ s/z, voyelles proches
+const NEAR = {bv:.2, bp:.3, fp:.4, fv:.3, ts:.3, dt:.4, Ss:.3, Sk:.4, Sg:.4, kg:.4, xk:.3, xS:.4, xs:.5, sz:.3, gi:.5, mn:.6, io:.5, ai:.6, ao:.6};
 const subC = (a, b) => a === b ? 0 : NEAR[a + b] ?? NEAR[b + a] ?? 1;
 const indC = c => VOW.includes(c) ? .5 : 1;   // une voyelle oubliée ou ajoutée coûte peu
-// meilleure ressemblance de q dans un morceau de t : { c : coût, s : début dans t }
-function fuzzy(q, t) {
-  const m = q.length, n = t.length;
+/* Un texte cherchable : son squelette (t) et l'endroit où commence chaque mot (b).
+   Une recherche part toujours du début d'un mot, comme sur Apple Music : « d » ne trouve pas « Ayad ». */
+const WSEP = /[\s\-–—·,.;:!?'’«»()\/"]+/;
+// petits mots du français (et al-/el- des noms) : on ne part d'eux que si la recherche est assez longue (« de tout cœur »)
+const PETITS = new Set(['de', 'du', 'des', 'd', 'la', 'le', 'les', 'l', 'el', 'al', 'et', 'a', 'à', 'au', 'aux', 'en', 'ô', 'o', 'un', 'une']);
+// copte : article ou préfixe collé au mot (ⲡⲓⲥ̀ⲧⲁⲩⲣⲟⲥ, ϯϣⲟⲩⲣⲓ, ⲛ̀ⲥⲱⲕ…) ; on peut aussi partir juste après
+const COP_PRE = /^(?:ⲡⲓ|ⲛⲓ|ⲡⲉⲛ|ⲧⲉⲛ|ⲛⲉⲛ|ϯ(?=\P{M})|\P{M}\u0300)/u;
+function words(s, conv, fr) {
+  let t = '', b = [], bp = [];
+  String(s || '').split(WSEP).forEach(w => {
+    const c = conv(w); if (!c) return;
+    let k = 0; if (t && t[t.length - 1] === c[0]) k = 1;   // lettre doublée d'un mot à l'autre : comptée une fois, comme dans la recherche
+    (fr && PETITS.has(w.toLowerCase()) ? bp : b).push(t.length - k);
+    const lw = w.toLowerCase(), pre = !fr && lw.match(COP_PRE);
+    if (pre) { const r = conv(lw.slice(pre[0].length)); if (r && c.endsWith(r) && r.length < c.length) bp.push(t.length - k + c.length - r.length); }
+    t += c.slice(k);
+  });
+  return { t, b, bp };
+}
+// forme plus fine pour départager les ex aequo : th ≠ t, e ≠ i (« thino » : Ⲧⲉⲛ ⲑⲏⲛⲟⲩ avant Ⲧⲉⲛⲟⲩⲉϩ)
+const fine = s => copLat(s).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/œ/g, 'oe').replace(/[^a-z]/g, '')
+  .replace(/t?sch|t?sh|t?ch/g, 'S').replace(/c(?=[eiybdfgjlmnpstvz]|$)/g, 's').replace(/c/g, 'k').replace(/ph/g, 'f').replace(/kh/g, 'k').replace(/dj|j/g, 'g').replace(/q/g, 'k').replace(/ks/g, 'x').replace(/ou|w|u/g, 'o').replace(/y/g, 'i').replace(/(?<!t)h/g, '').replace(/(.)\1+/g, '$1');
+const wordsLat = s => words(s, canon, true);
+// arabe : on peut aussi commencer après l'article ou une préposition collée (الرب → رب, وبرحمتك → رحمتك)
+function wordsAr(list) {
+  let t = '', b = [], o = [];
+  list.forEach(w => {
+    const c = arNorm(w); o.push(t.length); if (!c) return;
+    b.push(t.length);
+    const m = c.match(/^(?:و|ف)?(?:ب|ل|ك)?(?:ال)?/)[0].length; if (m && m < c.length) b.push(t.length + m);
+    t += c;
+  });
+  return { t, b, o };
+}
+// meilleure ressemblance de q dans t, en partant d'un début de mot : { c : coût, s : début dans t }
+function fuzzy(q, T) {
+  const t = T.t, m = q.length, n = t.length, st0 = new Uint8Array(n + 1);
+  T.b.forEach(x => { st0[x] = 1; }); (T.bp || []).forEach(x => { st0[x] = 1; });
   let pv = new Float32Array(m + 1), cu = new Float32Array(m + 1), ps = new Int32Array(m + 1), cs = new Int32Array(m + 1);
-  for (let i = 1; i <= m; i++) pv[i] = pv[i - 1] + indC(q[i - 1]);
-  let best = pv[m], bs = 0;
+  for (let i = 1; i <= m; i++) pv[i] = st0[0] ? pv[i - 1] + indC(q[i - 1]) : 99;
+  let best = 99, bs = 0;
   for (let j = 1; j <= n; j++) {
-    const tc = t[j - 1]; cu[0] = 0; cs[0] = j;
+    const tc = t[j - 1]; cu[0] = st0[j] ? 0 : 99; cs[0] = j;
     for (let i = 1; i <= m; i++) {
       let v = pv[i - 1] + subC(q[i - 1], tc), st = ps[i - 1];
       const a = cu[i - 1] + indC(q[i - 1]); if (a < v) { v = a; st = cs[i - 1]; }
@@ -1146,24 +1184,37 @@ function fuzzy(q, t) {
   }
   return { c: best, s: bs };
 }
-const tol = m => m < 3 ? 0 : m < 5 ? .5 : m < 7 ? .7 : m < 10 ? 1.2 : Math.min(2.5, 1.2 + (m - 9) * .2);
-// Phrase cherchée, préparée une fois : squelette latin/copte, ou arabe normalisé
-function prepQ(q) { q = String(q || '').trim(); return isAr(q) ? { ar: arNorm(q), n: arNorm(q).length } : { c: canon(q), n: canon(q).length }; }
-const hit = (Q, txt, fz, k = 1) => { if (!txt) return null; const i = txt.indexOf(Q.c); if (i >= 0) return { c: 0, s: i }; if (!fz || Q.n < 3) return null; const r = fuzzy(Q.c, txt); return r.c <= tol(Q.n) * k ? r : null; };
+// fautes tolérées : aucune avant 4 lettres, puis un peu plus à mesure que la recherche s'allonge
+const tol = m => m < 3 ? 0 : m < 4 ? .3 : m < 6 ? .7 : m < 9 ? 1.2 : Math.min(2.2, 1.2 + (m - 8) * .2);
+// Phrase cherchée, préparée une fois : squelette latin/copte (et chaque mot à part), ou arabe normalisé
+function prepQ(q) {
+  q = String(q || '').trim();
+  if (isAr(q)) { const a = arNorm(q); return { ar: a, n: a.length }; }
+  const c = canon(q), ws = q.split(WSEP).map(canon).filter(Boolean);
+  return { c, n: c.length, ws, f: fine(q) };
+}
+// q au début d'un mot de T : exact d'abord (coût 0), puis à peu près si on l'autorise
+function hit(Q, T, fz, k = 1) {
+  if (!T || !T.t) return null;
+  const q = Q.c; let i = T.t.indexOf(q);
+  while (i >= 0) { if (T.b.includes(i)) return { c: 0, s: i }; if (Q.n >= 4 && T.bp && T.bp.includes(i)) return { c: .05, s: i }; i = T.t.indexOf(q, i + 1); }
+  if (!fz || Q.n < 3) return null;
+  const r = fuzzy(q, T); return r.c <= tol(Q.n) * k + 1e-3 ? r : null;
+}
+const hitAr = (q, T) => { let i = T.t.indexOf(q); while (i >= 0) { if (T.b.includes(i)) return { c: 0, s: i }; i = T.t.indexOf(q, i + 1); } return null; };
 // Index des paroles : chaque ligne en squelette (copte avec la place de chaque mot), français et arabe
-let LIDX = null;
 function lineIdx(v) {
-  const r = { f: canon(v.fr), a: v.ar ? arNorm(v.ar) : '' };
-  if (v.w) { let c = '', o = []; v.w.forEach(w => { o.push(c.length); c += canon(w.x); }); r.c = c; r.o = o; }
-  if (v.ar) { let a = '', o = []; unitsOf(v).forEach(w => { o.push(a.length); a += arNorm(w); }); r.a = a; r.ao = o; }
+  const r = { f: wordsLat(v.fr) };
+  if (v.w) { const W = { t: '', b: [], bp: [], o: [] }; v.w.forEach(w => { const x = words(w.x, canon); W.o.push(W.t.length); x.b.forEach(i => W.b.push(W.t.length + i)); x.bp.forEach(i => W.bp.push(W.t.length + i)); W.t += x.t; }); r.c = W; }
+  if (v.ar) r.a = wordsAr(unitsOf(v));
   return r;
 }
 const trIdx = t => t.L ? (t._li = t._li || t.L.v.map(lineIdx)) : null;
 // Ligne trouvée → temps où sauter (le mot précis quand on le connaît)
 function lineTime(v, r, where, s) {
   const st = vStart(v);
-  if (where === 'c' && v.w) { let k = 0; r.o.forEach((x, i) => { if (x <= s) k = i; }); return v.w[k].t ?? st; }
-  if (where === 'a' && v.wt) { let k = 0; r.ao.forEach((x, i) => { if (x <= s) k = i; }); return v.wt[k] ?? st; }
+  if (where === 'c' && v.w) { let k = 0; r.c.o.forEach((x, i) => { if (x <= s) k = i; }); return v.w[k].t ?? st; }
+  if (where === 'a' && v.wt) { let k = 0; r.a.o.forEach((x, i) => { if (x <= s) k = i; }); return v.wt[k] ?? st; }
   return st;
 }
 // Lignes d'un chant qui correspondent : [{ vi, t, c }]
@@ -1171,8 +1222,8 @@ function findInTrack(t, Q, fz) {
   const L = t.L, I = trIdx(t); if (!I) return [];
   const out = [];
   I.forEach((r, vi) => {
-    const v = L.v[vi]; let h, w;
-    if (Q.ar != null) { const i = r.a.indexOf(Q.ar); if (i >= 0) { h = { c: 0, s: i }; w = 'a'; } }
+    const v = L.v[vi]; let h = null, w;
+    if (Q.ar != null) { if (r.a && (h = hitAr(Q.ar, r.a))) w = 'a'; }
     else {
       const hc = hit(Q, r.c, fz), hf = hit(Q, r.f, fz && !r.c);   // le français n'est cherché à peu près que s'il est chanté
       h = hc && (!hf || hc.c <= hf.c) ? hc : hf; w = h === hc ? 'c' : 'f';
@@ -1181,21 +1232,47 @@ function findInTrack(t, Q, fz) {
   });
   return out;
 }
+// Mots des noms de chantres : retirés des identifiants des chants (sinon « ayad » sortirait par l'identifiant au lieu du chantre)
+let CHW = null;
+const chWords = () => CHW || (CHW = new Set(Object.entries(CH).flatMap(([k, c]) => [canon(k), ...String(c.name).split(WSEP).map(canon)]).filter(Boolean)));
+function trKeys(t) {
+  if (t._k) return t._k;
+  const idw = t.user ? '' : t.id.split('-').filter(w => !chWords().has(canon(w))).join(' ');
+  const per = [(PERIODS[t.p] || PERIODS.annuel).name, t.p2 && PERIODS[t.p2] && PERIODS[t.p2].name, ...secsOf(t), OFFICES[t.of], COLS[t.col], t.col === 'messe' && MOMENTS[momentOf(t)]].filter(Boolean).join(' ');
+  return t._k = { cop: words(t.cop, canon), ti: wordsLat(t.ti), id: words(idw, canon), x: wordsLat([t.note, per].filter(Boolean).join(' ')), ch: wordsLat(chName(t)),
+    f: [words(t.cop, fine), words(t.ti, fine, true), words(idw, fine)] };
+}
 function searchAll(q) {
   const Q = prepQ(q), R = { ch: [], tr: [], ly: [] };
   if (!Q.n) return R;
   if (Q.c != null) {
-    R.ch = chOrdre().map(([id, c]) => { const h = hit(Q, c._k = c._k || canon(c.name), true, .6); return h && { id, c: h.c }; }).filter(Boolean).sort((a, b) => a.c - b.c);
+    // chantres : début d'un mot du nom (une faute tolérée seulement dans une recherche longue)
+    R.ch = chOrdre().map(([id, c]) => { const h = hit(Q, c._k = c._k || wordsLat(c.name), true, .6); return h && { id, c: h.c }; }).filter(Boolean).sort((a, b) => a.c - b.c);
     TRACKS.forEach(t => {
-      if (!t._k) t._k = { cop: canon(t.cop), ti: canon(t.ti), id: t.user ? '' : canon(t.id), x: canon([t.note, (PERIODS[t.p] || PERIODS.annuel).name, t.p2 && PERIODS[t.p2] && PERIODS[t.p2].name, ...secsOf(t)].filter(Boolean).join(' ')) };
-      const k = t._k;
-      const hs = [[hit(Q, k.cop, true), 0], [hit(Q, k.ti, true), .05], [hit(Q, k.id, true), .1], [hit(Q, k.x, false), .8]].filter(h => h[0]).map(([h, b]) => h.c + b + (h.s ? .02 : 0));
+      const k = trKeys(t);
+      const hs = [[hit(Q, k.cop, true), 0], [hit(Q, k.ti, true), .05], [hit(Q, k.id, true), .1], [hit(Q, k.x, false), .6]].filter(h => h[0]).map(([h, b]) => h.c + b + (h.s ? .02 : 0));
+      if (hs.length) hs[0] = Math.min(...hs) - (k.f.some(T => hit({ c: Q.f, n: Q.n }, T, false)) ? .08 : 0);
+      // plusieurs mots, dans n'importe quel ordre : chacun doit commencer un mot quelque part (titre, chantre, période) — « basile ayad », « anastasis ethve »
+      if (Q.ws.length > 1) {
+        let tot = .3;
+        const fws = q.split(WSEP).map(fine).filter(Boolean);
+        for (const [wi, w] of Q.ws.entries()) {
+          const W = { c: w, n: w.length };
+          if (fws[wi] && k.f.some(T => hit({ c: fws[wi], n: w.length }, T, false))) tot -= .04;   // départage fin, mot par mot
+          const c = Math.min(...[[k.cop, 0], [k.ti, .05], [k.id, .1], [k.x, .3], [k.ch, .3]].map(([T, b]) => { const h = hit(W, T, b < .3); return h ? h.c + b : 9; }));
+          tot += c; if (tot > 5) break;
+        }
+        if (tot < 5) hs.push(tot);
+      }
       if (hs.length) R.tr.push({ id: t.id, c: Math.min(...hs) });
     });
+    // quand des titres correspondent exactement, les ressemblances lointaines ne font que du bruit
+    const best = Math.min(9, ...R.tr.map(x => x.c));
+    R.tr = R.tr.filter(x => x.c <= Math.max(.7, best + .5));
     const order = new Map(sortTracks(TRACKS).map((t, i) => [t.id, i]));
     R.tr.sort((a, b) => a.c - b.c || order.get(a.id) - order.get(b.id));
   }
-  if (Q.n >= 3) TRACKS.forEach(t => { const f = findInTrack(t, Q, false); if (f.length) R.ly.push({ id: t.id, ...f[0], n: f.length }); });
+  if (Q.n >= (Q.ar != null ? 2 : 3)) TRACKS.forEach(t => { const f = findInTrack(t, Q, false); if (f.length) R.ly.push({ id: t.id, ...f[0], n: f.length }); });
   return R;
 }
 function renderSearch() {
@@ -1214,7 +1291,7 @@ function renderResults(q) {
   const others = R.tr.map(x => x.id).filter(id => !mine.includes(id));
   S.results = [...mine, ...others];
   S.lresults = R.ly.map(x => x.id);
-  const chH = R.ch.length ? `<div class="sh"><h2>Chantre${R.ch.length > 1 ? 's' : ''}</h2></div>` + R.ch.slice(0, 8).map(({ id }) => { const c = CH[id]; return `<button class="lrow srch-ch" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c, 'md')}<span class="nm"><b>${esc(c.name)}</b><small>Chantre · ${listIds('chanter:' + id).length} chants</small></span>${ic('chev', 18)}</button>`; }).join('') : '';
+  const chH = R.ch.length ? `<div class="sh"><h2>Chantre${R.ch.length > 1 ? 's' : ''}</h2></div>` + R.ch.slice(0, 8).map(({ id }) => { const c = CH[id]; return `<button class="lrow srch-ch" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c, 'md')}<span class="nm"><b>${esc(c.name)}</b><small>Chantre · ${(n => n + ' chant' + (n > 1 ? 's' : ''))(listIds('chanter:' + id).length)}</small></span>${ic('chev', 18)}</button>`; }).join('') : '';
   const mineH = mine.length ? `<div class="sh"><h2>Chants de ${esc(CH[top].name)}</h2></div>` + mine.map((id, i) => rowHTML(TR[id], 'search', i)).join('') : '';
   const trH = others.length ? `<div class="sh"><h2>${mine.length ? 'Autres titres' : 'Titres'}</h2></div>` + others.map((id, i) => rowHTML(TR[id], 'search', mine.length + i)).join('') : '';
   const lyH = R.ly.length ? `<div class="sh"><h2>Dans les paroles</h2></div>` + R.ly.map((x, i) => { const t = TR[x.id], v = t.L.v[x.vi]; return `<div class="row lhit" data-act="play" data-list="lsearch" data-i="${i}" data-t="${x.t ?? ''}" role="button" tabindex="0">${artHTML(t.p, glyphOf(t), 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${x.t != null ? fmt(x.t) + ' · ' : ''}${lineHTML(v)}${x.n > 1 ? ` <span class="more">+${x.n - 1}</span>` : ''}</div></div></div>`; }).join('') : '';
