@@ -510,6 +510,7 @@ const IC = {
   person:'<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.8-3.8 3.8-5.8 7.5-5.8s6.7 2 7.5 5.8"/>',
   list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   pencil:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+  trash:'<path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/>',
   gear:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/>',
   calendar:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   loop:'<path d="M7 7h10a4 4 0 0 1 0 8h-1M17 17H7a4 4 0 0 1 0-8h1"/>',
@@ -920,7 +921,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '09.11.2026 · 0c403ed91c'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · 32eee916d0'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1210,6 +1211,13 @@ const EC = {
 };
 A.addEventListener('timeupdate', () => EC.avance(A.currentTime, A.duration));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && EC.cur) store.set('ecEnCours', EC.cur); else EC.envoyer(); });
+// L'appli peut rester ouverte plusieurs jours sur l'iPhone : la date copte et la période sont calculées au lancement,
+// donc on recharge au retour si le jour a changé (pas pendant une écoute).
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  const n = new Date();
+  if (n.toDateString() !== now0.toDateString() && A.paused) location.reload();
+});
 addEventListener('online', () => EC.envoyer());
 
 function load(id) {
@@ -1835,6 +1843,7 @@ function menuHTML() {
   <button class="mi" data-act="repeat" data-keep="1">Répéter<span class="val">${['Non', 'La liste', 'Ce chant'][S.repeat]}</span></button>
   <button class="mi" data-act="attach" data-id="${tr.id}" data-close="1">${tr.src ? 'Remplacer le fichier audio' : 'Associer un fichier audio'}${ic('import')}</button>
   <button class="mi" data-act="edit" data-id="${tr.id}">Modifier les infos${ic('pencil')}</button>
+  ${tr.user ? `<button class="mi" data-act="delcustom" data-id="${tr.id}" data-close="1">Supprimer ce fichier de l’iPhone${ic('trash')}</button>` : ''}
   <button class="mi" data-act="goto" data-type="period" data-id="${tr.p}" data-close="1">Voir « ${P.name} »${ic('calendar')}</button>
   ${[tr.ch, tr.ch2].filter(k => CH[k]).map(k => `<button class="mi" data-act="goto" data-type="chanter" data-id="${k}" data-close="1">Voir ${esc(CH[k].name)}${ic('person')}</button>`).join('')}
   <button class="mi" data-act="goto" data-type="settings" data-id="s" data-close="1">Réglages du lecteur${ic('gear')}</button>`;
@@ -1970,6 +1979,21 @@ document.addEventListener('click', e => {
     case 'dl': downloadMissing(); break;
     case 'import': attachTarget = null; $('#importInput').click(); break;
     case 'attach': attachTarget = el.dataset.id; $('#importInput').click(); break;
+    case 'delcustom': {
+      // Fichier importé sur cet appareil : on efface son audio et sa fiche, puis on recharge
+      const id = el.dataset.id, t = TR[id];
+      if (!t || !t.user || !confirm(`Supprimer « ${t.ti} » de cet iPhone ?`)) break;
+      try { A.pause(); } catch (e) {}
+      (async () => {
+        try { await DB.del(id); } catch (e) {}
+        try { const c = await caches.open(AUDIO_CACHE); await c.delete('audio/' + encodeURIComponent(id)); } catch (e) {}
+        store.set('custom', CUSTOM.filter(r => r.id !== id));
+        delete META[id]; store.set('meta', META);
+        S.fav.delete(id); store.set('fav', [...S.fav]);
+        location.reload();
+      })();
+      break;
+    }
     case 'exportsync': {
       const out = {}; TRACKS.forEach(t => { const s = store.get('sync2:' + t.id, null); if (s) out[t.id] = s; });
       const txt = JSON.stringify(out);
