@@ -953,7 +953,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '10.11.2026 · 5edfa1498e'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · 02a42dfa0f'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1115,7 +1115,7 @@ function copLat(s) {
 }
 // squelette phonétique : th=t, ph=f, ch/sh=S, ou/u/o/w=o, e/i/y=i, h muet, lettres doublées simples
 function canon(s) {
-  s = copLat(s).normalize('NFD').replace(/\p{M}/gu, '').replace(/œ/g, 'oe').replace(/æ/g, 'e').replace(/[^a-z]/g, '');
+  s = copLat(s).normalize('NFD').replace(/\p{M}/gu, '').replace(/œ/g, 'oe').replace(/æ/g, 'e').replace(/[^a-z0-9]/g, '');
   // c : « ch » = ϣ, c devant e/i ou devant une consonne = s (le ⲥ copte a la forme d'un c : « ctavros »), sinon k
   return s.replace(/t?sch|t?sh|t?ch/g, 'S').replace(/c(?=[eiybdfgjlmnpstvz]|$)/g, 's').replace(/c/g, 'k')
     .replace(/ph/g, 'f').replace(/th/g, 't').replace(/kh/g, 'k').replace(/gh/g, 'g').replace(/dj|j/g, 'g').replace(/q/g, 'k').replace(/ks/g, 'x')
@@ -1191,7 +1191,7 @@ function prepQ(q) {
   q = String(q || '').trim();
   if (isAr(q)) { const a = arNorm(q); return { ar: a, n: a.length }; }
   const c = canon(q), ws = q.split(WSEP).map(canon).filter(Boolean);
-  return { c, n: c.length, ws, f: fine(q) };
+  return { c, n: c.length, ws, f: fine(q), pw: plainW(q) };
 }
 // q au début d'un mot de T : exact d'abord (coût 0), puis à peu près si on l'autorise
 function hit(Q, T, fz, k = 1) {
@@ -1202,9 +1202,25 @@ function hit(Q, T, fz, k = 1) {
   const r = fuzzy(q, T); return r.c <= tol(Q.n) * k + 1e-3 ? r : null;
 }
 const hitAr = (q, T) => { let i = T.t.indexOf(q); while (i >= 0) { if (T.b.includes(i)) return { c: 0, s: i }; i = T.t.indexOf(q, i + 1); } return null; };
-// Index des paroles : chaque ligne en squelette (copte avec la place de chaque mot), français et arabe
+/* Français (titres, notes, noms, traductions) : on cherche les vrais mots, sans accents, jamais au son.
+   Une phrase se cherche mot après mot dans l'ordre, le dernier mot peut n'être que commencé (« je sa » → « Je sais que… »). */
+const plain = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/œ/g, 'oe').replace(/æ/g, 'ae').replace(/[^a-z0-9]/g, '');
+const plainW = s => String(s || '').split(WSEP).map(plain).filter(Boolean);
+const petit = (qw, w) => qw.length === 1 && qw[0].length < 3 && PETITS.has(w);   // « d » ne part pas de « de »
+function phraseAt(qw, W) {
+  const n = qw.length; if (!n || !W) return -1;
+  for (let j = 0; j + n <= W.length; j++) {
+    if (petit(qw, W[j])) continue;
+    let ok = true;
+    for (let i = 0; i < n && ok; i++) ok = i < n - 1 ? W[j + i] === qw[i] : W[j + i].startsWith(qw[i]);
+    if (ok) return j;
+  }
+  return -1;
+}
+const allIn = (qw, W) => qw.every(q => W.some(w => w.startsWith(q) && !petit(qw, w)));
+// Index des paroles : chaque ligne en squelette copte (avec la place de chaque mot), mots français, arabe
 function lineIdx(v) {
-  const r = { f: wordsLat(v.fr) };
+  const r = { p: plainW(v.fr) };
   if (v.w) { const W = { t: '', b: [], bp: [], o: [] }; v.w.forEach(w => { const x = words(w.x, canon); W.o.push(W.t.length); x.b.forEach(i => W.b.push(W.t.length + i)); x.bp.forEach(i => W.bp.push(W.t.length + i)); W.t += x.t; }); r.c = W; }
   if (v.ar) r.a = wordsAr(unitsOf(v));
   return r;
@@ -1217,20 +1233,19 @@ function lineTime(v, r, where, s) {
   if (where === 'a' && v.wt) { let k = 0; r.a.o.forEach((x, i) => { if (x <= s) k = i; }); return v.wt[k] ?? st; }
   return st;
 }
-// Lignes d'un chant qui correspondent : [{ vi, t, c }]
+// Lignes d'un chant qui correspondent : [{ vi, t, c }]. Le français d'abord ; le copte au son seulement si le français ne donne rien.
 function findInTrack(t, Q, fz) {
   const L = t.L, I = trIdx(t); if (!I) return [];
   const out = [];
+  if (Q.ar != null) { I.forEach((r, vi) => { const h = r.a && hitAr(Q.ar, r.a); if (h) out.push({ vi, t: lineTime(L.v[vi], r, 'a', h.s), c: 0 }); }); return out; }
+  I.forEach((r, vi) => { if (phraseAt(Q.pw, r.p) >= 0) out.push({ vi, t: vStart(L.v[vi]), c: 0, fr: true }); });
+  const frOnly = out.length > 0;
   I.forEach((r, vi) => {
-    const v = L.v[vi]; let h = null, w;
-    if (Q.ar != null) { if (r.a && (h = hitAr(Q.ar, r.a))) w = 'a'; }
-    else {
-      const hc = hit(Q, r.c, fz), hf = hit(Q, r.f, fz && !r.c);   // le français n'est cherché à peu près que s'il est chanté
-      h = hc && (!hf || hc.c <= hf.c) ? hc : hf; w = h === hc ? 'c' : 'f';
-    }
-    if (h) out.push({ vi, t: lineTime(v, r, w, h.s), c: h.c });
+    if (!r.c || out.some(o => o.vi === vi)) return;
+    const h = hit(Q, r.c, fz && !frOnly);
+    if (h) out.push({ vi, t: lineTime(L.v[vi], r, 'c', h.s), c: h.c });
   });
-  return out;
+  return out.sort((a, b) => a.vi - b.vi);
 }
 // Mots des noms de chantres : retirés des identifiants des chants (sinon « ayad » sortirait par l'identifiant au lieu du chantre)
 let CHW = null;
@@ -1239,40 +1254,64 @@ function trKeys(t) {
   if (t._k) return t._k;
   const idw = t.user ? '' : t.id.split('-').filter(w => !chWords().has(canon(w))).join(' ');
   const per = [(PERIODS[t.p] || PERIODS.annuel).name, t.p2 && PERIODS[t.p2] && PERIODS[t.p2].name, ...secsOf(t), OFFICES[t.of], COLS[t.col], t.col === 'messe' && MOMENTS[momentOf(t)]].filter(Boolean).join(' ');
-  return t._k = { cop: words(t.cop, canon), ti: wordsLat(t.ti), id: words(idw, canon), x: wordsLat([t.note, per].filter(Boolean).join(' ')), ch: wordsLat(chName(t)),
-    f: [words(t.cop, fine), words(t.ti, fine, true), words(idw, fine)] };
+  // premier vers des paroles : il sert de titre (« Je sais que Tu es bon » = Ϯⲥⲱⲟⲩⲛ ϫⲉ ⲛ̀ⲑⲟⲕ)
+  const v0 = t.L && t.L.v[0], v1 = t.L && t.L.v[1];
+  return t._k = {
+    cop: words(t.cop, canon), id: words(idw, canon), ti: words(t.ti, canon, true),
+    tiW: plainW(t.ti), xW: plainW([t.note, per].filter(Boolean).join(' ')), chW: plainW(chName(t)),
+    incW: v0 ? plainW([v0.fr, v1 && v1.fr].filter(Boolean).join(' ')) : [],
+    incC: v0 && v0.w ? words(v0.w.map(w => w.x).join(' '), canon) : null,
+    incA: v0 && v0.ar ? wordsAr(unitsOf(v0)) : null,
+    f: [words(t.cop, fine), words(idw, fine)] };
 }
 function searchAll(q) {
   const Q = prepQ(q), R = { ch: [], tr: [], ly: [] };
   if (!Q.n) return R;
-  if (Q.c != null) {
-    // chantres : début d'un mot du nom (une faute tolérée seulement dans une recherche longue)
-    R.ch = chOrdre().map(([id, c]) => { const h = hit(Q, c._k = c._k || wordsLat(c.name), true, .6); return h && { id, c: h.c }; }).filter(Boolean).sort((a, b) => a.c - b.c);
+  const order = new Map(sortTracks(TRACKS).map((t, i) => [t.id, i]));
+  if (Q.ar != null) {
+    // arabe : le premier vers chanté sert de titre
+    TRACKS.forEach(t => { const k = trKeys(t); if (k.incA && hitAr(Q.ar, k.incA)) R.tr.push({ id: t.id, c: .1 }); });
+  } else {
+    const pw = Q.pw;
+    // chantres : les mots du nom (« mou », « abouna mina »), ou au son pour un nom mal écrit (« monir »)
+    R.ch = chOrdre().map(([id, c]) => {
+      const W = c._w = c._w || plainW(c.name);
+      if (allIn(pw, W)) return { id, c: phraseAt(pw, W) === 0 ? 0 : .05 };
+      const h = pw.length === 1 && Q.n >= 5 && hit(Q, c._k = c._k || wordsLat(c.name), true, .6);
+      return h ? { id, c: .3 + h.c } : null;
+    }).filter(Boolean).sort((a, b) => a.c - b.c);
     TRACKS.forEach(t => {
-      const k = trKeys(t);
-      const hs = [[hit(Q, k.cop, true), 0], [hit(Q, k.ti, true), .05], [hit(Q, k.id, true), .1], [hit(Q, k.x, false), .6]].filter(h => h[0]).map(([h, b]) => h.c + b + (h.s ? .02 : 0));
-      if (hs.length) hs[0] = Math.min(...hs) - (k.f.some(T => hit({ c: Q.f, n: Q.n }, T, false)) ? .08 : 0);
-      // plusieurs mots, dans n'importe quel ordre : chacun doit commencer un mot quelque part (titre, chantre, période) — « basile ayad », « anastasis ethve »
+      const k = trKeys(t), cs = [];
+      // 1. le français, mot pour mot
+      let j = phraseAt(pw, k.tiW); if (j >= 0) cs.push(j ? .03 : 0);
+      j = phraseAt(pw, k.incW); if (j >= 0) cs.push(j ? .2 : .05);
+      if (phraseAt(pw, k.xW) >= 0) cs.push(.6);
+      if (pw.length > 1 && allIn(pw, [...k.tiW, ...k.incW, ...k.xW, ...k.chW])) cs.push(.45);   // « basile ayad »
+      // 2. le copte, au son (titre copte, identifiant translittéré, premier vers chanté)
+      const ph = [[hit(Q, k.cop, true), 0], [hit(Q, k.id, true), .1], [hit(Q, k.incC, true), .15]].filter(h => h[0]).map(([h, b]) => h.c + b + (h.s ? .02 : 0));
+      if (ph.length) cs.push(Math.min(...ph) - (k.f.some(T => hit({ c: Q.f, n: Q.n }, T, false)) ? .08 : 0));
+      // plusieurs mots coptes dans n'importe quel ordre (« thino ten », « anastasis ethve »)
       if (Q.ws.length > 1) {
-        let tot = .3;
-        const fws = q.split(WSEP).map(fine).filter(Boolean);
+        let tot = .3; const fws = q.split(WSEP).map(fine).filter(Boolean);
         for (const [wi, w] of Q.ws.entries()) {
           const W = { c: w, n: w.length };
-          if (fws[wi] && k.f.some(T => hit({ c: fws[wi], n: w.length }, T, false))) tot -= .04;   // départage fin, mot par mot
-          const c = Math.min(...[[k.cop, 0], [k.ti, .05], [k.id, .1], [k.x, .3], [k.ch, .3]].map(([T, b]) => { const h = hit(W, T, b < .3); return h ? h.c + b : 9; }));
-          tot += c; if (tot > 5) break;
+          if (fws[wi] && k.f.some(T => hit({ c: fws[wi], n: w.length }, T, false))) tot -= .04;
+          const h = [[k.cop, 0], [k.id, .1]].map(([T, b]) => { const x = hit(W, T, true); return x ? x.c + b : 9; });
+          tot += Math.min(...h); if (tot > 5) break;
         }
-        if (tot < 5) hs.push(tot);
+        if (tot < 5) cs.push(tot);
       }
-      if (hs.length) R.tr.push({ id: t.id, c: Math.min(...hs) });
+      if (cs.length) R.tr.push({ id: t.id, c: Math.min(...cs) });
     });
-    // quand des titres correspondent exactement, les ressemblances lointaines ne font que du bruit
-    const best = Math.min(9, ...R.tr.map(x => x.c));
-    R.tr = R.tr.filter(x => x.c <= Math.max(.7, best + .5));
-    const order = new Map(sortTracks(TRACKS).map((t, i) => [t.id, i]));
-    R.tr.sort((a, b) => a.c - b.c || order.get(a.id) - order.get(b.id));
+    // rien du tout : on tolère une faute de frappe dans les titres français
+    if (!R.tr.length && Q.n >= 5) TRACKS.forEach(t => { const h = hit(Q, trKeys(t).ti, true); if (h) R.tr.push({ id: t.id, c: .4 + h.c }); });
   }
+  // dès qu'il y a de vrais résultats, les ressemblances lointaines ne font que du bruit
+  const best = Math.min(9, ...R.tr.map(x => x.c));
+  R.tr = R.tr.filter(x => x.c <= Math.max(.6, best + .5));
+  R.tr.sort((a, b) => a.c - b.c || order.get(a.id) - order.get(b.id));
   if (Q.n >= (Q.ar != null ? 2 : 3)) TRACKS.forEach(t => { const f = findInTrack(t, Q, false); if (f.length) R.ly.push({ id: t.id, ...f[0], n: f.length }); });
+  R.ly.sort((a, b) => (b.fr ? 1 : 0) - (a.fr ? 1 : 0) || order.get(a.id) - order.get(b.id));
   return R;
 }
 function renderSearch() {
@@ -1294,7 +1333,7 @@ function renderResults(q) {
   const chH = R.ch.length ? `<div class="sh"><h2>Chantre${R.ch.length > 1 ? 's' : ''}</h2></div>` + R.ch.slice(0, 8).map(({ id }) => { const c = CH[id]; return `<button class="lrow srch-ch" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c, 'md')}<span class="nm"><b>${esc(c.name)}</b><small>Chantre · ${(n => n + ' chant' + (n > 1 ? 's' : ''))(listIds('chanter:' + id).length)}</small></span>${ic('chev', 18)}</button>`; }).join('') : '';
   const mineH = mine.length ? `<div class="sh"><h2>Chants de ${esc(CH[top].name)}</h2></div>` + mine.map((id, i) => rowHTML(TR[id], 'search', i)).join('') : '';
   const trH = others.length ? `<div class="sh"><h2>${mine.length ? 'Autres titres' : 'Titres'}</h2></div>` + others.map((id, i) => rowHTML(TR[id], 'search', mine.length + i)).join('') : '';
-  const lyH = R.ly.length ? `<div class="sh"><h2>Dans les paroles</h2></div>` + R.ly.map((x, i) => { const t = TR[x.id], v = t.L.v[x.vi]; return `<div class="row lhit" data-act="play" data-list="lsearch" data-i="${i}" data-t="${x.t ?? ''}" role="button" tabindex="0">${artHTML(t.p, glyphOf(t), 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${x.t != null ? fmt(x.t) + ' · ' : ''}${lineHTML(v)}${x.n > 1 ? ` <span class="more">+${x.n - 1}</span>` : ''}</div></div></div>`; }).join('') : '';
+  const lyH = R.ly.length ? `<div class="sh"><h2>Dans les paroles</h2></div>` + R.ly.map((x, i) => { const t = TR[x.id], v = t.L.v[x.vi]; return `<div class="row lhit" data-act="play" data-list="lsearch" data-i="${i}" data-t="${x.t ?? ''}" role="button" tabindex="0">${artHTML(t.p, glyphOf(t), 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${x.t != null ? fmt(x.t) + ' · ' : ''}${x.fr ? esc(v.fr) : lineHTML(v)}${x.n > 1 ? ` <span class="more">+${x.n - 1}</span>` : ''}</div></div></div>`; }).join('') : '';
   box.innerHTML = chH || mineH || trH || lyH ? chH + mineH + trH + lyH + '<div style="height:10px"></div>' : `<p class="empty">Aucun chant pour « ${esc(q)} ».</p>`;
 }
 const sw = (k, label, sub) => `<div class="gr"><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><button class="sw" role="switch" aria-checked="${!!S.cfg[k]}" data-act="cfg" data-k="${k}" aria-label="${label}"></button></div>`;
