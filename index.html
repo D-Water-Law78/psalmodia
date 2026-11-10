@@ -124,6 +124,15 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .av.ph{background:var(--avph) center/cover no-repeat}
 .av.lg{width:150px;height:150px;font-size:50px}
 .av.sm{width:44px;height:44px;font-size:16px}
+.av.md{width:60px;height:60px;font-size:22px}
+/* Recherche : chantre en tête (photo ronde + nom), lignes de paroles trouvées */
+.srch-ch{gap:14px;padding:10px 0}
+.srch-ch .nm{flex:1;min-width:0;display:flex;flex-direction:column}
+.srch-ch b{font-weight:600;font-size:17px}
+.srch-ch small{color:var(--muted);font-size:13px;margin-top:2px}
+.srch-ch .ic{color:var(--faint)}
+.lhit .t2 .cop{font-size:1.12em}.lhit .t2 .ar{font-family:var(--f-ar);font-size:1.08em}
+.lhit .more{color:var(--faint)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:9px 14px;border-radius:99px;font-size:14px}
 .chip small{color:var(--faint);margin-left:4px}
@@ -236,7 +245,10 @@ body:not(.playing) .eq i{animation-play-state:paused}
 .p-grab span{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.42)}
 
 #pTop{order:1;display:none;align-items:center;gap:12px;padding:6px 0 10px;flex:none}
-#player[data-view="lyrics"] #pTop,#player[data-view="queue"] #pTop{display:flex}
+#player[data-view="lyrics"] #pTop,#player[data-view="queue"] #pTop,#player[data-view="find"] #pTop{display:flex}
+#pTop .gfind{display:none}
+#player[data-view="lyrics"] #pTop .gfind,#player[data-view="find"] #pTop .gfind{display:grid}
+#player[data-view="find"] #pCtl{display:none}
 #pTop .art{width:58px;height:58px;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
 .tt{flex:1;min-width:0}
 .tt1{font-size:17px;font-weight:650}
@@ -327,6 +339,22 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 .nolyr{margin:auto;text-align:center;color:rgba(255,255,255,.65);max-width:30ch;line-height:1.5}
 .nolyr .xb{margin-top:14px}
 .p-queue{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}
+/* Chercher dans le chant (vue des paroles) */
+.p-find{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+.fbox{display:flex;align-items:center;gap:8px;height:44px;padding:0 6px 0 12px;border-radius:14px;background:rgba(var(--wash),.14);color:rgba(var(--wash),.6);flex:none}
+.fbox input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--hi);font:inherit;font-size:16px}
+.fbox input::placeholder{color:rgba(var(--wash),.45)}
+.fbox .gbtn{width:32px;height:32px}
+.f-res{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.f-hint{color:rgba(var(--wash),.6);text-align:center;line-height:1.5;padding:24px 8px}
+.frow{display:flex;gap:12px;align-items:baseline;width:100%;padding:11px 2px;border-bottom:1px solid rgba(var(--wash),.1);color:var(--hi)}
+.frow .ft{flex:none;width:44px;font-size:13px;font-variant-numeric:tabular-nums;color:rgba(var(--wash),.55)}
+.frow .fl{flex:1;min-width:0;font-size:17px;font-weight:600;line-height:1.3}
+.frow .fl .cop{font-size:1.1em}.frow .fl .ar{font-family:var(--f-ar);display:block;text-align:right}
+.frow small{display:block;font-size:14px;font-weight:500;color:rgba(var(--wash),.55);margin-top:3px}
+.ln.hit{animation:lnhit 1.6s ease}
+@keyframes lnhit{0%,40%{background:rgba(var(--wash),.16)}100%{background:transparent}}
+.ln{border-radius:12px}
 .q-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0 2px}
 .q-h b{font-size:20px}
 .q-from{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:8px}
@@ -489,6 +517,8 @@ const IC = {
   periods:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 12.4v5.2M9.4 15h5.2"/>',
   library:'<path d="M5 4v16M9.5 4v16M14 4.5l5 15"/>',
   search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  chev:'<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
+  close:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   play:'<path d="M7 4.8v14.4a.8.8 0 0 0 1.2.7l12-7.2a.8.8 0 0 0 0-1.4l-12-7.2A.8.8 0 0 0 7 4.8z" fill="currentColor" stroke="none"/>',
   pause:'<rect x="6" y="4.5" width="4" height="15" rx="1.2" fill="currentColor" stroke="none"/><rect x="14" y="4.5" width="4" height="15" rx="1.2" fill="currentColor" stroke="none"/>',
   next:'<path d="M3.5 6.2v11.6a.6.6 0 0 0 .9.5l8.6-5.8a.6.6 0 0 0 0-1L4.4 5.7a.6.6 0 0 0-.9.5zM12.5 6.2v11.6a.6.6 0 0 0 .9.5l8.6-5.8a.6.6 0 0 0 0-1l-8.6-5.8a.6.6 0 0 0-.9.5z" fill="currentColor" stroke="none"/>',
@@ -592,6 +622,8 @@ const CH = {ayad:{name:'Ibrahim Ayad',img:'chantres/ayad.jpg'},antonios:{name:'A
 
 // Sections affichées dans une période, dans cet ordre
 const SECTIONS = ['Funérailles générales', 'Toute la semaine', 'Jeudi saint', 'Vendredi saint', 'Samedi de la Joie'];
+// sec peut être une liste : le chant paraît sous chaque jour, mais reste un seul chant (lecture et aléatoire le comptent une fois)
+const secsOf = t => [].concat(t.sec || []);
 const M = 'mounir', PS = 'pascha', AP = 'apprentissage';
 // Aspasmos Watos du Carême, chanté en arabe : arabe chanté mot par mot, français dessous.
 // Calé par alignement forcé (tools/aligner.py) sur l'enregistrement de Bola Mounir.
@@ -628,7 +660,7 @@ const TRACKS = [
   {id:'pek-laos-gar',dur:681,ti:"Ton peuple et Ton Église",cop:'Ⲡⲉⲕⲗⲁⲟⲥ ⲅⲁⲣ',p:'annuel',of:'liturgie',ch:'philopater',yt:'XcZB2zWNxBE'},
   {id:'fraction-careme',dur:324,ti:"Fraction du Grand Carême",cop:'',note:"En arabe",p:'careme',of:'liturgie',col:'messe',m:'fraction',ch:'antonios',yt:'6o1Kcw_uqW4'},
   {id:'evlogimenos',dur:385,ti:"Béni soit celui qui vient",cop:'Ⲉⲩⲗⲟⲅⲓⲙⲉⲛⲟⲥ',p:'rameaux',of:'liturgie',ch:'ayad',yt:'X8J9esmjKbI'},
-  {id:'ethve-ti-anastasis-2',dur:494,ti:"Au sujet de la Résurrection",cop:'Ⲉⲑⲃⲉ ϯⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲥ',note:"Avant l'Épître, air de deuil",p:PS,sec:'Toute la semaine',ch:null,yt:'6DwLGMO7-8g'},
+  {id:'ethve-ti-anastasis-2',dur:494,ti:"Au sujet de la Résurrection",cop:'Ⲉⲑⲃⲉ ϯⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲥ',note:"Avant l'Épître, air de deuil",p:PS,sec:['Vendredi saint','Funérailles générales'],ch:null,yt:'6DwLGMO7-8g'},
   {id:'omonogenis-anton-ayad',dur:337,ti:"Ô Fils unique",cop:'Ⲟ̀ ⲙⲟⲛⲟⲅⲉⲛⲏⲥ',p:PS,sec:'Vendredi saint',ch:'antoniosayad',yt:'TYM5snYDfaw'},
   {id:'amanat-al-less-batanouny',dur:1116,ti:"La foi du bon larron",cop:'Ⲁ̀ⲣⲓⲡⲁⲙⲉⲩⲓ̀ ⲱ̀ Ⲡⲁϭⲟⲓⲥ',note:"En copte puis en arabe",p:PS,sec:'Vendredi saint',ch:'seminaire',yt:'W4KDcEC47wU'},
   {id:'ioudas-bakir-jeudi',dur:672,ti:"Judas, le transgresseur",cop:'Ⲓⲟⲩⲇⲁⲥ ⲟⲩⲡⲁⲣⲁⲛⲟⲙⲟⲥ',note:"Aube du Jeudi saint, en grec puis en arabe",p:PS,sec:'Jeudi saint',ch:null,yt:'3xQKAUNWc2A'},
@@ -636,11 +668,11 @@ const TRACKS = [
   {id:'ya-kol-al-soufouf',dur:656,ti:"Vous tous, chœurs célestes",cop:'Ⲛⲓⲭⲟⲣⲟⲥ ⲧⲏⲣⲟⲩ',note:"En arabe",p:'resurrection',of:'liturgie',ch:null,yt:'-eV4RWe0_Zw'},
   {id:'ya-kol-al-soufouf-seminaire',dur:450,ti:"Vous tous, chœurs célestes",cop:'Ⲛⲓⲭⲟⲣⲟⲥ ⲧⲏⲣⲟⲩ',note:"En arabe, les quinze premiers vers · chœur du Séminaire sous la direction d’Ibrahim Ayad (2015)",p:'resurrection',of:'liturgie',ch:'seminaire',ch2:'ayad',yt:'zoMLL5Abtew'},
   {id:'nakous-funerailles',dur:116,ti:'Versets du Nakous des funérailles générales',cop:'',p:PS,sec:'Funérailles générales',of:'funerailles',ch:M,col:AP,yt:'v0x2pLPDgGc'},
-  {id:'ethve-ti-anastasis',dur:759,ti:'Au sujet de la Résurrection',cop:'Ⲉⲑⲃⲉ ϯⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲥ',note:'Hymne paulinien de deuil',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'oGQeRhzAxMU'},
+  {id:'ethve-ti-anastasis',dur:759,ti:'Au sujet de la Résurrection',cop:'Ⲉⲑⲃⲉ ϯⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲥ',note:'Hymne paulinien de deuil',p:PS,sec:['Vendredi saint','Funérailles générales'],ch:M,col:AP,yt:'oGQeRhzAxMU'},
   {id:'thok-te-ti-gom',dur:817,ti:'À toi la puissance et la gloire',cop:'Ⲑⲱⲕ ⲧⲉ ϯϫⲟⲙ',note:'Louange de la Pâque',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'AVHCwOW8zD0'},
-  {id:'fai-etafenf',dur:549,ti:"Celui qui s'est offert",cop:'Ⲫⲁⲓ ⲉ̀ⲧⲁϥⲉⲛϥ',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'LMD_pStTPAw'},
-  {id:'tai-shouri',dur:713,ti:'Cet encensoir, air de deuil',cop:'Ⲧⲁⲓϣⲟⲩⲣⲓ',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'w3Nrket1_e4'},
-  {id:'ti-shouri',dur:390,ti:"L'encensoir d'or, grand air de deuil",cop:'Ϯϣⲟⲩⲣⲓ',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'vA2LNO8ag6A'},
+  {id:'fai-etafenf',dur:549,ti:"Celui qui s'est offert",cop:'Ⲫⲁⲓ ⲉ̀ⲧⲁϥⲉⲛϥ',p:PS,sec:['Jeudi saint','Vendredi saint'],ch:M,col:AP,yt:'LMD_pStTPAw'},
+  {id:'tai-shouri',dur:713,ti:'Cet encensoir, air de deuil',cop:'Ⲧⲁⲓϣⲟⲩⲣⲓ',p:PS,sec:'Vendredi saint',ch:M,col:AP,yt:'w3Nrket1_e4'},
+  {id:'ti-shouri',dur:390,ti:"L'encensoir d'or, grand air de deuil",cop:'Ϯϣⲟⲩⲣⲓ',p:PS,sec:'Vendredi saint',ch:M,col:AP,yt:'vA2LNO8ag6A'},
   {id:'ke-iperto-edribi',dur:704,ti:'Ke iperto, air Edribi',cop:'Ⲕⲉ ⲩ̀ⲡⲉⲣⲧⲟⲩ',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'RcPx7JXR9Xo'},
   {id:'ke-iperto-oanagnosis',dur:174,ti:"Ke iperto et introduction de l'Évangile",cop:'Ⲕⲉ ⲩ̀ⲡⲉⲣⲧⲟⲩ · Ⲟ̀ⲁ̀ⲛⲁⲅⲛⲱⲥⲓⲥ',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'RnKTpDWVjMg'},
   {id:'trouhat-intro-conclusion',dur:416,ti:'Introduction et conclusion des commentaires (Tarh)',cop:'',p:PS,sec:'Toute la semaine',ch:M,col:AP,yt:'9tqPloHro-8'},
@@ -650,7 +682,7 @@ const TRACKS = [
   {id:'ioudas',dur:462,ti:'Judas, pièce grecque',cop:'Ⲓⲟⲩⲇⲁⲥ',p:PS,sec:'Jeudi saint',ch:M,col:AP,yt:'wX54I3GWFG0'},
   {id:'tou-dipnou',dur:246,ti:'À ta Cène mystique',cop:'Ⲧⲟⲩ ⲇⲓⲡⲛⲟⲩ',note:'En grec et en arabe',p:PS,sec:'Jeudi saint',ch:M,col:AP,yt:'ePDGbPLFvXw'},
   {id:'tabkit-yahouza',dur:355,ti:'Reproches à Judas',cop:'',note:'En arabe',p:PS,sec:'Jeudi saint',ch:M,col:AP,yt:'s62hdUonQ9w'},
-  {id:'agios-hazayni',dur:956,ti:'Agios de deuil, air de la Crucifixion',cop:'Ⲁ̀ⲅⲓⲟⲥ',p:PS,sec:'Vendredi saint',ch:M,col:AP,yt:'DSK2n8w3mBM'},
+  {id:'agios-hazayni',dur:956,ti:'Agios de deuil, air de la Crucifixion',cop:'Ⲁ̀ⲅⲓⲟⲥ',p:PS,sec:['Vendredi saint','Funérailles générales'],ch:M,col:AP,yt:'DSK2n8w3mBM'},
   {id:'pek-thronos',dur:1226,ti:'Ton trône, ô Dieu',cop:'Ⲡⲉⲕⲑ̀ⲣⲟⲛⲟⲥ',p:PS,sec:'Vendredi saint',ch:M,col:AP,yt:'lxmzBD30ZNM'},
   {id:'omonogenis',dur:976,ti:'Ô Fils unique',cop:'Ⲟ̀ ⲙⲟⲛⲟⲅⲉⲛⲏⲥ',p:PS,sec:'Vendredi saint',ch:M,col:AP,yt:'ROqXsyCfDSY'},
   {id:'ti-epistoli',dur:677,ti:"L'Épître, air de deuil de la sixième heure",cop:'Ϯⲉ̀ⲡⲓⲥⲧⲟⲗⲏ',p:PS,sec:'Vendredi saint',ch:M,col:AP,yt:'Re1uaMd3dAw'},
@@ -921,7 +953,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '10.11.2026 · 80d8dd7708'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · 1897dfbf4c'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -963,14 +995,14 @@ function sortTracks(list) {
     || rank(MOM_ORDER, momentOf(a)) - rank(MOM_ORDER, momentOf(b))
     || (momentOf(a) === 'fraction' ? rank(PERIOD_ORDER, a.p) - rank(PERIOD_ORDER, b.p) : 0)
     || (momentOf(a) ? litOf(a) - litOf(b) : 0)
-    || rank(SECTIONS, a.sec) - rank(SECTIONS, b.sec)
+    || rank(SECTIONS, secsOf(a)[0]) - rank(SECTIONS, secsOf(b)[0])
     || rank(OFF_ORDER, a.of) - rank(OFF_ORDER, b.of)
     || a.ti.localeCompare(b.ti, 'fr', { sensitivity: 'base' })
     || (CH[a.ch]?.name || '').localeCompare(CH[b.ch]?.name || '', 'fr'));
 }
 // intertitre d'un moment de la messe, quand il change dans la liste
 // intertitre quand le moment de la messe ou le jour de la Semaine sainte change dans la liste
-const subOf = t => t.col === 'messe' ? MOMENTS[momentOf(t)] || '' : t.col !== 'psaumes' && t.p === 'pascha' ? (SECTIONS.includes(t.sec) ? t.sec : 'Autres chants') : '';
+const subOf = t => t.col === 'messe' ? MOMENTS[momentOf(t)] || '' : t.col !== 'psaumes' && t.p === 'pascha' ? (SECTIONS.includes(secsOf(t)[0]) ? secsOf(t)[0] : 'Autres chants') : '';
 const momHead = (ids, i) => { const m = subOf(TR[ids[i]]); return m && (i === 0 || subOf(TR[ids[i - 1]]) !== m) ? `<div class="sh mom"><h3>${m}</h3></div>` : ''; };
 function listIds(key) {
   const [k, id] = key.split(':');
@@ -983,10 +1015,11 @@ function listIds(key) {
   if (k === 'recent') return recentIds();
   if (k === 'imported') return TRACKS.filter(t => t.src).map(t => t.id);
   if (k === 'search') return S.results;
+  if (k === 'lsearch') return S.lresults || [];
   if (k === 'ajouts') return TRACKS.slice().sort((x, y) => ajoutDe(y) - ajoutDe(x)).map(t => t.id);   // « Ajoutés récemment » : du plus récent au plus ancien
   return sorted(() => true);
 }
-const listName = key => { const [k, id] = key.split(':'); return k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
+const listName = key => { const [k, id] = key.split(':'); return k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
 function recentIds() {
   const ids = S.recent.filter(id => TR[id]);
   TRACKS.forEach(t => { if (ids.length < 8 && !ids.includes(t.id)) ids.push(t.id); });
@@ -1065,17 +1098,127 @@ function renderLibrary() {
   <div class="sh"><h2>Ajoutés récemment</h2></div>
   ${listIds('ajouts').slice(0, 6).map((id, i) => rowHTML(TR[id], 'ajouts', i)).join('')}`;
 }
+/* ---------- Recherche ----------
+   Les titres coptes se cherchent au clavier français, comme on les prononce : « ten thino », « tai shori », « esveti anastasis ».
+   Copte, translittérations et fautes de frappe sont ramenés à un même squelette (canon), puis comparés avec une petite tolérance (fuzzy). */
+const COP_LAT = {'ⲁ':'a','ⲃ':'v','ⲅ':'g','ⲇ':'d','ⲉ':'e','ⲍ':'z','ⲏ':'i','ⲑ':'th','ⲓ':'i','ⲕ':'k','ⲗ':'l','ⲙ':'m','ⲛ':'n','ⲝ':'ks','ⲟ':'o','ⲡ':'p','ⲣ':'r','ⲥ':'s','ⲧ':'t','ⲫ':'f','ⲭ':'kh','ⲯ':'ps','ⲱ':'o','ϣ':'sh','ϥ':'f','ϧ':'kh','ϩ':'h','ϫ':'g','ϭ':'sh','ϯ':'ti','ⲋ':'s'};
+// copte → lettres latines (ⲩ : v après ⲁ/ⲉ/ⲏ, u après ⲟ, sinon i)
+function copLat(s) {
+  const c = String(s || '').toLowerCase().replace(/\p{M}/gu, '');
+  let o = '';
+  for (let i = 0; i < c.length; i++) {
+    const ch = c[i];
+    if (ch === 'ⲩ') { const p = c[i - 1]; o += p === 'ⲁ' || p === 'ⲉ' || p === 'ⲏ' ? 'v' : p === 'ⲟ' ? 'u' : 'i'; }
+    else o += COP_LAT[ch] ?? ch;
+  }
+  return o;
+}
+// squelette phonétique : th=t, ph=f, ch/sh=S, ou/u/o/w=o, e/i/y=i, h muet, lettres doublées simples
+function canon(s) {
+  s = copLat(s).normalize('NFD').replace(/\p{M}/gu, '').replace(/œ|æ/g, 'e').replace(/[^a-z]/g, '');
+  return s.replace(/sch|sh|ch/g, 'S').replace(/c(?=[eiy])/g, 's').replace(/c/g, 'k')
+    .replace(/ph/g, 'f').replace(/th/g, 't').replace(/kh/g, 'k').replace(/gh/g, 'g').replace(/dj|j/g, 'g').replace(/q/g, 'k').replace(/x/g, 'ks')
+    .replace(/ou|w|u/g, 'o').replace(/[ey]/g, 'i').replace(/h/g, '').replace(/(.)\1+/g, '$1');
+}
+// arabe : sans voyelles brèves ni tatwil, hamzas et alifs ramenés à la lettre simple, sans espaces
+const arNorm = s => String(s || '').normalize('NFKD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u0640\u06D6-\u06ED]/g, '').replace(/\u0671/g, '\u0627').replace(/\u0649/g, '\u064A').replace(/\u0629/g, '\u0647').replace(/[^\u0621-\u064A]/g, '');
+const isAr = s => /[\u0600-\u06FF]/.test(s);
+const VOW = 'aio';
+const NEAR = {bv:.2, bp:.3, ts:.5, Ss:.5, Sk:.6, kg:.5, dt:.5, fv:.6, sz:.4, mn:.6, io:.6, ai:.7, ao:.7};
+const subC = (a, b) => a === b ? 0 : NEAR[a + b] ?? NEAR[b + a] ?? 1;
+const indC = c => VOW.includes(c) ? .5 : 1;   // une voyelle oubliée ou ajoutée coûte peu
+// meilleure ressemblance de q dans un morceau de t : { c : coût, s : début dans t }
+function fuzzy(q, t) {
+  const m = q.length, n = t.length;
+  let pv = new Float32Array(m + 1), cu = new Float32Array(m + 1), ps = new Int32Array(m + 1), cs = new Int32Array(m + 1);
+  for (let i = 1; i <= m; i++) pv[i] = pv[i - 1] + indC(q[i - 1]);
+  let best = pv[m], bs = 0;
+  for (let j = 1; j <= n; j++) {
+    const tc = t[j - 1]; cu[0] = 0; cs[0] = j;
+    for (let i = 1; i <= m; i++) {
+      let v = pv[i - 1] + subC(q[i - 1], tc), st = ps[i - 1];
+      const a = cu[i - 1] + indC(q[i - 1]); if (a < v) { v = a; st = cs[i - 1]; }
+      const b = pv[i] + indC(tc); if (b < v) { v = b; st = ps[i]; }
+      cu[i] = v; cs[i] = st;
+    }
+    if (cu[m] < best) { best = cu[m]; bs = cs[m]; }
+    [pv, cu] = [cu, pv]; [ps, cs] = [cs, ps];
+  }
+  return { c: best, s: bs };
+}
+const tol = m => m < 3 ? 0 : m < 5 ? .5 : m < 7 ? .7 : m < 10 ? 1.2 : Math.min(2.5, 1.2 + (m - 9) * .2);
+// Phrase cherchée, préparée une fois : squelette latin/copte, ou arabe normalisé
+function prepQ(q) { q = String(q || '').trim(); return isAr(q) ? { ar: arNorm(q), n: arNorm(q).length } : { c: canon(q), n: canon(q).length }; }
+const hit = (Q, txt, fz, k = 1) => { if (!txt) return null; const i = txt.indexOf(Q.c); if (i >= 0) return { c: 0, s: i }; if (!fz || Q.n < 3) return null; const r = fuzzy(Q.c, txt); return r.c <= tol(Q.n) * k ? r : null; };
+// Index des paroles : chaque ligne en squelette (copte avec la place de chaque mot), français et arabe
+let LIDX = null;
+function lineIdx(v) {
+  const r = { f: canon(v.fr), a: v.ar ? arNorm(v.ar) : '' };
+  if (v.w) { let c = '', o = []; v.w.forEach(w => { o.push(c.length); c += canon(w.x); }); r.c = c; r.o = o; }
+  if (v.ar) { let a = '', o = []; unitsOf(v).forEach(w => { o.push(a.length); a += arNorm(w); }); r.a = a; r.ao = o; }
+  return r;
+}
+const trIdx = t => t.L ? (t._li = t._li || t.L.v.map(lineIdx)) : null;
+// Ligne trouvée → temps où sauter (le mot précis quand on le connaît)
+function lineTime(v, r, where, s) {
+  const st = vStart(v);
+  if (where === 'c' && v.w) { let k = 0; r.o.forEach((x, i) => { if (x <= s) k = i; }); return v.w[k].t ?? st; }
+  if (where === 'a' && v.wt) { let k = 0; r.ao.forEach((x, i) => { if (x <= s) k = i; }); return v.wt[k] ?? st; }
+  return st;
+}
+// Lignes d'un chant qui correspondent : [{ vi, t, c }]
+function findInTrack(t, Q, fz) {
+  const L = t.L, I = trIdx(t); if (!I) return [];
+  const out = [];
+  I.forEach((r, vi) => {
+    const v = L.v[vi]; let h, w;
+    if (Q.ar != null) { const i = r.a.indexOf(Q.ar); if (i >= 0) { h = { c: 0, s: i }; w = 'a'; } }
+    else {
+      const hc = hit(Q, r.c, fz), hf = hit(Q, r.f, fz && !r.c);   // le français n'est cherché à peu près que s'il est chanté
+      h = hc && (!hf || hc.c <= hf.c) ? hc : hf; w = h === hc ? 'c' : 'f';
+    }
+    if (h) out.push({ vi, t: lineTime(v, r, w, h.s), c: h.c });
+  });
+  return out;
+}
+function searchAll(q) {
+  const Q = prepQ(q), R = { ch: [], tr: [], ly: [] };
+  if (!Q.n) return R;
+  if (Q.c != null) {
+    R.ch = chOrdre().map(([id, c]) => { const h = hit(Q, c._k = c._k || canon(c.name), true, .6); return h && { id, c: h.c }; }).filter(Boolean).sort((a, b) => a.c - b.c);
+    TRACKS.forEach(t => {
+      if (!t._k) t._k = { cop: canon(t.cop), ti: canon(t.ti), id: t.user ? '' : canon(t.id), x: canon([t.note, (PERIODS[t.p] || PERIODS.annuel).name, t.p2 && PERIODS[t.p2] && PERIODS[t.p2].name, ...secsOf(t)].filter(Boolean).join(' ')) };
+      const k = t._k;
+      const hs = [[hit(Q, k.cop, true), 0], [hit(Q, k.ti, true), .05], [hit(Q, k.id, true), .1], [hit(Q, k.x, false), .8]].filter(h => h[0]).map(([h, b]) => h.c + b + (h.s ? .02 : 0));
+      if (hs.length) R.tr.push({ id: t.id, c: Math.min(...hs) });
+    });
+    const order = new Map(sortTracks(TRACKS).map((t, i) => [t.id, i]));
+    R.tr.sort((a, b) => a.c - b.c || order.get(a.id) - order.get(b.id));
+  }
+  if (Q.n >= 3) TRACKS.forEach(t => { const f = findInTrack(t, Q, false); if (f.length) R.ly.push({ id: t.id, ...f[0], n: f.length }); });
+  return R;
+}
 function renderSearch() {
   return `<h1>Recherche</h1>
-  <label class="sbox">${ic('search', 18)}<input id="q" type="search" placeholder="Titre, mot copte, chantre…" autocomplete="off" aria-label="Rechercher"></label>
+  <label class="sbox">${ic('search', 18)}<input id="q" type="search" placeholder="Titre, chantre, paroles…" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Rechercher"></label>
   <div id="results"></div>`;
 }
+const lineHTML = (v, big) => v.w ? `<span class="cop">${esc(v.w.map(w => w.x).join(' '))}</span>` : v.ar ? `<span dir="rtl" lang="ar" class="ar">${esc(v.ar)}</span>` : esc(v.fr);
 function renderResults(q) {
   const box = $('#results'); if (!box) return;
-  const n = norm(q).trim();
-  if (!n) { box.innerHTML = `<div class="sh"><h2>Parcourir</h2></div><div class="pgrid">${PERIOD_ORDER.slice(0, 6).map(tileHTML).join('')}</div>`; return; }
-  S.results = TRACKS.filter(t => [t.ti, t.cop, chName(t), (PERIODS[t.p] || PERIODS.annuel).name, t.L && t.L.v.map(v => v.fr + ' ' + (v.w ? v.w.map(w => w.x).join(' ') : '')).join(' ')].some(f => norm(f).includes(n))).map(t => t.id);
-  box.innerHTML = S.results.length ? `<div style="height:10px"></div>` + S.results.map((id, i) => rowHTML(TR[id], 'search', i)).join('') : `<p class="empty">Aucun chant pour « ${esc(q)} ».</p>`;
+  if (!String(q || '').trim()) { S.results = []; box.innerHTML = `<div class="sh"><h2>Parcourir</h2></div><div class="pgrid">${PERIOD_ORDER.slice(0, 6).map(tileHTML).join('')}</div>`; return; }
+  const R = searchAll(q);
+  // Chantre trouvé : sa fiche d'abord, puis ses chants (comme Apple Music), puis les autres titres
+  const top = R.ch.length && (R.ch.length === 1 || R.ch[0].c < R.ch[1].c) ? R.ch[0].id : null;
+  const mine = top ? listIds('chanter:' + top) : [];
+  const others = R.tr.map(x => x.id).filter(id => !mine.includes(id));
+  S.results = [...mine, ...others];
+  S.lresults = R.ly.map(x => x.id);
+  const chH = R.ch.length ? `<div class="sh"><h2>Chantre${R.ch.length > 1 ? 's' : ''}</h2></div>` + R.ch.slice(0, 8).map(({ id }) => { const c = CH[id]; return `<button class="lrow srch-ch" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c, 'md')}<span class="nm"><b>${esc(c.name)}</b><small>Chantre · ${listIds('chanter:' + id).length} chants</small></span>${ic('chev', 18)}</button>`; }).join('') : '';
+  const mineH = mine.length ? `<div class="sh"><h2>Chants de ${esc(CH[top].name)}</h2></div>` + mine.map((id, i) => rowHTML(TR[id], 'search', i)).join('') : '';
+  const trH = others.length ? `<div class="sh"><h2>${mine.length ? 'Autres titres' : 'Titres'}</h2></div>` + others.map((id, i) => rowHTML(TR[id], 'search', mine.length + i)).join('') : '';
+  const lyH = R.ly.length ? `<div class="sh"><h2>Dans les paroles</h2></div>` + R.ly.map((x, i) => { const t = TR[x.id], v = t.L.v[x.vi]; return `<div class="row lhit" data-act="play" data-list="lsearch" data-i="${i}" data-t="${x.t ?? ''}" role="button" tabindex="0">${artHTML(t.p, glyphOf(t), 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${x.t != null ? fmt(x.t) + ' · ' : ''}${lineHTML(v)}${x.n > 1 ? ` <span class="more">+${x.n - 1}</span>` : ''}</div></div></div>`; }).join('') : '';
+  box.innerHTML = chH || mineH || trH || lyH ? chH + mineH + trH + lyH + '<div style="height:10px"></div>' : `<p class="empty">Aucun chant pour « ${esc(q)} ».</p>`;
 }
 const sw = (k, label, sub) => `<div class="gr"><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><button class="sw" role="switch" aria-checked="${!!S.cfg[k]}" data-act="cfg" data-k="${k}" aria-label="${label}"></button></div>`;
 function renderSettings() {
@@ -1140,11 +1283,11 @@ function renderDetail(it) {
   }
   const ids = listIds(list);
   const numbered = ['period', 'chanter', 'office', 'col'].includes(it.type);
-  const secs = it.type === 'period' ? SECTIONS.filter(sc => ids.some(id => TR[id].sec === sc)) : [];
+  const secs = it.type === 'period' ? SECTIONS.filter(sc => ids.some(id => secsOf(TR[id]).includes(sc))) : [];
   const body = !ids.length ? '' : list === 'all'
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
-    ? [...secs, null].map(sc => { const sub = ids.filter(id => sc ? TR[id].sec === sc : !SECTIONS.includes(TR[id].sec)); return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
+    ? [...secs, null].map(sc => { const sub = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))); return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
     : ids.map((id, i) => (it.type === 'col' ? momHead(ids, i) : '') + rowHTML(TR[id], list, i, numbered)).join('');
   return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div>
   <div class="hero">${head}<h1 class="h-title">${title}</h1><div class="h-sub">${sub}</div>${desc ? `<p class="h-desc">${desc}</p>` : ''}
@@ -1160,7 +1303,7 @@ function render(keepScroll) {
   $('#screen').innerHTML = top ? renderDetail(top) : { home: renderHome, periods: renderPeriods, library: renderLibrary, search: renderSearch }[r.tab]();
   ['home', 'periods', 'library'].forEach(k => $('#tab-' + k).classList.toggle('on', r.tab === k));
   $('#tab-search').classList.toggle('on', r.tab === 'search');
-  if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); }
+  if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); q.addEventListener('keydown', e => { if (e.key === 'Enter') q.blur(); }); }
   scrollTo(0, keepScroll ? y : 0);
 }
 
@@ -1227,7 +1370,7 @@ function load(id) {
   EC.debut(id);   // termine et compte l'écoute précédente
   if (au(tr)) { A.src = au(tr); A.playbackRate = S.rate; } else { A.pause(); A.removeAttribute('src'); A.load(); }
   S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 12); store.set('recent', S.recent);
-  if (!tr.L && S.pview === 'lyrics') S.pview = 'art';
+  if (!tr.L && (S.pview === 'lyrics' || S.pview === 'find')) S.pview = 'art';
   renderPlayer(); setMediaSession(tr);
 }
 function play() {
@@ -1242,6 +1385,11 @@ function seek(t) {
   const tr = curTrack(); if (!tr) return;
   S.t = Math.max(0, Math.min(t, Math.max(0, (tr.dur || 0) - 0.05))); if (au(tr)) A.currentTime = S.t;
   if (LY) LY.uKey = null; simLast = performance.now(); clk.ct = -1;
+}
+// Sauter à un temps dès que le fichier est prêt (un chant en ligne qui vient d'être chargé ignore sinon le saut)
+function seekWhenReady(t) {
+  seek(t); const tr = curTrack();
+  if (au(tr) && A.readyState < 1) A.addEventListener('loadedmetadata', () => { if (curTrack() === tr) { A.currentTime = t; S.t = t; } }, { once: true });
 }
 function playList(key, i, shuffle) {
   const ids = listIds(key); if (!ids.length) return;
@@ -1346,7 +1494,8 @@ function renderPlayer() {
   const fav = isFav(tr.id);
   const sub = [titleSub(tr), esc(chName(tr) || P.name)].filter(Boolean).join(' — ');
   const btns = `<button class="gbtn${fav ? ' on' : ''}" data-act="fav" data-id="${tr.id}" aria-label="${fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ic(fav ? 'starf' : 'star', 18)}</button><button class="gbtn" data-act="menu" aria-label="Plus d’options">${ic('more', 18)}</button>`;
-  $('#pTop').innerHTML = `${artHTML(tr.p, glyphOf(tr), 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${btns}`;
+  const findB = tr.L ? `<button class="gbtn gfind${S.pview === 'find' ? ' on' : ''}" data-act="lfind" aria-label="Chercher dans ce chant">${ic('search', 18)}</button>` : '';
+  $('#pTop').innerHTML = `${artHTML(tr.p, glyphOf(tr), 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${findB}${btns}`;
   $('#pTitle').innerHTML = `<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${btns}`;
   $('#mArt').innerHTML = artHTML(tr.p, glyphOf(tr), 'xs');
   $('#mT1').innerHTML = titleTop(tr);
@@ -1386,6 +1535,14 @@ function renderPBody() {
       ${rest.length ? rest.map((id, k) => { const t = TR[id]; return `<div class="row" data-act="qjump" data-i="${S.qi + 1 + k}" role="button" tabindex="0">${artHTML(t.p, glyphOf(t), 'xs')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${titleSub(t) || esc(chName(t))}</div></div><span class="dur">${t.dur ? fmt(t.dur) : ''}</span></div>`; }).join('') : '<p class="empty" style="color:rgba(255,255,255,.6)">Rien après ce chant.</p>'}</div>`;
     return;
   }
+  if (S.pview === 'find') {
+    b.innerHTML = `<div class="p-find"><label class="fbox">${ic('search', 18)}<input id="fq" type="search" enterkeyhint="search" placeholder="Un mot du chant (copte, français, arabe)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Chercher dans ce chant"><button class="gbtn" data-act="lfind" aria-label="Revenir aux paroles">${ic('close', 16)}</button></label><div class="f-res" id="fres"></div></div>`;
+    const inp = $('#fq'); inp.value = S.fq || ''; renderFind();
+    inp.addEventListener('input', () => { S.fq = inp.value; renderFind(); });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+    setTimeout(() => inp.focus(), 60);
+    return;
+  }
   const L = activeL(tr);
   if (!L) { b.innerHTML = `<div class="nolyr">Pas encore de paroles pour ce chant.<br>Envoie-moi le texte copte et la traduction, je les ajoute.</div>`; return; }
   const items = lyricItems(L, tr.dur || 1);
@@ -1402,6 +1559,14 @@ function renderPBody() {
   box.classList.add('dragging'); placeLines(false);
   requestAnimationFrame(() => requestAnimationFrame(() => box.classList.remove('dragging')));
   bindLyrDrag(box);
+}
+// Résultats de la recherche dans le chant : chaque ligne trouvée, avec son temps
+function renderFind() {
+  const box = $('#fres'), tr = curTrack(); if (!box || !tr || !tr.L) return;
+  const q = String(S.fq || '').trim();
+  if (!q) { box.innerHTML = `<p class="f-hint">Tape un mot comme tu l’entends : « thino », « pchois », « Seigneur », « يا رب ».<br>Touche une ligne pour l’écouter.</p>`; return; }
+  const hits = findInTrack(tr, prepQ(q), true);
+  box.innerHTML = hits.length ? hits.map(h => { const v = tr.L.v[h.vi]; return `<button class="frow" data-act="fjump" data-vi="${h.vi}" data-t="${h.t ?? ''}"><span class="ft">${h.t != null ? fmt(h.t) : ''}</span><span class="fl">${lineHTML(v)}${v.w || v.ar ? `<small>${esc(v.fr)}</small>` : ''}</span></button>`; }).join('') : `<p class="f-hint">Rien pour « ${esc(q)} » dans ce chant.</p>`;
 }
 function activeIdx(L, t) { let ai = -1; LY.items.forEach((it, i) => { const s = itemStart(it, L); if (s != null && s <= t) ai = i; }); return ai; }
 // Le défilement part un peu avant la ligne, pour qu'elle soit en place quand le chant l'attaque
@@ -1918,7 +2083,16 @@ document.addEventListener('click', e => {
       break; }
     case 'back': S.route.stack.pop(); render(); break;
     case 'goto': closePlayer(); if (el.dataset.type !== 'settings') S.route = { tab: 'periods', stack: [] }; S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
-    case 'play': playList(el.dataset.list, +el.dataset.i || 0, false); break;
+    case 'play': playList(el.dataset.list, +el.dataset.i || 0, false); if (el.dataset.t) seekWhenReady(+el.dataset.t); break;
+    case 'lfind': S.pview = S.pview === 'find' ? 'lyrics' : 'find'; renderPlayer(); pokeControls(); break;
+    case 'fjump': {
+      const vi = +el.dataset.vi, t = el.dataset.t;
+      S.pview = 'lyrics'; renderPlayer();
+      if (t) { seek(+t); if (!S.playing) play(); }
+      const ii = LY ? LY.items.findIndex(it => it.k === 'v' && it.vi === vi) : -1;
+      if (ii >= 0) { const ln = LY.lines[ii]; ln.classList.remove('hit'); void ln.offsetWidth; ln.classList.add('hit'); }
+      break;
+    }
     case 'shufplay': playList(el.dataset.list, 0, true); break;
     case 'fav': setFav(el.dataset.id); break;
     case 'openp': if (!e.target.closest('.mbtn')) openPlayer(); break;
