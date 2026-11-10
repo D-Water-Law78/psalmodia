@@ -953,7 +953,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '10.11.2026 · 02a42dfa0f'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · 620868311e'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1283,12 +1283,13 @@ function searchAll(q) {
     TRACKS.forEach(t => {
       const k = trKeys(t), cs = [];
       // 1. le français, mot pour mot
-      let j = phraseAt(pw, k.tiW); if (j >= 0) cs.push(j ? .03 : 0);
+      // titre entier tapé : passe devant les titres qui ne font que commencer pareil
+      let j = phraseAt(pw, k.tiW); if (j >= 0) cs.push(j ? .03 : pw.length === k.tiW.length || k.tiW[pw.length] === undefined ? -.03 : 0);
       j = phraseAt(pw, k.incW); if (j >= 0) cs.push(j ? .2 : .05);
       if (phraseAt(pw, k.xW) >= 0) cs.push(.6);
       if (pw.length > 1 && allIn(pw, [...k.tiW, ...k.incW, ...k.xW, ...k.chW])) cs.push(.45);   // « basile ayad »
       // 2. le copte, au son (titre copte, identifiant translittéré, premier vers chanté)
-      const ph = [[hit(Q, k.cop, true), 0], [hit(Q, k.id, true), .1], [hit(Q, k.incC, true), .15]].filter(h => h[0]).map(([h, b]) => h.c + b + (h.s ? .02 : 0));
+      const ph = [[hit(Q, k.cop, true), 0], [hit(Q, k.id, true), .1], [hit(Q, k.incC, true), .15]].filter(h => h[0]).map(([h, b], i) => h.c + b + (h.s ? .02 : 0) - (!i && !h.s && !h.c && Q.c.length === k.cop.t.length ? .03 : 0));
       if (ph.length) cs.push(Math.min(...ph) - (k.f.some(T => hit({ c: Q.f, n: Q.n }, T, false)) ? .08 : 0));
       // plusieurs mots coptes dans n'importe quel ordre (« thino ten », « anastasis ethve »)
       if (Q.ws.length > 1) {
