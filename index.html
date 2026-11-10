@@ -921,7 +921,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '10.11.2026 · 32eee916d0'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · 60caf392db'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1059,8 +1059,8 @@ function renderLibrary() {
   <button class="lrow" data-act="open" data-type="fav" data-id="fav">${ic('heart')}Favoris<span class="cnt">${listIds('fav').length}</span></button>
   <button class="lrow" data-act="open" data-type="all" data-id="all">${ic('list')}Tous les chants<span class="cnt">${TRACKS.length}</span></button>
   <button class="lrow" data-act="open" data-type="chanters" data-id="all">${ic('person')}Chantres<span class="cnt">${Object.keys(CH).length}</span></button>
-  <button class="lrow" data-act="open" data-type="imported" data-id="imp">${ic('offline')}Sur cet iPhone<span class="cnt">${imp.length}</span></button>
-  <button class="lrow" data-act="import">${ic('import')}Importer des fichiers audio<span class="cnt">MP3, M4A</span></button>
+  ${imp.length || S.cfg.moi ? `<button class="lrow" data-act="open" data-type="imported" data-id="imp">${ic('offline')}Sur cet iPhone<span class="cnt">${imp.length}</span></button>` : ''}
+  ${S.cfg.moi ? `<button class="lrow" data-act="import">${ic('import')}Importer des fichiers audio<span class="cnt">MP3, M4A</span></button>` : ''}
   <button class="lrow" data-act="open" data-type="settings" data-id="s">${ic('gear')}Réglages</button>
   <div class="sh"><h2>Ajoutés récemment</h2></div>
   ${listIds('ajouts').slice(0, 6).map((id, i) => rowHTML(TR[id], 'ajouts', i)).join('')}`;
@@ -1101,7 +1101,7 @@ function renderSettings() {
   <div class="grp-h">Mes données</div>
   <div class="grp">
     <button class="gr" data-act="exportsync"><span>Copier mes minutages<small>À m’envoyer pour les intégrer à l’appli</small></span><span class="val">${nSync}</span></button>
-    <button class="gr" data-act="import"><span>Importer des fichiers audio</span><span class="val">Fichiers</span></button>
+    ${S.cfg.moi ? `<button class="gr" data-act="import"><span>Importer des fichiers audio</span><span class="val">Fichiers</span></button>` : ''}
     <div class="gr"><span>Chants enregistrés dans l’appli</span><span class="val">${S.stored ? `${S.stored.n} · ${mo(S.stored.bytes)}` : '…'}</span></div>
     <button class="gr" data-act="ver"><span>Version de l’appli</span><span class="val">${APP_VERSION}${S.cfg.moi ? ' · ✓' : ''}</span></button>
   </div>
@@ -1152,7 +1152,7 @@ function renderDetail(it) {
       <button class="btn pri" data-act="play" data-list="${list}" data-i="0" ${ids.length ? '' : 'disabled'}>${ic('play', 18)}Lecture</button>
       <button class="btn" data-act="shufplay" data-list="${list}" ${ids.length ? '' : 'disabled'}>${ic('shuffle', 18)}Aléatoire</button>
     </div></div>
-  <div>${ids.length ? body : `<p class="empty">${it.type === 'imported' ? 'Aucun fichier audio pour l’instant.<br>Importe tes MP3 ou M4A depuis la Bibliothèque.' : 'Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.'}</p>`}</div>`;
+  <div>${ids.length ? body : `<p class="empty">${it.type === 'imported' ? 'Aucun fichier audio sur cet iPhone.' : 'Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.'}</p>`}</div>`;
 }
 function render(keepScroll) {
   const r = S.route, top = r.stack[r.stack.length - 1];
@@ -1841,8 +1841,8 @@ function menuHTML() {
   <button class="mi" data-act="loop" data-keep="1">Boucle A–B<span class="val">${ab}</span></button>
   <button class="mi" data-act="shuffle" data-keep="1">Aléatoire<span class="val">${S.shuffle ? 'Oui' : 'Non'}</span></button>
   <button class="mi" data-act="repeat" data-keep="1">Répéter<span class="val">${['Non', 'La liste', 'Ce chant'][S.repeat]}</span></button>
-  <button class="mi" data-act="attach" data-id="${tr.id}" data-close="1">${tr.src ? 'Remplacer le fichier audio' : 'Associer un fichier audio'}${ic('import')}</button>
-  <button class="mi" data-act="edit" data-id="${tr.id}">Modifier les infos${ic('pencil')}</button>
+  ${S.cfg.moi ? `<button class="mi" data-act="attach" data-id="${tr.id}" data-close="1">${tr.src ? 'Remplacer le fichier audio' : 'Associer un fichier audio'}${ic('import')}</button>
+  <button class="mi" data-act="edit" data-id="${tr.id}">Modifier les infos${ic('pencil')}</button>` : ''}
   ${tr.user ? `<button class="mi" data-act="delcustom" data-id="${tr.id}" data-close="1">Supprimer ce fichier de l’iPhone${ic('trash')}</button>` : ''}
   <button class="mi" data-act="goto" data-type="period" data-id="${tr.p}" data-close="1">Voir « ${P.name} »${ic('calendar')}</button>
   ${[tr.ch, tr.ch2].filter(k => CH[k]).map(k => `<button class="mi" data-act="goto" data-type="chanter" data-id="${k}" data-close="1">Voir ${esc(CH[k].name)}${ic('person')}</button>`).join('')}
@@ -1909,7 +1909,7 @@ document.addEventListener('click', e => {
     case 'open': S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
     case 'ver': {   // 5 touches de suite : cet iPhone est celui du propriétaire (ses écoutes sont comptées à part)
       const n = Date.now(); S.verTaps = (n - (S.verAt || 0) < 1500 ? (S.verTaps || 0) : 0) + 1; S.verAt = n;
-      if (S.verTaps >= 5) { S.verTaps = 0; S.cfg.moi = !S.cfg.moi; store.set('cfg', S.cfg); toast(S.cfg.moi ? 'Écoutes comptées comme les tiennes' : 'Écoutes comptées comme celles d’un autre utilisateur'); render(true); }
+      if (S.verTaps >= 5) { S.verTaps = 0; S.cfg.moi = !S.cfg.moi; store.set('cfg', S.cfg); toast(S.cfg.moi ? 'Mode propriétaire : import et modification ouverts' : 'Mode propriétaire désactivé'); render(true); }
       break; }
     case 'back': S.route.stack.pop(); render(); break;
     case 'goto': closePlayer(); if (el.dataset.type !== 'settings') S.route = { tab: 'periods', stack: [] }; S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
@@ -1923,7 +1923,7 @@ document.addEventListener('click', e => {
     case 'prev': prev(); break;
     case 'menu': openSheet(menuHTML()); break;
     case 'closesheet': if (!importing) closeSheet(); break;
-    case 'edit': openSheet(editHTML(el.dataset.id)); break;
+    case 'edit': if (!S.cfg.moi) break; openSheet(editHTML(el.dataset.id)); break;
     case 'shuffle':
       S.shuffle = !S.shuffle;
       if (S.shuffle) S.queue = [...S.queue.slice(0, S.qi + 1), ...shuffled(sansPsaumes(S.queue.slice(S.qi + 1), S.qKey))];
@@ -1977,8 +1977,8 @@ document.addEventListener('click', e => {
     }
     case 'qjump': S.qi = +el.dataset.i; load(S.queue[S.qi]); play(); renderPBody(); render(true); break;
     case 'dl': downloadMissing(); break;
-    case 'import': attachTarget = null; $('#importInput').click(); break;
-    case 'attach': attachTarget = el.dataset.id; $('#importInput').click(); break;
+    case 'import': if (!S.cfg.moi) break; attachTarget = null; $('#importInput').click(); break;
+    case 'attach': if (!S.cfg.moi) break; attachTarget = el.dataset.id; $('#importInput').click(); break;
     case 'delcustom': {
       // Fichier importé sur cet appareil : on efface son audio et sa fiche, puis on recharge
       const id = el.dataset.id, t = TR[id];
