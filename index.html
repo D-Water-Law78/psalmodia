@@ -624,6 +624,47 @@ const CH = {ayad:{name:'Ibrahim Ayad',img:'chantres/ayad.jpg'},antonios:{name:'A
 const SECTIONS = ['Funérailles générales', 'Toute la semaine', 'Jeudi saint', 'Vendredi saint', 'Samedi de la Joie'];
 // sec peut être une liste : le chant paraît sous chaque jour, mais reste un seul chant (lecture et aléatoire le comptent une fois)
 const secsOf = t => [].concat(t.sec || []);
+// Ordre des chants dans chaque période : celui de l'office (veille, tasbeha, encens du matin, liturgie) et des livres
+// (Kiahk : PDF « Psalmodie de Kiahk » ; tasbeha : PsalmodiePPT ; liturgie : Messe V3.9 ; Semaine sainte : PPT de chaque jour, une liste par jour).
+// Un nouveau chant s'ajoute ici à sa place ; un chant absent passe après les autres.
+const ORDRE = {
+  annuel: ['tenthinou-baramous', 'premier-hos-zosima', 'ten-oueh-ensok', 'doxologies-annuelles-mounir', 'doxologies-ayad-antonios',
+    'ainahti-aikoti-lipon-raphael', 'aikoti-mounir', 'shere-ne-maria', 'shere-ne-maria-arabe', 'afeen-pi-archi-erefs', 'evol-hiten-zosima',
+    'theotokie-mercredi-arabe-zosima', 'theotokia-vendredi-raphael', 'ntho-neknai-mounir', 'ntho-ethmav-baker-philopater',
+    'atai-parthenos-seminaire', 'pchois-efnouti-ayad', 'pek-laos-gar'],
+  nayrouz: ['psali-adam-nayrouz-philopater', 'fraction-nayrouz-antonios', 'fraction-syriaque-croix-rewis'],
+  kiahk: ['hos-kiahk-philopater', 'lobsh-hos-1', 'kal-al-rab-li-moussa', 'theotokie-lundi-raphael', 'lobsh-hos-2',
+    'psali-mercredi-kiahk-antonios', 'theotokie-mercredi-raphael', 'madih-olleika-antonios', 'theotokia-jeudi', 'madih-al-sougoud',
+    'asmou-epchois', 'asmou-epchois-hos-3', 'aripsalin-antonios', 'madih-trois-jeunes-gens', 'tenen', 'tenen-muharraq',
+    'ten-oueh-ensok-kiahk-ayad', 'ten-oueh-ensok-kiahk-raphael', 'ten-oueh-ensok-kiahk-abraham',
+    'aftah-fai-antonios', 'aftah-fai-seminaire', 'simouti', 'cemoti', 'ya-mariam-antonios', 'amdah-fiki-antonios', 'amdah-fiki-youhanna-nassif',
+    'teoi-enhikanos-raphael', 'marahimak-ya-ilahi', 'fraction-kiahk-boktor'],
+  nativite: ['paramoun-noel-cantique', 'ana-awal-kalami', 'ana-awal-kalami-muharraq', 'doxologies-nativite-seminaire', 'pouro-nativite-seminaire'],
+  careme: ['psali-adam-hos2-careme-raphael-arsanios', 'psali-adam-hos3-careme-raphael', 'doxologie-careme-raphael-arsanios',
+    'doxologie-careme-5-raphael-arsanios', 'psali-adam-hos4-careme-raphael-arsanios', 'meghalo-ayad', 'reconciliation-gregorien-aspasmos-arsanios',
+    'aspasmos-watos-careme', 'aspasmos-watos-careme-ayad', 'fraction-careme', 'fraction-careme-arsanios', 'fraction-careme-philopater', 'apenchois-careme-abraham'],
+  rameaux: ['evlogimenos', 'evlogimenos-rameaux'],
+  pascha: {
+    'Funérailles générales': ['nakous-funerailles', 'ethve-ti-anastasis', 'ethve-ti-anastasis-2', 'agios-hazayni'],
+    'Toute la semaine': ['propheties-intro-conclusion', 'oukatikhisis', 'thok-te-ti-gom', 'ke-iperto-edribi', 'ke-iperto-oanagnosis',
+      'lecture-evangile-copte', 'trouhat-intro-conclusion'],
+    'Jeudi saint': ['fai-etafenf', 'ioudas', 'ioudas-bakir-jeudi', 'ioudas-villejuif', 'tabkit-yahouza', 'avechinon-villejuif',
+      'tou-dipnou', 'tou-dipnou-villejuif', 'fraction-isaac-antonios'],
+    'Vendredi saint': ['tai-shouri', 'fai-etafenf', 'ti-epistoli', 'omonogenis', 'omonogenis-anton-ayad', 'agios-hazayni',
+      'evangile-sixte-vendredi-abraham', 'evangile-sixte-vendredi-mounir', 'amanat-al-less', 'amanat-al-less-batanouny', 'ethve-ti-anastasis',
+      'ti-shouri', 'ethve-ti-anastasis-2', 'lamentations-jeremie-2024', 'lamentations-jeremie-3', 'lamentations-jeremie-mounir',
+      'lamentations-jeremie-abraham', 'lamentations-jeremie-villejuif', 'pek-thronos', 'pek-thronos-villejuif', 'golgotha', 'golgotha-villejuif'],
+    'Samedi de la Joie': ['anok-pe-pikouji', 'louanges-samedi-joie-seminaire', 'aube-samedi-joie-seminaire', 'doxologie-aube-samedi-joie-seminaire']
+  },
+  resurrection: ['psali-watos-resurrection-philopater', 'fraction-pere-resurrection-philopater', 'fraction-resurrection-philopater',
+    'fraction-resurrection-mina-abood', 'psaume-150-resurrection-ayad', 'onemnai-ayad', 'ya-kol-al-soufouf', 'ya-kol-al-soufouf-seminaire'],
+  pentecote: ['fraction-pere-resurrection-philopater', 'fraction-resurrection-mina-abood', 'fal-nousabbih-anton'],
+  apotres: ['ontos-villejuif', 'fraction-apotres-antonios', 'fal-nousabbih-anton'],
+  assomption: ['atai-parthenos-seminaire', 'fraction-hoda-kaen-antonios', 'fraction-hoda-kaen-raphael']
+};
+// liste à plat (Semaine sainte : jour après jour, un chant de deux jours compte une fois)
+const ordreDe = per => { const o = ORDRE[per]; return !o ? [] : Array.isArray(o) ? o : [...new Set(SECTIONS.flatMap(sc => o[sc] || []))]; };
+const parOrdre = (o, ids) => ids.map((id, n) => [id, n]).sort((a, b) => rank(o, a[0]) - rank(o, b[0]) || a[1] - b[1]).map(x => x[0]);
 const M = 'mounir', PS = 'pascha', AP = 'apprentissage';
 // Aspasmos Watos du Carême, chanté en arabe : arabe chanté mot par mot, français dessous.
 // Calé par alignement forcé (tools/aligner.py) sur l'enregistrement de Bola Mounir.
@@ -953,7 +994,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '10.11.2026 · 620868311e'; // remplacé par tools/build.sh
+const APP_VERSION = '10.11.2026 · afa8b1ad5c'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1007,7 +1048,7 @@ const momHead = (ids, i) => { const m = subOf(TR[ids[i]]); return m && (i === 0 
 function listIds(key) {
   const [k, id] = key.split(':');
   const sorted = f => sortTracks(TRACKS.filter(f)).map(t => t.id);
-  if (k === 'period') return sorted(t => (t.p === id || t.p2 === id) && t.col !== 'psaumes' && (t.col !== 'messe' || id !== 'annuel'));   // les extraits de messe de saison vont aussi dans leur période   // p2 : seconde période (ex. Ⲁ̀ ⲧⲁⲓ ⲡⲁⲣⲑⲉⲛⲟⲥ, annuel et Jeûne de la Vierge)   // psaumes et extraits de messe ont leur propre collection
+  if (k === 'period') return parOrdre(ordreDe(id), sorted(t => (t.p === id || t.p2 === id) && t.col !== 'psaumes' && (t.col !== 'messe' || id !== 'annuel')));   // les extraits de messe de saison vont aussi dans leur période   // p2 : seconde période (ex. Ⲁ̀ ⲧⲁⲓ ⲡⲁⲣⲑⲉⲛⲟⲥ, annuel et Jeûne de la Vierge)   // psaumes et extraits de messe ont leur propre collection
   if (k === 'chanter') return sorted(t => t.ch === id || t.ch2 === id);
   if (k === 'office') return sorted(t => t.of === id);
   if (k === 'col') return sorted(t => t.col === id);
@@ -1404,7 +1445,7 @@ function renderDetail(it) {
   const body = !ids.length ? '' : list === 'all'
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
-    ? [...secs, null].map(sc => { const sub = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))); return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
+    ? [...secs, null].map(sc => { const so = sc && (ORDRE[it.id] || {})[sc], sub0 = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))), sub = Array.isArray(so) ? parOrdre(so, sub0) : sub0; return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
     : ids.map((id, i) => (it.type === 'col' ? momHead(ids, i) : '') + rowHTML(TR[id], list, i, numbered)).join('');
   return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div>
   <div class="hero">${head}<h1 class="h-title">${title}</h1><div class="h-sub">${sub}</div>${desc ? `<p class="h-desc">${desc}</p>` : ''}
