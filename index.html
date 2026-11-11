@@ -1045,7 +1045,7 @@ const META = store.get('meta', {});
 Object.entries(META).forEach(([id, m]) => { if (TR[id]) Object.assign(TR[id], m); });
 // Code couleur : chaque rubrique a sa teinte (vignette, lecteur), comme les périodes ; les chants de l'office gardent celle de leur période
 const TEINTES = {taranim:{name:'Taranim',word:'Ⲧⲁⲣⲁⲛⲓⲙ',c:['#7a3b5c','#24101b']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#9a7b3c','#2a1d0c']}};
-const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return teinteDe(tr); };
+const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
 const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[0]).replace(/\p{M}/gu, '');
 // Titre copte en premier, titre français en dessous
 const titleTop = tr => tr.cop ? `<span class="cop">${tr.cop}</span>` : esc(tr.ti);
@@ -1064,7 +1064,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '11.11.2026 · 49e0148bc5'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · 3e609e312e'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
