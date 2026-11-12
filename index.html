@@ -137,9 +137,9 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .srch-ch small{color:var(--muted);font-size:13px;margin-top:2px}
 .srch-ch .ic{color:var(--faint)}
 .hist{border-top:1px solid var(--line)}
-.hrow{display:flex;align-items:center;border-bottom:1px solid var(--line)}
-.hq{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:12px 0;font-size:17px;text-align:left;color:var(--gold)}
-.hq .ic{color:var(--faint);flex:none}
+.hrow{display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--line)}
+.hrow > .row,.hrow > .lrow{flex:1;min-width:0;border-bottom:0}
+.hist .srch-ch .art{flex:none}
 .hdel{flex:none;width:40px;height:40px;display:grid;place-items:center;color:var(--faint)}
 .lhit .t2 .cop{font-size:1.12em}.lhit .t2 .ar{font-family:var(--f-ar);font-size:1.08em}
 .lhit .more{color:var(--faint)}
@@ -1176,7 +1176,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · f15e0155c0'; // remplacé par tools/build.sh
+const APP_VERSION = '13.11.2026 · 26e2bd196e'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1240,6 +1240,7 @@ function listIds(key) {
   if (k === 'imported') return TRACKS.filter(t => t.src).map(t => t.id);
   if (k === 'search') return S.results;
   if (k === 'lsearch') return S.lresults || [];
+  if (k === 'hist') return S.histIds || [];
   if (k === 'ajouts') return TRACKS.slice().sort((x, y) => ajoutDe(y) - ajoutDe(x)).map(t => t.id);   // « Ajoutés récemment » : du plus récent au plus ancien
   return sorted(() => true);
 }
@@ -1573,17 +1574,24 @@ function searchAll(q) {
   R.ly.sort((a, b) => (b.fr ? 1 : 0) - (a.fr ? 1 : 0) || order.get(a.id) - order.get(b.id));
   return R;
 }
-// Recherches récentes : gardées sur cet iPhone seulement (chacun a les siennes), les 8 dernières
-const HIST_MAX = 8;
-function noteSearch(q) {
-  q = String(q || '').trim().replace(/\s+/g, ' '); if (!q) return;
-  const h = store.get('recherches', []).filter(x => norm(x) !== norm(q));
-  store.set('recherches', [q, ...h].slice(0, HIST_MAX));
+// Recherches récentes : ce qu'on a touché dans les résultats (chant, chantre, période…), gardé sur cet iPhone seulement, les 10 derniers
+const HIST_MAX = 10;
+const histGet = () => store.get('recherches', []).filter(x => x && typeof x === 'object' && (x.k === 't' ? TR[x.id] : x.k === 'chanter' ? CH[x.id] : x.k === 'period' ? PERIODS[x.id] : listName(x.k + ':' + x.id)));
+function noteHist(k, id) {
+  if (!k || id == null || id === '') return;
+  store.set('recherches', [{ k, id }, ...histGet().filter(x => !(x.k === k && x.id === id))].slice(0, HIST_MAX));
 }
 function histHTML() {
-  const h = store.get('recherches', []); if (!h.length) return '';
+  const h = histGet(); S.histIds = h.filter(x => x.k === 't').map(x => x.id); if (!h.length) return '';
+  let n = 0;
+  const del = i => `<button class="hdel" data-act="hdel" data-i="${i}" aria-label="Retirer de l'historique">${ic('close', 16)}</button>`;
   return `<div class="sh"><h2>Recherches récentes</h2><button data-act="hclr">Effacer</button></div>
-  <div class="hist">${h.map((x, i) => `<div class="hrow"><button class="hq ell" data-act="hq" data-i="${i}">${ic('search', 16)}<span class="ell">${esc(x)}</span></button><button class="hdel" data-act="hdel" data-i="${i}" aria-label="Retirer « ${esc(x)} »">${ic('close', 16)}</button></div>`).join('')}</div>`;
+  <div class="hist">${h.map((x, i) => {
+    if (x.k === 't') return `<div class="hrow">${rowHTML(TR[x.id], 'hist', n++)}${del(i)}</div>`;
+    if (x.k === 'chanter') { const c = CH[x.id]; return `<div class="hrow"><button class="lrow srch-ch" data-act="open" data-type="chanter" data-id="${x.id}">${avHTML(c, 'sm')}<span class="nm"><b>${esc(c.name)}</b><small>Chantre</small></span></button>${del(i)}</div>`; }
+    const P = x.k === 'period' ? PERIODS[x.id] : null;
+    return `<div class="hrow"><button class="lrow srch-ch" data-act="open" data-type="${x.k}" data-id="${x.id}">${artHTML(P || PERIODS.annuel, P ? graph(P.word)[0] : ic('search', 18), 'sm')}<span class="nm"><b>${esc(listName(x.k + ':' + x.id))}</b><small>${P ? 'Période' : 'Collection'}</small></span></button>${del(i)}</div>`;
+  }).join('')}</div>`;
 }
 function renderSearch() {
   return `<h1>Recherche</h1>
@@ -1697,7 +1705,7 @@ function render(keepScroll) {
   $('#screen').innerHTML = top ? renderDetail(top) : { home: renderHome, periods: renderPeriods, library: renderLibrary, search: renderSearch }[r.tab]();
   ['home', 'periods', 'library'].forEach(k => $('#tab-' + k).classList.toggle('on', r.tab === k));
   $('#tab-search').classList.toggle('on', r.tab === 'search');
-  if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); q.addEventListener('keydown', e => { if (e.key === 'Enter') { noteSearch(q.value); q.blur(); } }); }
+  if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); q.addEventListener('keydown', e => { if (e.key === 'Enter') q.blur(); }); }
   scrollTo(0, keepScroll ? y : 0);
 }
 
@@ -2667,10 +2675,11 @@ document.addEventListener('click', e => {
   if (performance.now() - suppressClick < 400 && e.target.closest('#lyr')) return;
   const a = el.dataset.act;
   if (el.dataset.close) closeSheet();
-  if ((a === 'play' || a === 'open') && el.closest('#results')) noteSearch(S.q);   // un résultat choisi : la recherche entre dans l'historique
+  // ce qu'on touche parmi les résultats (ou dans l'historique) entre dans l'historique ; pas les carrés de « Parcourir »
+  if ((a === 'play' || a === 'open') && el.closest('#results') && (String(S.q || '').trim() || el.closest('.hist')))
+    a === 'play' ? noteHist('t', listIds(el.dataset.list)[+el.dataset.i || 0]) : noteHist(el.dataset.type, el.dataset.id);
   switch (a) {
-    case 'hq': { const x = store.get('recherches', [])[+el.dataset.i]; if (x == null) break; const q = $('#q'); S.q = x; if (q) q.value = x; noteSearch(x); renderResults(x); break; }
-    case 'hdel': { const h = store.get('recherches', []); h.splice(+el.dataset.i, 1); store.set('recherches', h); renderResults(S.q || ''); break; }
+    case 'hdel': { const h = histGet(); h.splice(+el.dataset.i, 1); store.set('recherches', h); renderResults(S.q || ''); break; }
     case 'hclr': store.set('recherches', []); renderResults(S.q || ''); break;
     case 'tab': S.route = { tab: el.dataset.tab, stack: [] }; render(); break;
     case 'open': S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
