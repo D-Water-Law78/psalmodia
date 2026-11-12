@@ -1169,7 +1169,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · b5ddf570f1'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · 2febb4d4dd'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1833,7 +1833,7 @@ function passageSuite() {
   } else {
     openSheet(`<div class="form center"><div class="okbig">${ic('check', 32)}</div>
       <h3>${P.lectures.length > 1 ? `Les ${P.lectures.length} Évangiles sont terminés` : 'L’Évangile est terminé'}</h3><p class="grp-f">${P.ref}</p>
-      <div class="fin-btns"><button class="btn pri" data-act="closesheet">OK</button><button class="btn" data-act="jourPoursuivre">Poursuivre la lecture</button></div></div>`);
+      <div class="fin-btns"><button class="btn pri" data-act="closesheet">Fermer</button><button class="btn" data-act="jourPoursuivre">Poursuivre la lecture</button></div></div>`);
   }
 }
 // arrêt au bon verset : vérifié à chaque image (écran allumé) et à chaque « timeupdate » (écran verrouillé, appli en fond)
