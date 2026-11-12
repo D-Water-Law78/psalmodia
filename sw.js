@@ -1,6 +1,6 @@
 // Psalmodia hors connexion. La page est prise sur le réseau d'abord (pour avoir toujours la dernière version),
 // le reste en cache. Le cache « psalmodia-audio » (les chants enregistrés) n'est jamais effacé.
-const C = 'psalmodia-a75c4456d4';
+const C = 'psalmodia-8356ff7a2c';
 const KEEP = 'psalmodia-audio';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(SHELL))); self.skipWaiting(); });
