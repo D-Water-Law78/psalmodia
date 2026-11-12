@@ -148,7 +148,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .useg{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:4px;border-radius:99px!important;margin:2px 0 18px}
 .useg button{height:38px;border-radius:99px;font-size:13.5px;font-weight:600;color:var(--ivory);display:flex;align-items:center;justify-content:center;transition:background .25s,color .25s}
 .useg button.on{color:var(--gold);background:rgba(var(--wash),.12)}
-.season.evh{min-height:440px;display:flex;flex-direction:column;justify-content:flex-end;color:#f6ecd9;background:linear-gradient(0deg,rgba(18,11,6,.96) 0%,rgba(18,11,6,.8) 34%,rgba(18,11,6,0) 58%),url(evangiles/marc-hero.jpg) 62% 0%/cover}
+.season.evh{min-height:440px;display:flex;flex-direction:column;justify-content:flex-end;color:#f6ecd9;background:linear-gradient(0deg,rgba(18,11,6,.96) 0%,rgba(18,11,6,.8) 34%,rgba(18,11,6,0) 58%),url(evangiles/christ-bon-pasteur.jpg) 50% 0%/cover}
 .evh .cop-t{font-family:var(--f-cop);font-size:40px;line-height:1;color:var(--gold);text-shadow:0 2px 12px rgba(0,0,0,.6)}
 .evh .s-name{font-size:24px;margin-top:6px}
 .evg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -698,6 +698,28 @@ const ORDRE = {
   apotres: ['ontos-villejuif', 'fraction-apotres-antonios', 'fal-nousabbih-anton'],
   assomption: ['atai-parthenos-seminaire', 'atai-parthenos-villejuif', 'fraction-hoda-kaen-antonios', 'fraction-hoda-kaen-raphael']
 };
+// Playlist « Tasbeha » : l'ordre de la louange de minuit (PsalmodiePPT ; Kiahk : Psalmodie_KiahkPPT), étape par étape.
+// Les variantes de saison (Kiahk, Carême, fêtes) sont à la place où elles se chantent. Un nouveau chant de tasbeha s'ajoute ici.
+const ETAPES_TASBEHA = [
+  ['Ouverture', ['tenthinou-baramous', 'hos-kiahk-philopater']],
+  ['1er Hos', ['premier-hos-zosima', 'lobsh-hos-1', 'kal-al-rab-li-moussa']],
+  ['2e Hos', ['psali-adam-hos2-careme-raphael-arsanios', 'lobsh-hos-2']],
+  ['3e Hos', ['psali-adam-hos3-careme-raphael', 'asmou-epchois', 'asmou-epchois-hos-3', 'aripsalin-antonios', 'madih-trois-jeunes-gens',
+    'tenen', 'tenen-muharraq', 'ten-oueh-ensok', 'ten-oueh-ensok-kiahk-ayad', 'ten-oueh-ensok-kiahk-raphael', 'ten-oueh-ensok-kiahk-abraham']],
+  ['Doxologies', ['doxologies-annuelles-mounir', 'doxologies-ayad-antonios', 'doxologies-nativite-seminaire',
+    'doxologie-careme-raphael-arsanios', 'doxologie-careme-5-raphael-arsanios']],
+  ['4e Hos', ['psali-adam-hos4-careme-raphael-arsanios']],
+  ['Psalies des fêtes', ['psali-adam-nayrouz-philopater', 'psali-watos-resurrection-philopater']],
+  ['Dimanche', ['ainahti-aikoti-lipon-raphael', 'aikoti-mounir', 'aftah-fai-antonios', 'shere-ne-maria', 'shere-ne-maria-arabe', 'simouti',
+    'ya-mariam-antonios', 'amdah-fiki-antonios', 'amdah-fiki-youhanna-nassif', 'teoi-enhikanos-raphael', 'afeen-pi-archi-erefs', 'evol-hiten-zosima',
+    'marahimak-ya-ilahi']],
+  ['Lundi', ['theotokie-lundi-raphael']],
+  ['Mercredi', ['psali-mercredi-kiahk-antonios', 'theotokie-mercredi-raphael', 'theotokie-mercredi-arabe-zosima']],
+  ['Jeudi', ['madih-olleika-antonios', 'theotokia-jeudi', 'madih-al-sougoud']],
+  ['Vendredi', ['theotokia-vendredi-raphael']]
+];
+const ORDRE_TASBEHA = ETAPES_TASBEHA.flatMap(e => e[1]);
+const etapeTasbeha = id => (ETAPES_TASBEHA.find(e => e[1].includes(id)) || ['Autres chants'])[0];
 // liste à plat (Semaine sainte : jour après jour, un chant de deux jours compte une fois)
 const ordreDe = per => { const o = ORDRE[per]; return !o ? [] : Array.isArray(o) ? o : [...new Set(SECTIONS.flatMap(sc => o[sc] || []))]; };
 const parOrdre = (o, ids) => ids.map((id, n) => [id, n]).sort((a, b) => rank(o, a[0]) - rank(o, b[0]) || a[1] - b[1]).map(x => x[0]);
@@ -1125,7 +1147,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · 75175fb7b3'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · f126b16cf4'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1181,7 +1203,7 @@ function listIds(key) {
   const sorted = f => sortTracks(TRACKS.filter(f)).map(t => t.id);
   if (k === 'period') return parOrdre(ordreDe(id), sorted(t => (t.p === id || t.p2 === id) && !horsChants(t) && (t.col !== 'messe' || id !== 'annuel')));   // les extraits de messe de saison vont aussi dans leur période   // p2 : seconde période (ex. Ⲁ̀ ⲧⲁⲓ ⲡⲁⲣⲑⲉⲛⲟⲥ, annuel et Jeûne de la Vierge)   // psaumes et extraits de messe ont leur propre collection
   if (k === 'chanter') return sorted(t => t.ch === id || t.ch2 === id);
-  if (k === 'office') return sorted(t => t.of === id);
+  if (k === 'office') return id === 'tasbeha' ? parOrdre(ORDRE_TASBEHA, sorted(t => t.of === id)) : sorted(t => t.of === id);
   if (k === 'col') return id === 'lectures' ? TRACKS.filter(t => t.col === id).sort((a, b) => Object.keys(EVANG).indexOf(a.ev) - Object.keys(EVANG).indexOf(b.ev) || a.id.localeCompare(b.id)).map(t => t.id) : sorted(t => t.col === id);
   if (k === 'ev') return TRACKS.filter(t => t.ev === id).sort((a, b) => a.id.localeCompare(b.id)).map(t => t.id);
   if (k === 'fav') return TRACKS.filter(t => S.fav.has(t.id)).map(t => t.id);
@@ -1606,6 +1628,8 @@ function renderDetail(it) {
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
     ? [...secs, null].map(sc => { const so = sc && (ORDRE[it.id] || {})[sc], sub0 = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))), sub = Array.isArray(so) ? parOrdre(so, sub0) : sub0; return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
+    : list === 'office:tasbeha'   // intertitre à chaque étape de la tasbeha
+    ? ids.map((id, i) => (i === 0 || etapeTasbeha(id) !== etapeTasbeha(ids[i - 1]) ? `<div class="sh mom"><h3>${etapeTasbeha(id)}</h3></div>` : '') + rowHTML(TR[id], list, i, numbered)).join('')
     : ids.map((id, i) => (it.type === 'col' ? momHead(ids, i) : '') + rowHTML(TR[id], list, i, numbered)).join('');
   return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div>
   <div class="hero">${head}<h1 class="h-title">${title}</h1><div class="h-sub">${sub}</div>${desc ? `<p class="h-desc">${desc}</p>` : ''}
