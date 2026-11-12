@@ -1171,7 +1171,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · 3de1f3be9d'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · c9aa91f9d9'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1306,8 +1306,14 @@ function renderHome() {
   <p class="foot">Les nouveaux chants arrivent tout seuls avec les mises à jour de l'appli.</p>`;
 }
 function chipsHTML() {
-  const chip = (type, id, n) => { const k = listIds(type + ':' + id).length; return `<button class="chip" data-act="open" data-type="${type}" data-id="${id}">${n}${k ? `<small>${k}</small>` : ''}</button>`; };
-  return Object.entries(COLS).map(([id, n]) => chip('col', id, n)).join('') + Object.entries(OFFICES).map(([id, n]) => chip('office', id, n)).join('');
+  // Pastilles à leur taille, dans un ordre qui remplit bien les lignes : apprentissage, offices dans l'ordre de la journée, messe, lectures, psaumes, cantiques, sacrements
+  // (sur iPhone : 4 lignes de 3, presque pleines)
+  const ORDRE_CHIPS = ['col:apprentissage', 'office:vepres', 'office:tasbeha', 'office:matines', 'office:liturgie', 'col:messe', 'col:lectures', 'col:psaumes', 'col:taranim', 'office:bapteme', 'office:mariage', 'office:funerailles'];
+  const tous = [...Object.keys(OFFICES).map(id => 'office:' + id), ...Object.keys(COLS).map(id => 'col:' + id)];
+  return [...ORDRE_CHIPS.filter(c => tous.includes(c)), ...tous.filter(c => !ORDRE_CHIPS.includes(c))].map(c => {
+    const [type, id] = c.split(':'), n = type === 'col' ? COLS[id] : OFFICES[id], k = listIds(c).length;
+    return `<button class="chip" data-act="open" data-type="${type}" data-id="${id}">${n}${k ? `<small>${k}</small>` : ''}</button>`;
+  }).join('');
 }
 function tileHTML(id) {
   const P = PERIODS[id], n = listIds('period:' + id).length;
