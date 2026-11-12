@@ -1171,7 +1171,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · cee48e642e'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · 3de1f3be9d'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1260,7 +1260,7 @@ function renderUniv() {
   }
   if (S.univ === 'lectures') {
     const ids = listIds('col:lectures');
-    return `<section class="season evh"><div class="eyebrow">Les lectures</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les quatre Évangiles</div><div class="s-desc">L’Évangile du jour, à chaque office</div><div class="s-actions jour">${OFF_JOUR.map(([k, n]) => { const r = evangileDuJour(k); return `<button class="s-btn pri" data-act="jour" data-o="${k}" ${r ? `aria-label="${n} : ${r.ref}"` : 'disabled'}>${ic(k, 16)}${n}</button>`; }).join('')}</div></section>`
+    return `<section class="season evh"><div class="eyebrow">Les lectures</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les 4 Évangiles</div><div class="s-desc">L’Évangile du jour, à chaque office</div><div class="s-actions jour">${OFF_JOUR.map(([k, n]) => { const r = evangileDuJour(k); return `<button class="s-btn pri" data-act="jour" data-o="${k}" ${r ? `aria-label="${n} : ${r.ref}"` : 'disabled'}>${ic(k, 16)}${n}</button>`; }).join('')}</div></section>`
       + `<div class="sh"><h2>Les Évangélistes</h2></div><div class="evg2">${Object.entries(EVANG).map(([k, E]) => { const n = listIds('ev:' + k).length; return `<button class="evt${E.img ? ' img' : ''}" style="${E.c ? `--c1:${E.c[0]};--c2:${E.c[1]};` : ''}${E.img ? `--im:url(${E.img})` : ''}" data-act="open" data-type="ev" data-id="${k}"><span class="lt">${E.l}</span><span class="cn">${E.cop}</span><small>${n ? n + ' chapitre' + (n > 1 ? 's' : '') : 'bientôt'}</small></button>`; }).join('')}</div>`;
   }
   return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-lt">Ⲥ</div><div class="eyebrow">Les cantiques</div><div class="s-name"><span class="lt1">Ⲥ</span>antiques</div><div class="s-desc">Chants spirituels, en dehors de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
@@ -1636,7 +1636,7 @@ function renderDetail(it) {
     head = E.img ? `<div class="art xl" style="background:url(${E.img}) center top/cover" aria-hidden="true"></div>` : artHTML(E.c ? {c:E.c} : 'annuel', E.l, 'xl');   // même icône et même cadrage que la case
   } else if (it.type === 'col') {
     list = 'col:' + it.id; title = COLS[it.id];
-    sub = {psaumes:'Numérotation de la Septante', messe:'Passages extraits de liturgies', lectures:'Les quatre Évangiles, chapitre par chapitre'}[it.id] || 'Chants enseignés pas à pas';
+    sub = {psaumes:'Numérotation de la Septante', messe:'Passages extraits de liturgies', lectures:'Les 4 Évangiles, chapitre par chapitre'}[it.id] || 'Chants enseignés pas à pas';
     head = it.id === 'psaumes' ? artHTML(TEINTES.psaumes, 'Ⲯ', 'xl') : it.id === 'lectures' ? artHTML('annuel', 'Ⲉ', 'xl') : it.id === 'messe' ? artHTML('annuel', '☩', 'xl') : artHTML('pascha', 'Ⲁ', 'xl');
   } else if (it.type === 'fav') {
     list = 'fav'; title = 'Favoris'; sub = `${ids0('fav')} chant${ids0('fav') > 1 ? 's' : ''}`;
