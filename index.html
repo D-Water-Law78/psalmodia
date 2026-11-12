@@ -1176,7 +1176,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · 26e2bd196e'; // remplacé par tools/build.sh
+const APP_VERSION = '13.11.2026 · 1b4ba79eb6'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1601,7 +1601,8 @@ function renderSearch() {
 const lineHTML = (v, big) => v.w ? `<span class="cop">${esc(v.w.map(w => w.x).join(' '))}</span>` : v.ar ? `<span dir="rtl" lang="ar" class="ar">${esc(v.ar)}</span>` : esc(v.fr);
 function renderResults(q) {
   const box = $('#results'); if (!box) return;
-  if (!String(q || '').trim()) { S.results = []; box.innerHTML = histHTML() + `<div class="sh"><h2>Parcourir</h2></div><div class="pgrid">${PERIOD_ORDER.map(tileHTML).join('')}</div><div style="height:10px"></div>`; return; }
+  // barre vide : pendant qu'on s'apprête à taper, les recherches récentes ; sinon « Parcourir » (toutes les périodes et les psaumes)
+  if (!String(q || '').trim()) { S.results = []; const h = S.qFocus ? histHTML() : ''; box.innerHTML = h || `<div class="sh"><h2>Parcourir</h2></div><div class="pgrid">${PERIOD_ORDER.map(tileHTML).join('') + Object.keys(COL_TILES).map(colTileHTML).join('')}</div><div style="height:10px"></div>`; return; }
   const R = searchAll(q);
   // Chantre trouvé : sa fiche d'abord, puis ses chants (comme Apple Music), puis les autres titres
   const top = R.ch.length && (R.ch.length === 1 || R.ch[0].c < R.ch[1].c) ? R.ch[0].id : null;
@@ -1705,7 +1706,10 @@ function render(keepScroll) {
   $('#screen').innerHTML = top ? renderDetail(top) : { home: renderHome, periods: renderPeriods, library: renderLibrary, search: renderSearch }[r.tab]();
   ['home', 'periods', 'library'].forEach(k => $('#tab-' + k).classList.toggle('on', r.tab === k));
   $('#tab-search').classList.toggle('on', r.tab === 'search');
-  if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); q.addEventListener('keydown', e => { if (e.key === 'Enter') q.blur(); }); }
+  if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); q.addEventListener('keydown', e => { if (e.key === 'Enter') q.blur(); });
+    q.addEventListener('focus', () => { S.qFocus = true; if (!String(q.value).trim()) renderResults(''); });
+    // on garde l'historique si l'on vient de toucher dedans (✕, Effacer) ; sinon, clavier fermé = retour à « Parcourir »
+    q.addEventListener('blur', () => setTimeout(() => { if (S.histTouch) { S.histTouch = false; return; } S.qFocus = false; if ($('#q') === q && !String(q.value).trim()) renderResults(''); }, 250)); }
   scrollTo(0, keepScroll ? y : 0);
 }
 
@@ -2670,11 +2674,13 @@ function setTheme(k) { store.set('theme', k); applyTheme(); render(true); }
 function setCfg(k, v) { S.cfg[k] = v; store.set('cfg', S.cfg); render(true); updateUI(); if (S.full && S.pview === 'lyrics') { renderPBody(); } pokeControls(); }
 
 $('#player').addEventListener('pointerdown', () => pokeControls(), true);
+document.addEventListener('pointerdown', e => { if (e.target.closest('.hdel, [data-act="hclr"]')) S.histTouch = true; }, true);   // le clavier se ferme mais l'historique reste
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   if (performance.now() - suppressClick < 400 && e.target.closest('#lyr')) return;
   const a = el.dataset.act;
   if (el.dataset.close) closeSheet();
+  if (a !== 'hdel' && a !== 'hclr') S.qFocus = false;
   // ce qu'on touche parmi les résultats (ou dans l'historique) entre dans l'historique ; pas les carrés de « Parcourir »
   if ((a === 'play' || a === 'open') && el.closest('#results') && (String(S.q || '').trim() || el.closest('.hist')))
     a === 'play' ? noteHist('t', listIds(el.dataset.list)[+el.dataset.i || 0]) : noteHist(el.dataset.type, el.dataset.id);
