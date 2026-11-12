@@ -644,7 +644,7 @@ const PERIODS = {
 const PERIOD_ORDER = ['annuel','nayrouz','kiahk','nativite','theophanie','ninive','careme','rameaux','pascha','resurrection','pentecote','apotres','assomption'];
 const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits de messe', lectures:'Lectures', taranim:'Taranim'};
 // Les quatre évangélistes (lectures lues, rangées par livre puis par chapitre ; ev = livre)
-const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',c:['#8a2f2f','#2a0f0f']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:1,c:['#8a6a2f','#2a1f0d']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',c:['#2f4f7a','#0f1a2b']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',c:['#2f6a55','#0d221b']}};
+const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',c:['#2b4bb0','#0b1440']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:1,c:['#8a6a2f','#2a1f0d']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',c:['#2f4f7a','#0f1a2b']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',c:['#b08ad8','#2a1240']}};
 // Univers de l'accueil : les psaumes et les lectures ont leur page et leur aléatoire, à part des chants
 const UNIVS = [['chants','Chants'],['psaumes','Psaumes'],['lectures','Lectures'],['taranim','Taranim']];
 const horsChants = t => t.col === 'psaumes' || t.col === 'lectures' || t.col === 'taranim';
@@ -1101,7 +1101,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · fb56365257'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · 47999cf129'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
