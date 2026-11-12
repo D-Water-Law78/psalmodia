@@ -1081,7 +1081,7 @@ CUSTOM.forEach(r => { const t = { id: r.id, ti: r.ti, cop: '', p: 'annuel', ch: 
 const META = store.get('meta', {});
 Object.entries(META).forEach(([id, m]) => { if (TR[id]) Object.assign(TR[id], m); });
 // Code couleur : chaque rubrique a sa teinte (vignette, lecteur), comme les périodes ; les chants de l'office gardent celle de leur période
-const TEINTES = {taranim:{name:'Taranim',word:'Ⲧⲁⲣⲁⲛⲓⲙ',c:['#7a3b5c','#24101b']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
+const TEINTES = {taranim:{name:'Taranim',word:'Ⲧⲁⲣⲁⲛⲓⲙ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
 const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
 const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[0]).replace(/\p{M}/gu, '');
 // Titre copte en premier, titre français en dessous
@@ -1101,7 +1101,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · 8b51f226ee'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · fb56365257'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1193,7 +1193,7 @@ function renderUniv() {
     return univHero('evh', '', `<div class="eyebrow">Les lectures</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les quatre Évangiles</div><div class="s-desc">L’aléatoire reste dans les lectures</div>`, 'col:lectures', ids.length, 'lecture')
       + `<div class="sh"><h2>Les évangélistes</h2></div><div class="evg2">${Object.entries(EVANG).map(([k, E]) => { const n = listIds('ev:' + k).length; return `<button class="evt${E.img ? ' img' : ''}" ${E.c ? `style="--c1:${E.c[0]};--c2:${E.c[1]}"` : ''} data-act="open" data-type="ev" data-id="${k}"><span class="lt">${E.l}</span><span class="cn">${E.cop}</span><small>${n ? n + ' chapitre' + (n > 1 ? 's' : '') : 'bientôt'}</small></button>`; }).join('')}</div>`;
   }
-  return univHero('', '--c1:#7a3b5c;--c2:#24101b;--ink:#f6ecd9', `<div class="s-word">Ⲧⲁⲣⲁⲛⲓⲙ</div><div class="eyebrow">Les cantiques</div><div class="s-name">Taranim</div><div class="s-desc">Cantiques, à part des chants de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
+  return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-word">Ⲧⲁⲣⲁⲛⲓⲙ</div><div class="eyebrow">Les cantiques</div><div class="s-name">Taranim</div><div class="s-desc">Cantiques, à part des chants de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
     + (() => { const ids = listIds('col:taranim'); return ids.length ? `<div class="sh"><h2>Tous les cantiques</h2></div>${ids.map((id, i) => rowHTML(TR[id], 'col:taranim', i)).join('')}` : `<p class="empty">Pas encore de cantiques ici.<br>Envoie-les-moi et je les range dans cette rubrique.</p>`; })();
 }
 function renderHome() {
