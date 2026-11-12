@@ -106,8 +106,8 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .s-name{font-family:var(--f-display);font-size:32px;line-height:1.1;margin-top:6px;text-wrap:balance}
 .s-desc{font-size:14px;opacity:.85;margin-top:6px;max-width:30ch}
 .s-word{position:absolute;right:-6px;bottom:-14px;font-family:var(--f-cop);font-size:82px;line-height:1;opacity:.13;pointer-events:none;white-space:nowrap}
-.s-lt{position:absolute;right:-6px;top:-22px;font-family:var(--f-lettrine);font-size:180px;line-height:1;opacity:.17;pointer-events:none}
-.lt1{font-family:var(--f-lettrine);font-size:.95em;line-height:1;margin-right:.02em}
+.s-lt{position:absolute;right:-4px;top:-18px;font-family:var(--f-lettrine);font-size:150px;line-height:1;opacity:.2;pointer-events:none}   /* même filigrane que .evt .lt */
+.lt1{font-family:var(--f-lettrine);font-size:.95em;line-height:1;margin-right:.07em}
 .s-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
 .s-btn{height:40px;padding:0 16px;border-radius:99px;color:#f6ecd9;font-weight:600;display:inline-flex;align-items:center;gap:7px}
 .s-btn.pri{background:#f6ecd9;color:#1b140c}
@@ -1147,7 +1147,7 @@ CUSTOM.forEach(r => { const t = { id: r.id, ti: r.ti, cop: '', p: 'annuel', ch: 
 const META = store.get('meta', {});
 Object.entries(META).forEach(([id, m]) => { if (TR[id]) Object.assign(TR[id], m); });
 // Code couleur : chaque rubrique a sa teinte (vignette, lecteur), comme les périodes ; les chants de l'office gardent celle de leur période
-const TEINTES = {taranim:{name:'Cantiques',word:'Ϩⲱⲇⲏ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
+const TEINTES = {taranim:{name:'Cantiques',word:'Ⲥ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
 const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
 const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[0]).replace(/\p{M}/gu, '');
 // Titre copte en premier, titre français en dessous
@@ -1167,7 +1167,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · 00e2b310a6'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · 940469f5c8'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1259,7 +1259,7 @@ function renderUniv() {
     return `<section class="season evh"><div class="eyebrow">Les lectures</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les quatre Évangiles</div><div class="s-desc">L’Évangile du jour, à chaque office</div><div class="s-actions jour">${OFF_JOUR.map(([k, n]) => { const r = evangileDuJour(k); return `<button class="s-btn pri" data-act="jour" data-o="${k}" ${r ? `aria-label="${n} : ${r.ref}"` : 'disabled'}>${ic(k, 16)}${n}</button>`; }).join('')}</div></section>`
       + `<div class="sh"><h2>Les évangélistes</h2></div><div class="evg2">${Object.entries(EVANG).map(([k, E]) => { const n = listIds('ev:' + k).length; return `<button class="evt${E.img ? ' img' : ''}" ${E.c ? `style="--c1:${E.c[0]};--c2:${E.c[1]}"` : ''} data-act="open" data-type="ev" data-id="${k}"><span class="lt">${E.l}</span><span class="cn">${E.cop}</span><small>${n ? n + ' chapitre' + (n > 1 ? 's' : '') : 'bientôt'}</small></button>`; }).join('')}</div>`;
   }
-  return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-lt">Ϩ</div><div class="eyebrow">Les cantiques</div><div class="s-name cop"><span class="lt1">Ⲛ</span>ⲓϩⲱⲇⲏ ⲙ̀ⲡ̀ⲛⲉⲩⲙⲁⲧⲓⲕⲟⲛ</div><div class="s-desc">Cantiques spirituels, à part des chants de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
+  return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-lt">Ⲥ</div><div class="eyebrow">Les cantiques</div><div class="s-name"><span class="lt1">Ⲥ</span>antiques</div><div class="s-desc">Chants spirituels, en dehors de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
     + (() => { const ids = listIds('col:taranim'); return ids.length ? `<div class="sh"><h2>Tous les cantiques</h2></div>${ids.map((id, i) => rowHTML(TR[id], 'col:taranim', i)).join('')}` : `<p class="empty">Pas encore de cantiques ici.<br>Envoie-les-moi et je les range dans cette rubrique.</p>`; })();
 }
 function renderHome() {
