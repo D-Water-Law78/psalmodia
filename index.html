@@ -440,6 +440,8 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 .dl-h span{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;flex:none}
 .dl-s{font-size:13px;color:var(--muted);line-height:1.4}
 .dlcard .btn{height:40px;border-radius:20px}
+.fin-btns{display:flex;flex-direction:column;gap:10px;width:100%}
+.fin-btns .btn{width:100%}
 .okbig{width:64px;height:64px;border-radius:50%;background:rgba(219,176,102,.15);color:var(--gold);display:grid;place-items:center;margin-top:6px}
 .warn{color:var(--warn);font-size:14px;line-height:1.4;margin:0}
 
@@ -1167,7 +1169,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '12.11.2026 · faa6bc40a5'; // remplacé par tools/build.sh
+const APP_VERSION = '12.11.2026 · b5ddf570f1'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1719,7 +1721,7 @@ const EC = {
     });
   }
 };
-A.addEventListener('timeupdate', () => EC.avance(A.currentTime, A.duration));
+A.addEventListener('timeupdate', () => { EC.avance(A.currentTime, A.duration); verifPassage(A.currentTime); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && EC.cur) store.set('ecEnCours', EC.cur); else EC.envoyer(); });
 // L'appli peut rester ouverte plusieurs jours sur l'iPhone : la date copte et la période sont calculées au lancement,
 // donc on recharge au retour si le jour a changé (pas pendant une écoute).
@@ -1784,37 +1786,67 @@ function evangileDuJour(office) {
   if (office === 'veille' && d.getHours() >= VEILLE_DES) d.setDate(d.getDate() + 1);
   const r = (JOUR[isoJour(d)] || [])[OFF_JOUR.findIndex(o => o[0] === office)];
   if (!r) return null;
-  const segs = [], refs = [];
+  // un Évangile peut déborder sur le chapitre suivant (mt4:23-25;mt5:1-16) : il reste une seule lecture ;
+  // un autre livre ou un autre endroit = une autre lecture (Rameaux : les quatre évangélistes)
+  const segs = [], lectures = [];
+  let av = null;
   for (const p of r.split(';')) {
     const x = /^([a-z]{2})(\d+):(.+)$/.exec(p); if (!x) continue;
     const id = `evangile-${LIVRE_ID[x[1]]}-${x[2].padStart(2, '0')}`, tr = TR[id];
     if (!tr) return null;
-    refs.push(`${EVANG[x[1]].fr} ${x[2]}, ${x[3].replace(/,/g, '.')}`);
+    const suite = av && av[1] === x[1] && +x[2] === +av[2] + 1 && /^1\b/.test(x[3]);
+    if (!suite) lectures.push({ l: x[1], ref: `${EVANG[x[1]].fr} ${x[2]}, ${x[3].replace(/,/g, '.')}` });
+    else lectures[lectures.length - 1].ref += ` ; ${x[2]}, ${x[3].replace(/,/g, '.')}`;
+    av = x;
     for (const pl of x[3].split(',')) {
       const [n, m = n] = pl.split('-').map(Number), t = tempsVersets(tr, n, m);
       if (!t) return null;
-      segs.push({ id, a: t.a, b: t.b });
+      segs.push({ id, a: t.a, b: t.b, lec: lectures.length - 1 });
     }
   }
-  return segs.length ? { segs, ref: refs.join(' ; '), d } : null;
+  if (!segs.length) return null;
+  const fete = lectures.length > 1 ? (PERIODS[season(g2j(d.getFullYear(), d.getMonth() + 1, d.getDate()))] || {}).name : '';
+  return { segs, lectures, ref: lectures.map(x => x.ref).join(' · '), d, fete };
 }
 function jouerSeg(P, k) {
   const sg = P.segs[k];
   S.queue = [...new Set(P.segs.map(x => x.id))]; S.qi = S.queue.indexOf(sg.id); S.shuffle = false;
   S.qFrom = 'Évangile du jour'; S.qKey = 'col:lectures';
   if (S.cur !== sg.id) load(sg.id);
-  S.passage = { segs: P.segs, k };
+  S.passage = { ...P, k };
   seekWhenReady(sg.a); play(); render(true);
 }
+// fin d'un morceau du passage : on enchaîne la suite du même Évangile ; sinon on s'arrête et on le dit
+// (sans fenêtre, on pourrait croire que l'appli a planté)
 function passageSuite() {
-  const P = S.passage, k = P.k + 1;
-  if (k < P.segs.length) { jouerSeg(P, k); return; }
+  const P = S.passage, k = P.k + 1, fini = P.segs[P.k].lec;
+  if (k < P.segs.length && P.segs[k].lec === fini) { jouerSeg(P, k); return; }
   S.passage = null; pause();
+  const L = P.lectures[fini];
+  if (k < P.segs.length) {
+    const reste = P.lectures.slice(P.segs[k].lec), n = reste.length;
+    S.jourSuite = { P, k };
+    openSheet(`<div class="form center"><div class="okbig">${ic('check', 32)}</div>
+      <h3>Fin de l’Évangile selon saint ${EVANG[L.l].fr}</h3>
+      <p class="grp-f">${P.fete ? esc(P.fete) + ' · ' : ''}il vous reste ${n} Évangile${n > 1 ? 's' : ''} : ${reste.map(x => x.ref).join(', ')}</p>
+      <button class="btn pri" data-act="jourSuite">${ic('play', 16)} Lecture suivante</button></div>`);
+  } else {
+    openSheet(`<div class="form center"><div class="okbig">${ic('check', 32)}</div>
+      <h3>${P.lectures.length > 1 ? `Les ${P.lectures.length} Évangiles sont terminés` : 'L’Évangile est terminé'}</h3><p class="grp-f">${P.ref}</p>
+      <div class="fin-btns"><button class="btn pri" data-act="closesheet">OK</button><button class="btn" data-act="jourPoursuivre">Poursuivre la lecture</button></div></div>`);
+  }
+}
+// arrêt au bon verset : vérifié à chaque image (écran allumé) et à chaque « timeupdate » (écran verrouillé, appli en fond)
+function verifPassage(t) {
+  const P = S.passage; if (!P) return;
+  const sg = P.segs[P.k];
+  if (S.cur === sg.id && t >= sg.b) passageSuite();
 }
 function jouerJour(office) {
   const P = evangileDuJour(office); if (!P) return;
   jouerSeg(P, 0);
-  toast(office === 'veille' ? `Veille du ${P.d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · ${P.ref}` : P.ref);
+  const ref = P.lectures.length > 1 ? `${P.lectures[0].ref} (1er Évangile sur ${P.lectures.length})` : P.ref;
+  toast(office === 'veille' ? `Veille du ${P.d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} · ${ref}` : ref);
 }
 function playList(key, i, shuffle) {
   const ids = listIds(key); if (!ids.length) return;
@@ -2268,7 +2300,7 @@ function tick(now) {
     if (au(tr)) S.t = smoothTime(now);
     else S.t += (now - simLast) / 1000 * S.rate;
     if (S.loopA != null && S.loopB != null && S.t >= S.loopB) seek(S.loopA);
-    if (S.passage && S.cur === S.passage.segs[S.passage.k].id && S.t >= S.passage.segs[S.passage.k].b) passageSuite();
+    verifPassage(S.t);
     if (!au(tr) && S.t >= tr.dur) ended();
     if (au(tr) && now - lastPos > 1000 && 'mediaSession' in navigator && navigator.mediaSession.setPositionState && isFinite(A.duration)) {
       lastPos = now; try { navigator.mediaSession.setPositionState({ duration: A.duration, playbackRate: S.rate, position: Math.min(A.currentTime, A.duration) }); } catch (e) {}
@@ -2635,6 +2667,8 @@ document.addEventListener('click', e => {
     }
     case 'shufplay': playList(el.dataset.list, 0, true); break;
     case 'jour': jouerJour(el.dataset.o); break;
+    case 'jourSuite': closeSheet(); if (S.jourSuite) { const { P, k } = S.jourSuite; S.jourSuite = null; jouerSeg(P, k); toast(P.lectures[P.segs[k].lec].ref); } break;
+    case 'jourPoursuivre': closeSheet(); play(); break;
     case 'fav': setFav(el.dataset.id); break;
     case 'openp': if (!e.target.closest('.mbtn')) openPlayer(); break;
     case 'closep': closePlayer(); break;
