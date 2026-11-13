@@ -1176,7 +1176,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · fb9b9ab303'; // remplacé par tools/build.sh
+const APP_VERSION = '13.11.2026 · e6572bbd78'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1187,10 +1187,13 @@ function artHTML(pid, glyph, cls) {
   const P = typeof pid === 'object' ? pid : PERIODS[pid] || PERIODS.annuel;
   return `<div class="art ${cls}" style="--c1:${P.c[0]};--c2:${P.c[1]};--ink:${P.ink || '#f6ecd9'}" aria-hidden="true"><span class="gl">${glyph}</span><svg class="xc"><use href="#xc"/></svg></div>`;
 }
+// Pochette d'un chant : l'icône de l'évangéliste pour une lecture (même cadrage que sa case), sinon la lettrine
+const evImg = tr => tr.ev && EVANG[tr.ev] && EVANG[tr.ev].img;
+const trArt = (tr, cls) => evImg(tr) ? `<div class="art ${cls}" style="background:url(${evImg(tr)}) center top/cover" aria-hidden="true"></div>` : artHTML(teinteDe(tr), glyphOf(tr), cls);
 const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
 function rowHTML(tr, list, i, numbered) {
   const cur = S.cur === tr.id;
-  const lead = numbered ? `<span class="num">${cur ? eq() : i + 1}</span>` : artHTML(teinteDe(tr), glyphOf(tr), 'sm');
+  const lead = numbered ? `<span class="num">${cur ? eq() : i + 1}</span>` : trArt(tr, 'sm');
   const sub = [titleSub(tr) || (tr.note ? esc(tr.note) : ''), esc(chName(tr))].filter(Boolean).join(' · ');
   return `<div class="row${cur ? ' is-cur' : ''}" data-act="play" data-list="${list}" data-i="${i}" role="button" tabindex="0">
     ${lead}<div class="meta"><div class="t1 ell">${titleTop(tr)}${audioTag(tr)}</div><div class="t2 ell">${sub}</div></div>
@@ -1302,7 +1305,7 @@ function renderHome() {
   </section>
   ${dlHTML()}
   <div class="sh"><h2>Reprendre</h2></div>
-  <div class="hscroll">${recentIds().map((id, i) => { const t = TR[id]; return `<button class="card" data-act="play" data-list="recent" data-i="${i}">${artHTML(teinteDe(t), glyphOf(t), 'md')}<div class="c1 ell">${titleTop(t)}</div><div class="c2 ell">${titleSub(t) || esc(chName(t))}</div></button>`; }).join('')}</div>
+  <div class="hscroll">${recentIds().map((id, i) => { const t = TR[id]; return `<button class="card" data-act="play" data-list="recent" data-i="${i}">${trArt(t, 'md')}<div class="c1 ell">${titleTop(t)}</div><div class="c2 ell">${titleSub(t) || esc(chName(t))}</div></button>`; }).join('')}</div>
   <div class="sh"><h2>Chantres</h2></div>
   <div class="hscroll">${chOrdre().map(([id, c]) => `<button class="chan" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c)}<span>${esc(c.name)}</span></button>`).join('')}</div>
   <div class="sh"><h2>Offices et collections</h2></div>
@@ -1613,7 +1616,7 @@ function renderResults(q) {
   const chH = R.ch.length ? `<div class="sh"><h2>Chantre${R.ch.length > 1 ? 's' : ''}</h2></div>` + R.ch.slice(0, 8).map(({ id }) => { const c = CH[id]; return `<button class="lrow srch-ch" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c, 'md')}<span class="nm"><b>${esc(c.name)}</b><small>Chantre · ${(n => n + ' chant' + (n > 1 ? 's' : ''))(listIds('chanter:' + id).length)}</small></span>${ic('chev', 18)}</button>`; }).join('') : '';
   const mineH = mine.length ? `<div class="sh"><h2>Chants de ${esc(CH[top].name)}</h2></div>` + mine.map((id, i) => rowHTML(TR[id], 'search', i)).join('') : '';
   const trH = others.length ? `<div class="sh"><h2>${mine.length ? 'Autres titres' : 'Titres'}</h2></div>` + others.map((id, i) => rowHTML(TR[id], 'search', mine.length + i)).join('') : '';
-  const lyH = R.ly.length ? `<div class="sh"><h2>Dans les paroles</h2></div>` + R.ly.map((x, i) => { const t = TR[x.id], v = t.L.v[x.vi]; return `<div class="row lhit" data-act="play" data-list="lsearch" data-i="${i}" data-t="${x.t ?? ''}" role="button" tabindex="0">${artHTML(teinteDe(t), glyphOf(t), 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${x.t != null ? fmt(x.t) + ' · ' : ''}${x.fr ? esc(v.fr) : lineHTML(v)}${x.n > 1 ? ` <span class="more">+${x.n - 1}</span>` : ''}</div></div></div>`; }).join('') : '';
+  const lyH = R.ly.length ? `<div class="sh"><h2>Dans les paroles</h2></div>` + R.ly.map((x, i) => { const t = TR[x.id], v = t.L.v[x.vi]; return `<div class="row lhit" data-act="play" data-list="lsearch" data-i="${i}" data-t="${x.t ?? ''}" role="button" tabindex="0">${trArt(t, 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${x.t != null ? fmt(x.t) + ' · ' : ''}${x.fr ? esc(v.fr) : lineHTML(v)}${x.n > 1 ? ` <span class="more">+${x.n - 1}</span>` : ''}</div></div></div>`; }).join('') : '';
   box.innerHTML = chH || mineH || trH || lyH ? chH + mineH + trH + lyH + '<div style="height:10px"></div>' : `<p class="empty">Aucun chant pour « ${esc(q)} ».</p>`;
 }
 const sw = (k, label, sub) => `<div class="gr"><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><button class="sw" role="switch" aria-checked="${!!S.cfg[k]}" data-act="cfg" data-k="${k}" aria-label="${label}"></button></div>`;
@@ -1989,9 +1992,9 @@ function renderPlayer() {
   const sub = [titleSub(tr), esc(chName(tr) || P.name)].filter(Boolean).join(' — ');
   const btns = `<button class="gbtn${fav ? ' on' : ''}" data-act="fav" data-id="${tr.id}" aria-label="${fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ic(fav ? 'starf' : 'star', 18)}</button><button class="gbtn" data-act="menu" aria-label="Plus d’options">${ic('more', 18)}</button>`;
   const findB = tr.L ? `<button class="gbtn gfind${S.pview === 'find' ? ' on' : ''}" data-act="lfind" aria-label="Chercher dans ce chant">${ic('search', 18)}</button>` : '';
-  $('#pTop').innerHTML = `${artHTML(teinteDe(tr), glyphOf(tr), 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${findB}${btns}`;
+  $('#pTop').innerHTML = `${trArt(tr, 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${findB}${btns}`;
   $('#pTitle').innerHTML = `<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${btns}`;
-  $('#mArt').innerHTML = artHTML(teinteDe(tr), glyphOf(tr), 'xs');
+  $('#mArt').innerHTML = trArt(tr, 'xs');
   $('#mT1').innerHTML = titleTop(tr);
   $('#mT2').textContent = tr.cop ? tr.ti : (chName(tr) || P.name);
   $('#tChip').textContent = tr.src ? P.name : tr.remote ? 'Lecture en ligne' : tr.yt ? 'Fichier audio à importer' : 'Exemple sans son';
@@ -2019,14 +2022,14 @@ function renderPBody() {
   const tr = curTrack(), b = $('#pBody'), pl = $('#player');
   pl.dataset.view = S.pview; LY = null;
   b.style.animation = 'none'; b.offsetHeight; b.style.animation = '';
-  if (S.pview === 'art') { b.innerHTML = `<div class="p-art">${artHTML(teinteDe(tr), glyphOf(tr), 'big')}</div>`; return; }
+  if (S.pview === 'art') { b.innerHTML = `<div class="p-art">${trArt(tr, 'big')}</div>`; return; }
   if (S.pview === 'queue') {
     const rest = S.queue.slice(S.qi + 1);
     b.innerHTML = `<div class="p-queue"><div class="q-h"><b>À suivre</b><span style="display:flex;gap:8px">
       <button class="xb${S.shuffle ? ' on' : ''}" data-act="shuffle" aria-label="Aléatoire">${ic('shuffle', 16)}</button>
       <button class="xb${S.repeat ? ' on' : ''}" data-act="repeat" aria-label="Répéter">${ic('repeat', 16)}${S.repeat === 2 ? '1' : ''}</button></span></div>
       ${S.qFrom ? `<div class="q-from">Depuis : ${esc(S.qFrom)}</div>` : ''}
-      ${rest.length ? rest.map((id, k) => { const t = TR[id]; return `<div class="row" data-act="qjump" data-i="${S.qi + 1 + k}" role="button" tabindex="0">${artHTML(teinteDe(t), glyphOf(t), 'xs')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${titleSub(t) || esc(chName(t))}</div></div><span class="dur">${t.dur ? fmt(t.dur) : ''}</span></div>`; }).join('') : '<p class="empty" style="color:rgba(255,255,255,.6)">Rien après ce chant.</p>'}</div>`;
+      ${rest.length ? rest.map((id, k) => { const t = TR[id]; return `<div class="row" data-act="qjump" data-i="${S.qi + 1 + k}" role="button" tabindex="0">${trArt(t, 'xs')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${titleSub(t) || esc(chName(t))}</div></div><span class="dur">${t.dur ? fmt(t.dur) : ''}</span></div>`; }).join('') : '<p class="empty" style="color:rgba(255,255,255,.6)">Rien après ce chant.</p>'}</div>`;
     return;
   }
   if (S.pview === 'find') {
@@ -2424,8 +2427,8 @@ function artData(tr) {
 function setMediaSession(tr) {
   if (!('mediaSession' in navigator)) return;
   try {
-    const src = artData(tr);
-    navigator.mediaSession.metadata = new MediaMetadata({ title: tr.ti, artist: chName(tr), album: teinteDe(tr).name, artwork: src ? [{ src, sizes: '512x512', type: 'image/png' }] : [] });
+    const ei = evImg(tr), src = ei ? new URL(ei, location.href).href : artData(tr);   // lecture : icône de l'évangéliste
+    navigator.mediaSession.metadata = new MediaMetadata({ title: tr.ti, artist: chName(tr), album: teinteDe(tr).name, artwork: src ? [ei ? { src, sizes: '520x667', type: 'image/jpeg' } : { src, sizes: '512x512', type: 'image/png' }] : [] });
     navigator.mediaSession.setActionHandler('play', play);
     navigator.mediaSession.setActionHandler('pause', pause);
     navigator.mediaSession.setActionHandler('nexttrack', () => next());
@@ -2609,7 +2612,7 @@ function closeSheet() { $('#sheet').hidden = true; }
 function menuHTML() {
   const tr = curTrack(), P = teinteDe(tr), fav = isFav(tr.id);
   const ab = S.loopA == null ? 'Placer A' : S.loopB == null ? 'Placer B' : 'Désactiver';
-  return `<div class="sh-head">${artHTML(teinteDe(tr), glyphOf(tr), 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${titleSub(tr) || esc(chName(tr))}</div></div></div>
+  return `<div class="sh-head">${trArt(tr, 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${titleSub(tr) || esc(chName(tr))}</div></div></div>
   <button class="mi" data-act="fav" data-id="${tr.id}" data-close="1">${fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}${ic(fav ? 'starf' : 'star')}</button>
   ${tr.L ? `<button class="mi" data-act="sync" data-close="1">Synchroniser les paroles${ic('sync')}</button>` : ''}
   <button class="mi" data-act="rate" data-keep="1">Vitesse<span class="val">${num(S.rate)}×</span></button>
