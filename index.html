@@ -114,8 +114,11 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .s-actions.jour{flex-wrap:nowrap;gap:8px}
 .s-actions.jour .s-btn{flex:1;justify-content:center;padding:0 8px;gap:5px;font-size:15px;white-space:nowrap}
 .s-actions.jour .s-btn:disabled{opacity:.45}
-.s-next{margin-top:14px;font-size:13px;color:inherit;display:inline-flex;align-items:center;gap:4px;padding:6px 10px 6px 12px;border-radius:99px;background:rgba(0,0,0,.25)}   /* bouton vers la période suivante */
-.s-next svg{opacity:.8}
+.s-next{display:flex;align-items:baseline;gap:6px;width:calc(100% + 40px);margin:18px -20px -20px;padding:13px 20px;font-size:14px;color:inherit;text-align:left;background:rgba(0,0,0,.22);border-top:1px solid rgba(255,255,255,.12)}   /* barre en bas : ouvre la période suivante */
+.s-next .n-ey,.s-next .n-d{opacity:.75}
+.s-next .n-nm{font-weight:700}
+.s-next .n-d{margin-left:auto}
+.s-next svg{align-self:center;opacity:.8}
 
 .hscroll{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
   margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));
@@ -1177,7 +1180,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · 9ee5ed5cae'; // remplacé par tools/build.sh
+const APP_VERSION = '13.11.2026 · 287cf6a803'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1302,7 +1305,7 @@ function renderHome() {
       <button class="s-btn pri" data-act="play" data-list="period:${SEASON_NOW}" data-i="0" ${seasonIds.length ? '' : 'disabled'}>${ic('play', 16)} Lecture</button>
       <button class="s-btn" data-act="open" data-type="period" data-id="${SEASON_NOW}">${seasonIds.length} chant${seasonIds.length > 1 ? 's' : ''}</button>
     </div>
-    ${NEXT ? `<button class="s-next" data-act="open" data-type="period" data-id="${NEXT.id}">Ensuite : ${PERIODS[NEXT.id].name}, dans ${NEXT.days} jour${NEXT.days > 1 ? 's' : ''}${ic('chev', 14)}</button>` : ''}
+    ${NEXT ? `<button class="s-next" data-act="open" data-type="period" data-id="${NEXT.id}"><span class="n-ey">Ensuite</span><span class="n-nm">${PERIODS[NEXT.id].name}</span><span class="n-d">dans ${NEXT.days} jour${NEXT.days > 1 ? 's' : ''}</span>${ic('chev', 16)}</button>` : ''}
   </section>
   ${dlHTML()}
   <div class="sh"><h2>Reprendre</h2></div>
