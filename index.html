@@ -463,6 +463,93 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
   background:var(--raised);color:var(--ivory);padding:10px 16px;border-radius:14px;z-index:80;font-size:14px;box-shadow:var(--pop-sh);pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ---------- Ordinateur (fenêtre d'au moins 1100 × 600) : façon Apple Music sur Mac ----------
+   Barre latérale à gauche, barre de lecture en haut, paroles dans un panneau à droite, ou plein écran (image à gauche, paroles à droite).
+   Tout passe par les classes dk / dk-panel / dk-big posées sur body par le script : l'iPhone n'en voit aucune. */
+#dside,#dtop,.p-dclose{display:none}
+body.dk{--dside:248px;--dtop:64px;--dpan:min(440px,34vw);--dright:0px}
+body.dk-panel{--dright:var(--dpan)}
+body.dk #dock,body.dk .dock-fade{display:none}
+body.dk #screen{max-width:none;margin:0 var(--dright) 0 var(--dside);padding:calc(var(--dtop) + 14px) max(36px,calc((100vw - var(--dside) - var(--dright) - 980px) / 2)) 70px}
+body.dk.locked{overflow:visible}
+body.dk-big.locked{overflow:hidden}
+body.dk .bar{top:var(--dtop)}
+body.dk .hscroll{margin-inline:0;padding-inline:0;scroll-padding-left:0;scrollbar-width:thin}
+body.dk .pgrid,body.dk .evg2{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+body.dk .season.evh{aspect-ratio:auto;min-height:360px;background-size:auto 150%,auto 150%;background-position:0 0,50% 0}
+body.dk .hero{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:1fr;column-gap:32px;justify-items:start;text-align:left;padding:18px 0 22px}
+body.dk .hero > :first-child{grid-column:1;grid-row:1 / span 6;align-self:end}
+body.dk .hero > :not(:first-child){grid-column:2}
+body.dk .hero .h-title{margin:0;align-self:end;font-size:34px}
+body.dk .hero .h-actions{max-width:420px}
+body.dk .hero .art.xl{width:220px}
+body.dk .row{border-radius:8px;padding-inline:8px;margin-inline:-8px}
+body.dk .row:hover{background:rgba(var(--wash),.05)}
+body.dk .sh-panel{top:0;bottom:0;margin:auto;height:fit-content;max-height:82%;width:480px;border-radius:24px;padding-bottom:18px;animation:fadein .25s ease}
+body.dk #toast{top:calc(var(--dtop) + 12px)}
+
+/* Barre latérale */
+body.dk #dside{display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;width:var(--dside);overflow-y:auto;z-index:35;
+  padding:18px 12px 28px;background:var(--surface);border-right:1px solid var(--line);scrollbar-width:thin}
+.ds-brand{font-family:var(--f-display);color:var(--gold);font-size:25px;letter-spacing:.02em;padding:4px 10px 16px}
+.ds-srch{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border-radius:9px;background:var(--raised);color:var(--faint);font-size:14px;margin-bottom:10px;width:100%}
+.ds-nav,.ds-per,.ds-ch{display:flex;align-items:center;gap:10px;min-height:34px;padding:0 10px;border-radius:8px;width:100%;flex:none;font-size:14.5px;color:var(--ivory)}
+.ds-nav{font-weight:500}
+.ds-nav .ic{color:var(--gold)}
+.ds-per,.ds-ch{color:var(--muted);font-size:14px}
+.ds-per i{width:12px;height:12px;border-radius:4px;flex:none}
+.ds-ch .av{width:26px;height:26px;font-size:10px;box-shadow:none}
+.ds-nav:hover,.ds-per:hover,.ds-ch:hover,.ds-srch:hover{background:rgba(var(--wash),.06)}
+.ds-nav.on,.ds-per.on,.ds-ch.on,.ds-srch.on{background:rgba(var(--wash),.1);color:var(--ivory)}
+.ds-h{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);padding:20px 10px 6px}
+
+/* Barre de lecture en haut */
+body.dk #dtop{display:flex;align-items:center;gap:18px;position:fixed;top:0;left:var(--dside);right:0;height:var(--dtop);z-index:35;padding:0 18px;
+  background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);border-bottom:1px solid var(--line)}
+.dt-tr,.dt-r{display:flex;align-items:center;gap:4px;flex:none}
+.dt-b{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--ivory);position:relative;flex:none}
+.dt-b:hover{background:rgba(var(--wash),.08)}
+.dt-b.on{color:var(--gold)}
+.dt-b small{position:absolute;right:5px;bottom:5px;font-size:9px;font-weight:700}
+.dt-tr .dt-b:first-child,.dt-tr .dt-b:last-child{color:var(--muted)}
+.dt-tr .dt-b.on{color:var(--gold)}
+.dt-play{width:46px;height:46px}
+.dt-lcd{flex:1;min-width:0;max-width:640px;margin:0 auto;height:48px;border-radius:10px;background:rgba(var(--wash),.06);display:flex;align-items:center;gap:12px;padding-right:14px;position:relative;overflow:hidden}
+.dt-art{flex:none;display:block}
+.dt-art .art{width:48px;height:48px;border-radius:0}
+.dt-meta{flex:1;min-width:0;text-align:center}
+.dt-meta .t1{font-size:14px;font-weight:600}
+.dt-meta .t2{font-size:12px;margin-top:1px;color:var(--muted)}
+.dt-time{flex:none;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.dt-prog{position:absolute;left:48px;right:0;bottom:0;height:12px;cursor:pointer}
+.dt-prog::before{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(var(--wash),.1)}
+.dt-prog i{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--gold)}
+.dt-prog:hover::before,.dt-prog:hover i{height:5px}
+
+/* Lecteur : panneau de paroles à droite */
+body.dk #player{inset:var(--dtop) 0 0 auto;width:var(--dpan);max-width:none;margin:0;transform:translateX(102%);border-left:1px solid var(--line);
+  padding:16px 26px 14px;transition:transform .45s cubic-bezier(.32,.72,0,1),visibility 0s linear .45s;z-index:34}
+body.dk #player.open{transform:none;transition:transform .45s cubic-bezier(.32,.72,0,1),visibility 0s}
+body.dk-panel .p-grab,body.dk-panel #pCtl{display:none}
+body.dk-panel #pTop .art{width:52px;height:52px}
+body.dk .ln:hover{cursor:pointer}
+
+/* Lecteur plein écran : image et commandes à gauche, paroles à droite */
+body.dk-big #player{inset:0;width:auto;z-index:50;border-left:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-rows:1fr auto auto 1fr;
+  column-gap:clamp(40px,6vw,110px);padding:44px clamp(40px,6vw,110px) 30px}
+body.dk-big .p-grab{display:none}
+body.dk-big .p-dclose{display:grid;position:absolute;top:22px;left:24px;z-index:3;width:36px;height:36px;border-radius:50%;place-items:center;color:#fff;background:rgba(255,255,255,.12)}
+body.dk-big .p-dclose:hover{background:rgba(255,255,255,.22)}
+body.dk-big #pTop{display:grid!important;grid-column:1;grid-row:2;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:6px 10px;width:min(100%,50vh,480px);justify-self:center;padding:0}
+body.dk-big #pTop .art{grid-column:1 / -1;width:100%;height:auto;aspect-ratio:1;border-radius:14px;margin-bottom:18px;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+body.dk-big #pTop .tt1{font-size:21px}
+body.dk-big #pTop .tt2{font-size:17px}
+body.dk-big #pCtl{grid-column:1;grid-row:3;position:static!important;width:min(100%,50vh,480px);justify-self:center;margin-top:6px}
+body.dk-big #player.ctl-hidden #pCtl{opacity:1;transform:none;pointer-events:auto}
+body.dk-big #pBody{grid-column:2;grid-row:1 / -1;min-height:0}
+body.dk-big .tr{font-size:21px}
+body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -478,6 +565,8 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 <main id="screen"></main>
 <div id="rot" aria-hidden="true"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><p>Psalmodia s’utilise à la verticale.<br>Tourne ton iPhone.</p></div>
 
+<aside id="dside" aria-label="Navigation"></aside>
+<header id="dtop" aria-label="Lecture"></header>
 <div class="dock-fade" aria-hidden="true"></div>
 <div id="dock">
   <div id="mini" class="glass" data-act="openp" role="button" tabindex="0" aria-label="Ouvrir le lecteur">
@@ -501,6 +590,7 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
   <div class="p-bg" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   <div class="p-shade" aria-hidden="true"></div>
   <button class="p-grab" data-act="closep" aria-label="Réduire le lecteur"><span></span></button>
+  <button class="p-dclose" data-act="dfull" aria-label="Quitter le plein écran"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
   <div id="pTop"></div>
   <div id="pBody"></div>
   <div id="pCtl">
@@ -600,6 +690,7 @@ const IC = {
   warn:'<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.1"/>',
   skipb:'<path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/>',
   skipf:'<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4h-4"/>',
+  expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>'
 };
 const ic = (n, s = 22) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
@@ -1180,7 +1271,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · 287cf6a803'; // remplacé par tools/build.sh
+const APP_VERSION = '13.11.2026 · e8eb0b07d8'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1713,6 +1804,7 @@ function render(keepScroll) {
   $('#screen').innerHTML = top ? renderDetail(top) : { home: renderHome, periods: renderPeriods, library: renderLibrary, search: renderSearch }[r.tab]();
   ['home', 'periods', 'library'].forEach(k => $('#tab-' + k).classList.toggle('on', r.tab === k));
   $('#tab-search').classList.toggle('on', r.tab === 'search');
+  renderSide();
   if (!top && r.tab === 'search') { const q = $('#q'); q.value = S.q || ''; renderResults(S.q || ''); q.addEventListener('input', () => { S.q = q.value; renderResults(q.value); }); q.addEventListener('keydown', e => { if (e.key === 'Enter') q.blur(); });
     q.addEventListener('focus', () => { S.qFocus = true; if (!String(q.value).trim()) renderResults(''); });
     // on garde l'historique si l'on vient de toucher dedans (✕, Effacer) ; sinon, clavier fermé = retour à « Parcourir »
@@ -2281,7 +2373,7 @@ function updateUI() {
   const tr = curTrack(), pl = $('#player'), c = S.cfg;
   document.body.classList.toggle('playing', S.playing);
   pl.classList.toggle('no-tr', !c.trFr); pl.classList.toggle('no-emph', !c.emph); pl.classList.toggle('syncing', !!S.sync);
-  pl.style.setProperty('--lfs', LSIZES[c.lsize] + 'px');
+  pl.style.setProperty('--lfs', LSIZES[c.lsize] * (S.big && desk() ? 1.45 : 1) + 'px');
   $('#cPlay').innerHTML = ic(S.playing ? 'pause' : 'play', 50);
   $('#cPlay').setAttribute('aria-label', S.playing ? 'Pause' : 'Lecture');
   $('#mPlay').innerHTML = ic(S.playing ? 'pause' : 'play', 26);
@@ -2308,6 +2400,7 @@ function updateUI() {
   $('#pCtl').hidden = !!S.sync;
   $('#pSync').hidden = !S.sync;
   if (S.sync) renderSync();
+  renderTop();
 }
 
 /* ---------- Commandes qui s'effacent pendant les paroles ---------- */
@@ -2323,6 +2416,7 @@ function frame() {
   const tr = curTrack(); if (!tr) return;
   const dur = tr.dur || 1, pct = clamp01(S.t / dur) * 100;
   $('#mProg').style.width = pct + '%';
+  const dF = DK.fill; if (dF) { dF.style.width = pct + '%'; DK.cur.textContent = fmt(S.t) + ' / ' + fmt(dur); }
   if (!S.full) return;
   if (!scrubbing) { $('#scFill').style.width = pct + '%'; $('#tCur').textContent = fmt(S.t); $('#tLeft').textContent = '-' + fmt(dur - S.t); }
   if (S.loopA != null && S.loopB == null) updateUI();
@@ -2659,8 +2753,8 @@ document.addEventListener('submit', e => {
 /* ---------- Interactions ---------- */
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
-function openPlayer() { if (!S.cur) return; S.full = true; $('#player').classList.add('open'); document.body.classList.add('locked'); renderPBody(); updateUI(); pokeControls(); }
-function closePlayer() { S.full = false; $('#player').classList.remove('open', 'ctl-hidden'); document.body.classList.remove('locked'); }
+function openPlayer() { if (!S.cur) return; if (desk() && !S.big && S.pview === 'art') S.pview = 'lyrics'; S.full = true; syncDesk(); $('#player').classList.add('open'); document.body.classList.add('locked'); renderPBody(); updateUI(); pokeControls(); }
+function closePlayer() { S.full = false; S.big = false; $('#player').classList.remove('open', 'ctl-hidden'); document.body.classList.remove('locked'); syncDesk(); }
 function setFav(id) {
   if (S.fav.has(id)) { S.fav.delete(id); toast('Retiré des favoris'); } else { S.fav.add(id); toast('Ajouté aux favoris'); }
   store.set('fav', [...S.fav]); render(true); if (S.cur) { const v = S.pview; renderPlayer(); S.pview = v; }
@@ -2705,7 +2799,7 @@ document.addEventListener('click', e => {
       if (S.aideTaps >= 5) { S.aideTaps = 0; S.cfg.aide = !S.cfg.aide; if (S.cfg.aide) S.cfg.moi = false; store.set('cfg', S.cfg); toast(S.cfg.aide ? 'Mode aide : import et modification ouverts' : 'Mode aide désactivé'); render(true); }
       break; }
     case 'back': S.route.stack.pop(); render(); break;
-    case 'goto': closePlayer(); if (el.dataset.type !== 'settings') S.route = { tab: 'periods', stack: [] }; S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
+    case 'goto': if (desk()) { if (S.big) { S.big = false; syncDesk(); renderPBody(); updateUI(); } } else closePlayer(); if (el.dataset.type !== 'settings') S.route = { tab: 'periods', stack: [] }; S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
     case 'play': playList(el.dataset.list, +el.dataset.i || 0, false); if (el.dataset.t) seekWhenReady(+el.dataset.t); break;
     case 'lfind': S.pview = S.pview === 'find' ? 'lyrics' : 'find'; renderPlayer(); pokeControls(); break;
     case 'fjump': {
@@ -2735,7 +2829,14 @@ document.addEventListener('click', e => {
       if (S.shuffle) S.queue = [...S.queue.slice(0, S.qi + 1), ...shuffled(sansPsaumes(S.queue.slice(S.qi + 1), S.qKey))];
       updateUI(); if (S.pview === 'queue') renderPBody(); toast(S.shuffle ? 'Lecture aléatoire activée' : 'Lecture aléatoire désactivée'); break;
     case 'repeat': S.repeat = (S.repeat + 1) % 3; updateUI(); if (S.pview === 'queue') renderPBody(); toast(['Répétition désactivée', 'Répéter la liste', 'Répéter ce chant'][S.repeat]); break;
-    case 'view': setView(S.pview === el.dataset.v ? 'art' : el.dataset.v); break;
+    case 'view': setView(S.pview === el.dataset.v ? (S.big && desk() ? 'lyrics' : 'art') : el.dataset.v); break;
+    case 'dgo': S.route = { tab: el.dataset.type === 'chanter' ? 'library' : 'periods', stack: [{ type: el.dataset.type, id: el.dataset.id }] }; render(); break;
+    case 'dpanel':   // ordinateur : bouton Paroles ou À suivre de la barre du haut (ouvre, change ou ferme le panneau de droite)
+      if (S.full && !S.big && S.pview === el.dataset.v) { closePlayer(); break; }
+      S.big = false; S.pview = el.dataset.v; if (S.full) { syncDesk(); renderPBody(); updateUI(); } else openPlayer(); break;
+    case 'dfull':   // ordinateur : plein écran, ou retour au panneau
+      if (S.big) { S.big = false; syncDesk(); renderPBody(); updateUI(); break; }
+      S.big = true; if (S.pview === 'art') S.pview = 'lyrics'; if (S.full) { syncDesk(); renderPBody(); updateUI(); } else openPlayer(); break;
     case 'rate':
       S.rate = RATES[(RATES.indexOf(S.rate) + 1) % RATES.length];
       if (au(curTrack())) A.playbackRate = S.rate;
@@ -2816,7 +2917,7 @@ document.addEventListener('keydown', e => {
   if (e.target.matches('input,select,textarea')) return;
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role=button]')) { e.preventDefault(); e.target.click(); return; }
   if (e.key === ' ') { e.preventDefault(); toggle(); }
-  if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else if (S.full) closePlayer(); }
+  if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else if (S.big && desk()) { S.big = false; syncDesk(); renderPBody(); updateUI(); } else if (S.full) closePlayer(); }
 });
 addEventListener('resize', () => placeLines(false));
 $('#importInput').addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) importFiles(files); });
@@ -2829,6 +2930,60 @@ $('#importInput').addEventListener('change', e => { const files = [...e.target.f
   pl.addEventListener('touchend', () => { if (y0 == null) return; pl.style.transition = ''; pl.style.transform = ''; if (dy > 110) closePlayer(); y0 = null; });
 })();
 
+/* ---------- Ordinateur : barre latérale, barre de lecture, paroles à droite ou en plein écran ----------
+   Seulement dans une fenêtre d'au moins 1100 × 600 (jamais sur iPhone) ; sinon ces fonctions ne font rien. */
+const DESK = matchMedia('(min-width:1100px) and (min-height:600px)');
+const desk = () => DESK.matches;
+const DK = { fill: null, cur: null };
+function syncDesk() {
+  const d = desk(), cl = document.body.classList;
+  if (!d) S.big = false;
+  cl.toggle('dk', d); cl.toggle('dk-panel', d && S.full && !S.big); cl.toggle('dk-big', d && S.full && !!S.big);
+  if (S.full) requestAnimationFrame(() => placeLines(false));
+}
+function renderSide() {
+  const el = $('#dside'); if (!desk()) { if (el.firstChild) el.innerHTML = ''; return; }
+  const r = S.route, top = r.stack[r.stack.length - 1], y = el.scrollTop;
+  const on = k => !top && r.tab === k ? ' on' : '';
+  const sel = (type, id) => top && r.stack.length === 1 && top.type === type && top.id === id ? ' on' : '';
+  el.innerHTML = `<div class="ds-brand">Psalmodia</div>
+    <button class="ds-srch${on('search')}" data-act="tab" data-tab="search">${ic('search', 16)}Rechercher</button>
+    ${[['home', 'Accueil'], ['periods', 'Périodes'], ['library', 'Bibliothèque']].map(([k, n]) => `<button class="ds-nav${on(k)}" data-act="tab" data-tab="${k}">${ic(k, 19)}${n}</button>`).join('')}
+    <div class="ds-h">Périodes</div>
+    ${PERIOD_ORDER.map(k => `<button class="ds-per${sel('period', k)}" data-act="dgo" data-type="period" data-id="${k}"><i style="background:${PERIODS[k].c[0]}"></i><span class="ell">${PERIODS[k].name}</span></button>`).join('')}
+    <div class="ds-h">Chantres</div>
+    ${chOrdre().map(([id, c]) => `<button class="ds-ch${sel('chanter', id)}" data-act="dgo" data-type="chanter" data-id="${id}">${avHTML(c)}<span class="ell">${esc(c.name)}</span></button>`).join('')}`;
+  el.scrollTop = y;
+}
+function renderTop() {
+  const el = $('#dtop'); DK.fill = DK.cur = null;
+  if (!desk()) { if (el.firstChild) el.innerHTML = ''; return; }
+  const tr = curTrack(), P = tr && teinteDe(tr);
+  const sub = tr ? [titleSub(tr), esc(chName(tr) || P.name)].filter(Boolean).join(' — ') : '';
+  const b = (act, icon, label, on, extra = '', s = 20) => `<button class="dt-b${on ? ' on' : ''}" data-act="${act}"${extra} aria-label="${label}">${ic(icon, s)}</button>`;
+  el.innerHTML = `<div class="dt-tr">
+      <button class="dt-b${S.shuffle ? ' on' : ''}" data-act="shuffle" aria-label="Aléatoire">${ic('shuffle', 18)}</button>
+      ${b('prev', 'prev', 'Précédent', false, '', 24)}
+      <button class="dt-b dt-play" data-act="toggle" aria-label="${S.playing ? 'Pause' : 'Lecture'}">${ic(S.playing ? 'pause' : 'play', 30)}</button>
+      ${b('next', 'next', 'Suivant', false, '', 24)}
+      <button class="dt-b${S.repeat ? ' on' : ''}" data-act="repeat" aria-label="Répéter">${ic('repeat', 18)}${S.repeat === 2 ? '<small>1</small>' : ''}</button>
+    </div>
+    <div class="dt-lcd">${tr ? `<button class="dt-art" data-act="dfull" aria-label="Plein écran">${trArt(tr, 'sm')}</button>
+      <div class="dt-meta"><div class="t1 ell">${titleTop(tr)}</div><div class="t2 ell">${sub}</div></div>
+      <span class="dt-time" id="dCur"></span><div class="dt-prog" id="dProg" role="slider" aria-label="Position dans le chant"><i id="dFill"></i></div>` : ''}</div>
+    <div class="dt-r">
+      ${b('dpanel', 'lyrics', 'Paroles', S.full && !S.big && S.pview === 'lyrics', ' data-v="lyrics"')}
+      ${b('dpanel', 'queue', 'À suivre', S.full && !S.big && S.pview === 'queue', ' data-v="queue"')}
+      ${b('dfull', 'expand', 'Plein écran', S.big)}
+    </div>`;
+  DK.fill = $('#dFill'); DK.cur = $('#dCur');
+}
+$('#dtop').addEventListener('click', e => {   // clic sur la barre de progression : on va à cet endroit du chant
+  const p = e.target.closest('#dProg'), tr = curTrack(); if (!p || !tr) return;
+  const r = p.getBoundingClientRect(); seek(clamp01((e.clientX - r.left) / r.width) * (tr.dur || 0));
+});
+DESK.addEventListener('change', () => { syncDesk(); render(true); updateUI(); if (S.full) renderPBody(); });
+
 /* ---------- Démarrage ---------- */
 $('#tab-home').innerHTML = ic('home') + 'Accueil';
 $('#tab-periods').innerHTML = ic('periods') + 'Périodes';
@@ -2838,6 +2993,7 @@ S.queue = listIds('period:annuel'); S.qi = 0; S.qFrom = PERIODS.annuel.name;
 if (EC.cur) EC.fin();
 load(S.recent.find(id => TR[id]) || S.queue[0]);
 EC.envoyer();
+syncDesk();
 applyTheme();
 render();
 requestAnimationFrame(tick);
