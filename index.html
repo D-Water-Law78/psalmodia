@@ -1160,7 +1160,7 @@ const TEINTES = {taranim:{name:'Cantiques',word:'Ⲥ',c:['#9f3c6f','#311122']}, 
 const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
 const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[0]).replace(/\p{M}/gu, '');
 // Titre copte en premier, titre français en dessous
-const titleTop = tr => tr.cop ? `<span class="cop">${tr.cop}</span>` : esc(tr.ti);
+const titleTop = tr => tr.cop ? `<span class="cop">${tr.cop}</span>` : esc(tr.col === 'psaumes' ? tr.ti.replace(/^Psaume /, '') : tr.ti);   // « Psaume » retiré : le numéro suffit
 const titleSub = tr => tr.cop ? esc(tr.ti) : '';
 const audioTag = tr => au(tr) ? '' : `<span class="nosnd">${tr.yt ? 'à importer' : 'exemple'}</span>`;
 const chName = tr => [tr.ch, tr.ch2].filter(k => CH[k]).map(k => CH[k].name).join(' et ');   // ch2 : second chantre (chant à deux voix)
@@ -1176,7 +1176,7 @@ const S = {
   fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · 1b4ba79eb6'; // remplacé par tools/build.sh
+const APP_VERSION = '13.11.2026 · fb9b9ab303'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
