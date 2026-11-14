@@ -131,6 +131,12 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .card{flex:none;width:140px;display:flex;flex-direction:column;gap:6px;scroll-snap-align:start;min-width:0}
 .card .c1{font-size:14px;font-weight:550}
 .card .c2{font-size:12.5px;color:var(--muted)}
+/* Page « Chantres » : tous les chantres d'un coup, en grille (au lieu du défilement de l'accueil) */
+.chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:20px 8px;margin-top:8px}
+.chgrid .chan{width:auto}
+.chan small{color:var(--faint);font-size:11.5px;margin-top:-5px}
+.sh .shl{display:flex;align-items:center;gap:2px;color:var(--ivory)}
+.sh .shl svg{color:var(--faint)}
 .chan{flex:none;width:96px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;text-align:center;scroll-snap-align:start}
 .av{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;flex:none;font-family:var(--f-display);font-size:28px;color:var(--gold);
   background:radial-gradient(circle at 30% 25%,var(--av1),var(--av2));box-shadow:inset 0 0 0 1px rgba(219,176,102,.35)}
@@ -1442,7 +1448,7 @@ function renderHome() {
   ${dlHTML()}
   <div class="sh"><h2>Reprendre</h2></div>
   <div class="hscroll">${recentIds().map((id, i) => { const t = TR[id]; return `<button class="card" data-act="play" data-list="recent" data-i="${i}">${trArt(t, 'md')}<div class="c1 ell">${titleTop(t)}</div><div class="c2 ell">${titleSub(t) || esc(chName(t))}</div></button>`; }).join('')}</div>
-  <div class="sh"><h2>Chantres</h2></div>
+  <div class="sh"><button class="shl" data-act="open" data-type="chanters" data-id="all"><h2>Chantres</h2>${ic('chev', 18)}</button><button data-act="open" data-type="chanters" data-id="all">Tout voir</button></div>
   <div class="hscroll">${chOrdre().map(([id, c]) => `<button class="chan" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c)}<span>${esc(c.name)}</span></button>`).join('')}</div>
   <div class="sh"><h2>Offices et collections</h2></div>
   <div class="chips">${chipsHTML()}</div>
@@ -1796,7 +1802,7 @@ function renderDetail(it) {
   if (it.type === 'settings') return renderSettings();
   if (it.type === 'chanters') {
     return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div><h1>Chantres</h1>
-    ${chOrdre().map(([id, c]) => `<button class="lrow" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c, 'sm')}${esc(c.name)}<span class="cnt">${listIds('chanter:' + id).length}</span></button>`).join('')}`;
+    <div class="chgrid">${chOrdre().map(([id, c]) => { const n = listIds('chanter:' + id).length; return `<button class="chan" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c)}<span>${esc(c.name)}</span><small>${n} chant${n > 1 ? 's' : ''}</small></button>`; }).join('')}</div>`;
   }
   let title, sub = '', desc = '', head, list;
   if (it.type === 'period') {
