@@ -210,6 +210,7 @@ body:not(.playing) .eq i{animation-play-state:paused}
 .lrow .ell{min-width:0}
 .pl-acts{display:grid;grid-template-columns:1fr 1fr 46px;gap:10px;width:100%;margin-top:10px}
 .pl-acts .btn{padding:0 10px;background:var(--raised)}
+.pl-acts.one{grid-template-columns:1fr}
 .pl-acts .btn .ic{flex:none}
 .row .fav:disabled{opacity:.25}
 .row .fav.on{color:var(--gold)}
@@ -1291,7 +1292,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '14.11.2026 · 4fee600dd2'; // remplacé par tools/build.sh
+const APP_VERSION = '14.11.2026 · 2c99e9dc65'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1810,7 +1811,7 @@ function renderDetail(it) {
   const numbered = ['period', 'chanter', 'office', 'col', 'ev'].includes(it.type);
   const secs = it.type === 'period' ? SECTIONS.filter(sc => ids.some(id => secsOf(TR[id]).includes(sc))) : [];
   const body = !ids.length ? '' : it.type === 'pl' || it.type === 'fav'
-    ? ids.map((id, i) => it.type === 'pl' && S.plEdit === it.id ? plEdRow(TR[id], i, ids.length, it.id) : rowHTML(TR[id], list, i, it.type === 'pl', true)).join('')
+    ? ids.map((id, i) => S.plEdit === (it.type === 'pl' ? it.id : 'fav') ? plEdRow(TR[id], i, ids.length, it.type === 'pl' ? it.id : 'fav') : rowHTML(TR[id], list, i, it.type === 'pl')).join('')
     : list === 'all'
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
@@ -1828,8 +1829,9 @@ function renderDetail(it) {
     </div>${it.type === 'pl' ? `<div class="pl-acts">
       <button class="btn" data-act="pladd" data-pl="${it.id}">${ic('plus', 18)}Ajouter</button>
       <button class="btn" data-act="pledit" data-pl="${it.id}" ${ids.length ? '' : 'disabled'}>${S.plEdit === it.id ? ic('check', 18) + 'Terminé' : ic('pencil', 18) + 'Modifier'}</button>
-      <button class="btn" data-act="plmenu" data-pl="${it.id}" aria-label="Renommer ou supprimer">${ic('more', 18)}</button></div>` : ''}</div>
-  <div${ids.length && (it.type === 'pl' || it.type === 'fav') ? ` data-reorder="${list}"` : ''}>${ids.length ? body : `<p class="empty">${it.type === 'pl' ? 'Playlist vide.<br>Touche « Ajouter » pour y mettre des chants,<br>ou « ⋯ » pendant l’écoute d’un chant.' : it.type === 'imported' ? 'Aucun fichier audio sur cet iPhone.' : 'Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.'}</p>`}</div>`;
+      <button class="btn" data-act="plmenu" data-pl="${it.id}" aria-label="Renommer ou supprimer">${ic('more', 18)}</button></div>` : it.type === 'fav' && ids.length ? `<div class="pl-acts one">
+      <button class="btn" data-act="pledit" data-pl="fav">${S.plEdit === 'fav' ? ic('check', 18) + 'Terminé' : ic('pencil', 18) + 'Modifier'}</button></div>` : ''}</div>
+  <div${ids.length && S.plEdit && S.plEdit === (it.type === 'pl' ? it.id : it.type === 'fav' ? 'fav' : '') ? ` data-reorder="${list}"` : ''}>${ids.length ? body : `<p class="empty">${it.type === 'pl' ? 'Playlist vide.<br>Touche « Ajouter » pour y mettre des chants,<br>ou « ⋯ » pendant l’écoute d’un chant.' : it.type === 'imported' ? 'Aucun fichier audio sur cet iPhone.' : 'Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.'}</p>`}</div>`;
 }
 function render(keepScroll) {
   const r = S.route, top = r.stack[r.stack.length - 1];
@@ -2154,11 +2156,13 @@ function renderPBody() {
   if (S.pview === 'art') { b.innerHTML = `<div class="p-art">${trArt(tr, 'big')}</div>`; return; }
   if (S.pview === 'queue') {
     const rest = S.queue.slice(S.qi + 1);
-    b.innerHTML = `<div class="p-queue"${rest.length > 1 ? ' data-reorder="queue"' : ''}><div class="q-h"><b>À suivre</b><span style="display:flex;gap:8px">
+    const qe = S.qEdit && rest.length > 1;
+    b.innerHTML = `<div class="p-queue"${qe ? ' data-reorder="queue"' : ''}><div class="q-h"><b>À suivre</b><span style="display:flex;gap:8px">
+      ${rest.length > 1 ? `<button class="xb${qe ? ' on' : ''}" data-act="qedit" aria-label="Changer l’ordre">${ic(qe ? 'check' : 'grip', 16)}</button>` : ''}
       <button class="xb${S.shuffle ? ' on' : ''}" data-act="shuffle" aria-label="Aléatoire">${ic('shuffle', 16)}</button>
       <button class="xb${S.repeat ? ' on' : ''}" data-act="repeat" aria-label="Répéter">${ic('repeat', 16)}${S.repeat === 2 ? '1' : ''}</button></span></div>
       ${S.qFrom ? `<div class="q-from">Depuis : ${esc(S.qFrom)}</div>` : ''}
-      ${rest.length ? rest.map((id, k) => { const t = TR[id]; return `<div class="row" data-act="qjump" data-i="${S.qi + 1 + k}" role="button" tabindex="0">${trArt(t, 'xs')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${titleSub(t) || esc(chName(t))}</div></div><span class="dur">${t.dur ? fmt(t.dur) : ''}</span>${rest.length > 1 ? gripHTML : ''}</div>`; }).join('') : '<p class="empty" style="color:rgba(255,255,255,.6)">Rien après ce chant.</p>'}</div>`;
+      ${rest.length ? rest.map((id, k) => { const t = TR[id]; return `<div class="row" data-act="qjump" data-i="${S.qi + 1 + k}" role="button" tabindex="0">${trArt(t, 'xs')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${titleSub(t) || esc(chName(t))}</div></div><span class="dur">${t.dur ? fmt(t.dur) : ''}</span>${qe ? gripHTML : ''}</div>`; }).join('') : '<p class="empty" style="color:rgba(255,255,255,.6)">Rien après ce chant.</p>'}</div>`;
     return;
   }
   if (S.pview === 'find') {
@@ -2839,6 +2843,7 @@ function plMove(pid, i, d) {
   [p.ids[i], p.ids[j]] = [p.ids[j], p.ids[i]]; plSave(); render(true);
 }
 function plRemove(pid, i) {
+  if (pid === 'fav') { const id = listIds('fav')[i]; if (id) { S.fav.delete(id); store.set('fav', [...S.fav]); } if (!S.fav.size) S.plEdit = null; render(true); return; }
   const p = plGet(pid); if (!p) return;
   p.ids = p.ids.filter(x => TR[x]); p.ids.splice(i, 1); plSave();
   if (!p.ids.length) S.plEdit = null; render(true);
@@ -2967,7 +2972,8 @@ document.addEventListener('click', e => {
     case 'plnew': openSheet(plNameHTML(null, el.dataset.add)); $('#plName').focus(); break;
     case 'plpick': openSheet(plPickHTML(el.dataset.id)); break;
     case 'pltog': plToggle(el.dataset.pl, el.dataset.id, el); break;
-    case 'grip': break;   // poignée ≡ : glisser seulement
+    case 'grip': break;
+    case 'qedit': S.qEdit = !S.qEdit; renderPBody(); break;   // poignée ≡ : glisser seulement
     case 'pladd': S.plAdd = el.dataset.pl; openSheet(plAddHTML()); plAddRes(); break;
     case 'pldone': closeSheet(); break;
     case 'pledit': S.plEdit = S.plEdit === el.dataset.pl ? null : el.dataset.pl; render(true); break;
