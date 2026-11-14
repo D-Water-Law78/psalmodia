@@ -207,6 +207,19 @@ body:not(.playing) .eq i{animation-play-state:paused}
 .lrow{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);width:100%;font-size:17px;cursor:pointer}
 .lrow .ic{color:var(--gold)}
 .lrow .cnt{margin-left:auto;color:var(--faint);font-size:14px}
+.lrow .ell{min-width:0}
+.pl-acts{display:grid;grid-template-columns:1fr 1fr 46px;gap:10px;width:100%;margin-top:10px}
+.pl-acts .btn{padding:0 10px;background:var(--raised)}
+.pl-acts .btn .ic{flex:none}
+.row .fav:disabled{opacity:.25}
+.row .fav.on{color:var(--gold)}
+.mi .val .ic{color:inherit}
+.mi .ell{min-width:0;text-align:left}
+.plq{margin:12px 0 4px}
+#plres .row{cursor:pointer}
+.pl-done{position:sticky;bottom:0;padding-top:12px}
+.pl-done .btn{width:100%}
+body.dk .pl-acts{max-width:420px}
 .sbox{display:flex;align-items:center;gap:8px;border-radius:14px;padding:0 12px;color:var(--muted);height:44px}
 .sbox input{flex:1;min-width:0;background:none;border:0;color:var(--ivory);font:inherit;font-size:16px;outline:none}
 .sbox input::placeholder{color:var(--faint)}
@@ -656,6 +669,7 @@ const IC = {
   periods:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4M12 12.4v5.2M9.4 15h5.2"/>',
   library:'<path d="M5 4v16M9.5 4v16M14 4.5l5 15"/>',
   search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', up:'<path d="m6 15 6-6 6 6"/>', down:'<path d="m6 9 6 6 6-6"/>',
   chev:'<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
   close:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   play:'<path d="M7 4.8v14.4a.8.8 0 0 0 1.2.7l12-7.2a.8.8 0 0 0 0-1.4l-12-7.2A.8.8 0 0 0 7 4.8z" fill="currentColor" stroke="none"/>',
@@ -1268,10 +1282,10 @@ const S = {
   full: false, pview: 'art', loopA: null, loopB: null, sync: null,
   cfg: Object.assign({}, DEF_CFG, store.get('cfg', {})),
   univ: store.get('univ', 'chants'),
-  fav: new Set(store.get('fav', [])), recent: store.get('recent', []), results: []
+  fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '13.11.2026 · 7bbeaf3acd'; // remplacé par tools/build.sh
+const APP_VERSION = '14.11.2026 · 91d4d7be48'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1334,6 +1348,7 @@ function listIds(key) {
   if (k === 'col') return id === 'lectures' ? TRACKS.filter(t => t.col === id).sort((a, b) => Object.keys(EVANG).indexOf(a.ev) - Object.keys(EVANG).indexOf(b.ev) || a.id.localeCompare(b.id)).map(t => t.id) : sorted(t => t.col === id);
   if (k === 'ev') return TRACKS.filter(t => t.ev === id).sort((a, b) => a.id.localeCompare(b.id)).map(t => t.id);
   if (k === 'fav') return TRACKS.filter(t => S.fav.has(t.id)).map(t => t.id);
+  if (k === 'pl') { const p = plGet(id); return p ? p.ids.filter(x => TR[x]) : []; }   // playlist personnelle, dans l'ordre choisi
   if (k === 'recent') return recentIds();
   if (k === 'imported') return TRACKS.filter(t => t.src).map(t => t.id);
   if (k === 'search') return S.results;
@@ -1342,7 +1357,7 @@ function listIds(key) {
   if (k === 'ajouts') return TRACKS.slice().sort((x, y) => ajoutDe(y) - ajoutDe(x)).map(t => t.id);   // « Ajoutés récemment » : du plus récent au plus ancien
   return sorted(() => true);
 }
-const listName = key => { const [k, id] = key.split(':'); return k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
+const listName = key => { const [k, id] = key.split(':'); return k === 'pl' ? (plGet(id)?.name || 'Playlist') : k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
 function recentIds() {
   const ids = S.recent.filter(id => TR[id]);
   TRACKS.forEach(t => { if (ids.length < 8 && !ids.includes(t.id)) ids.push(t.id); });
@@ -1452,6 +1467,9 @@ function renderLibrary() {
   ${imp.length || droits() ? `<button class="lrow" data-act="open" data-type="imported" data-id="imp">${ic('offline')}Sur cet iPhone<span class="cnt">${imp.length}</span></button>` : ''}
   ${droits() ? `<button class="lrow" data-act="import">${ic('import')}Importer des fichiers audio<span class="cnt">MP3, M4A</span></button>` : ''}
   <button class="lrow" data-act="open" data-type="settings" data-id="s">${ic('gear')}Réglages</button>
+  <div class="sh"><h2>Mes playlists</h2></div>
+  ${S.pl.map(p => `<button class="lrow" data-act="open" data-type="pl" data-id="${p.id}">${ic('queue')}<span class="ell">${esc(p.name)}</span><span class="cnt">${listIds('pl:' + p.id).length}</span></button>`).join('')}
+  <button class="lrow" data-act="plnew">${ic('plus')}Nouvelle playlist</button>
   <div class="sh"><h2>Ajoutés récemment</h2></div>
   ${listIds('ajouts').slice(0, 6).map((id, i) => rowHTML(TR[id], 'ajouts', i)).join('')}`;
 }
@@ -1771,6 +1789,10 @@ function renderDetail(it) {
   } else if (it.type === 'fav') {
     list = 'fav'; title = 'Favoris'; sub = `${ids0('fav')} chant${ids0('fav') > 1 ? 's' : ''}`;
     head = artHTML('assomption', '♡', 'xl');
+  } else if (it.type === 'pl') {
+    const p = plGet(it.id) || { id: it.id, name: 'Playlist', ids: [] };
+    list = 'pl:' + it.id; title = esc(p.name); sub = plN(ids0(list));
+    head = artHTML(plTeinte(p), graph(p.name.trim())[0]?.toUpperCase() || '♪', 'xl');
   } else if (it.type === 'imported') {
     list = 'imported'; title = 'Sur cet iPhone'; sub = 'Chants avec leur fichier audio';
     head = artHTML('theophanie', 'Ⲯ', 'xl');
@@ -1781,7 +1803,9 @@ function renderDetail(it) {
   const ids = listIds(list);
   const numbered = ['period', 'chanter', 'office', 'col', 'ev'].includes(it.type);
   const secs = it.type === 'period' ? SECTIONS.filter(sc => ids.some(id => secsOf(TR[id]).includes(sc))) : [];
-  const body = !ids.length ? '' : list === 'all'
+  const body = !ids.length ? '' : it.type === 'pl'
+    ? ids.map((id, i) => S.plEdit === it.id ? plEdRow(TR[id], i, ids.length, it.id) : rowHTML(TR[id], list, i, true)).join('')
+    : list === 'all'
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
     ? [...secs, null].map(sc => { const so = sc && (ORDRE[it.id] || {})[sc], sub0 = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))), sub = Array.isArray(so) ? parOrdre(so, sub0) : sub0; return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
@@ -1795,8 +1819,11 @@ function renderDetail(it) {
     <div class="h-actions">
       <button class="btn pri" data-act="play" data-list="${list}" data-i="0" ${ids.length ? '' : 'disabled'}>${ic('play', 18)}Lecture</button>
       <button class="btn" data-act="shufplay" data-list="${list}" ${ids.length ? '' : 'disabled'}>${ic('shuffle', 18)}Aléatoire</button>
-    </div></div>
-  <div>${ids.length ? body : `<p class="empty">${it.type === 'imported' ? 'Aucun fichier audio sur cet iPhone.' : 'Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.'}</p>`}</div>`;
+    </div>${it.type === 'pl' ? `<div class="pl-acts">
+      <button class="btn" data-act="pladd" data-pl="${it.id}">${ic('plus', 18)}Ajouter</button>
+      <button class="btn" data-act="pledit" data-pl="${it.id}" ${ids.length ? '' : 'disabled'}>${S.plEdit === it.id ? ic('check', 18) + 'Terminé' : ic('pencil', 18) + 'Modifier'}</button>
+      <button class="btn" data-act="plmenu" data-pl="${it.id}" aria-label="Renommer ou supprimer">${ic('more', 18)}</button></div>` : ''}</div>
+  <div>${ids.length ? body : `<p class="empty">${it.type === 'pl' ? 'Playlist vide.<br>Touche « Ajouter » pour y mettre des chants,<br>ou « ⋯ » pendant l’écoute d’un chant.' : it.type === 'imported' ? 'Aucun fichier audio sur cet iPhone.' : 'Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.'}</p>`}</div>`;
 }
 function render(keepScroll) {
   const r = S.route, top = r.stack[r.stack.length - 1];
@@ -2369,6 +2396,12 @@ function frameLyrics() {
   }
 }
 function extraBtn(k, html, on, act, label) { return `<button class="xb${on ? ' on' : ''}" data-act="${act}" aria-label="${label}">${html}</button>`; }
+// Bande de la boucle A–B (redessinée seule à chaque image tant que B n'est pas placé : redessiner les boutons ferait perdre le toucher sur B)
+function loopBar(tr) {
+  const lp = $('#scLoop'), dur = (tr && tr.dur) || 1;
+  lp.hidden = S.loopA == null;
+  if (S.loopA != null) { const b = S.loopB ?? S.t; lp.style.left = clamp01(S.loopA / dur) * 100 + '%'; lp.style.width = Math.max(.5, clamp01((b - S.loopA) / dur) * 100) + '%'; }
+}
 function updateUI() {
   const tr = curTrack(), pl = $('#player'), c = S.cfg;
   document.body.classList.toggle('playing', S.playing);
@@ -2394,9 +2427,7 @@ function updateUI() {
     c.xRepeat && extraBtn('repeat', ic('repeat', 16) + (S.repeat === 2 ? '1' : ''), S.repeat > 0, 'repeat', 'Répéter'),
     c.skipBtns && `<button class="xb" data-act="skip" data-d="1" aria-label="Avancer de ${c.skipSec} secondes">${c.skipSec}${ic('skipf', 15)}</button>`
   ].filter(Boolean).join('');
-  const lp = $('#scLoop'), dur = (tr && tr.dur) || 1;
-  lp.hidden = S.loopA == null;
-  if (S.loopA != null) { const b = S.loopB ?? S.t; lp.style.left = clamp01(S.loopA / dur) * 100 + '%'; lp.style.width = Math.max(.5, clamp01((b - S.loopA) / dur) * 100) + '%'; }
+  loopBar(tr);
   $('#pCtl').hidden = !!S.sync;
   $('#pSync').hidden = !S.sync;
   if (S.sync) renderSync();
@@ -2419,7 +2450,7 @@ function frame() {
   const dF = DK.fill; if (dF) { dF.style.width = pct + '%'; DK.cur.textContent = fmt(S.t) + ' / ' + fmt(dur); }
   if (!S.full) return;
   if (!scrubbing) { $('#scFill').style.width = pct + '%'; $('#tCur').textContent = fmt(S.t); $('#tLeft').textContent = '-' + fmt(dur - S.t); }
-  if (S.loopA != null && S.loopB == null) updateUI();
+  if (S.loopA != null && S.loopB == null) loopBar(tr);
   if (S.pview === 'lyrics') { frameLyrics(); hzFrame(); }
 }
 // Horloge lissée : entre deux mises à jour de currentTime (espacées sur iPhone), on avance au rythme de l'écran, sans jamais reculer d'un cheveu
@@ -2712,6 +2743,7 @@ function menuHTML() {
   const ab = S.loopA == null ? 'Placer A' : S.loopB == null ? 'Placer B' : 'Désactiver';
   return `<div class="sh-head">${trArt(tr, 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${titleSub(tr) || esc(chName(tr))}</div></div></div>
   <button class="mi" data-act="fav" data-id="${tr.id}" data-close="1">${fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}${ic(fav ? 'starf' : 'star')}</button>
+  <button class="mi" data-act="plpick" data-id="${tr.id}">Ajouter à une playlist…${ic('plus')}</button>
   ${tr.L ? `<button class="mi" data-act="sync" data-close="1">Synchroniser les paroles${ic('sync')}</button>` : ''}
   <button class="mi" data-act="rate" data-keep="1">Vitesse<span class="val">${num(S.rate)}×</span></button>
   <button class="mi" data-act="loop" data-keep="1">Boucle A–B<span class="val">${ab}</span></button>
@@ -2759,6 +2791,74 @@ function setFav(id) {
   if (S.fav.has(id)) { S.fav.delete(id); toast('Retiré des favoris'); } else { S.fav.add(id); toast('Ajouté aux favoris'); }
   store.set('fav', [...S.fav]); render(true); if (S.cur) { const v = S.pview; renderPlayer(); S.pview = v; }
 }
+/* ---------- Playlists personnelles : enregistrées sur cet iPhone seulement (psalmodia:playlists) ---------- */
+const plGet = id => S.pl.find(p => p.id === id);
+const plSave = () => store.set('playlists', S.pl);
+const plN = n => n + ' chant' + (n > 1 ? 's' : '');
+const plTeinte = p => PERIODS[PERIOD_ORDER[[...p.id].reduce((h, c) => h + c.charCodeAt(0), 0) % PERIOD_ORDER.length]] || PERIODS.annuel;   // couleur stable, d'après l'identifiant
+function plNameHTML(p, add) {   // nom d'une nouvelle playlist (add : chant à y mettre tout de suite) ou renommage
+  return `<form class="form" id="plForm" data-id="${p ? p.id : ''}" data-add="${add || ''}"><h3>${p ? 'Renommer la playlist' : 'Nouvelle playlist'}</h3>
+    <label>Nom<input id="plName" value="${p ? esc(p.name) : ''}" placeholder="Ma playlist" maxlength="60" autocomplete="off" enterkeyhint="done"></label>
+    <div class="sy-btns"><button type="button" class="btn" data-act="closesheet">Annuler</button><button type="submit" class="btn pri">${p ? 'Enregistrer' : 'Créer'}</button></div></form>`;
+}
+function plPickHTML(id) {   // menu ⋯ d'un chant → « Ajouter à une playlist »
+  const tr = TR[id];
+  return `<div class="sh-head">${trArt(tr, 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">Ajouter à une playlist</div></div></div>
+  ${S.pl.map(p => { const on = p.ids.includes(id); return `<button class="mi" data-act="pltog" data-pl="${p.id}" data-id="${id}"><span class="ell">${esc(p.name)}</span><span class="val">${on ? ic('check') : ic('plus')}</span></button>`; }).join('')}
+  <button class="mi" data-act="plnew" data-add="${id}">Nouvelle playlist…${ic('plus')}</button>`;
+}
+function plAddHTML() {   // depuis la page d'une playlist : chercher des chants et les y mettre
+  const p = plGet(S.plAdd);
+  return `<div class="form"><h3>Ajouter à « ${esc(p ? p.name : '')} »</h3></div>
+  <label class="sbox plq">${ic('search', 18)}<input id="plq" type="search" placeholder="Titre, chantre, paroles…" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Chercher un chant"></label>
+  <div id="plres"></div><div class="pl-done"><button class="btn pri" data-act="pldone">Terminé</button></div>`;
+}
+function plAddRes() {
+  const box = $('#plres'), p = plGet(S.plAdd); if (!box || !p) return;
+  const q = $('#plq').value, ids = String(q).trim() ? searchAll(q).tr.map(x => x.id) : listIds('ajouts');
+  box.innerHTML = ids.length ? ids.slice(0, 80).map(id => { const t = TR[id], on = p.ids.includes(id); return `<div class="row" data-act="pltog" data-pl="${p.id}" data-id="${id}" role="button" tabindex="0">${trArt(t, 'sm')}<div class="meta"><div class="t1 ell">${titleTop(t)}</div><div class="t2 ell">${[titleSub(t), esc(chName(t))].filter(Boolean).join(' · ')}</div></div><span class="fav${on ? ' on' : ''}">${ic(on ? 'check' : 'plus', 20)}</span></div>`; }).join('') : `<p class="empty">Aucun chant pour « ${esc(q)} ».</p>`;
+}
+function plToggle(pid, id, el) {
+  const p = plGet(pid); if (!p || !TR[id]) return;
+  const on = p.ids.includes(id);
+  p.ids = on ? p.ids.filter(x => x !== id) : [...p.ids, id]; plSave();
+  toast(on ? `Retiré de « ${p.name} »` : `Ajouté à « ${p.name} »`);
+  if (el.classList.contains('row')) { const b = el.querySelector('.fav'); b.classList.toggle('on', !on); b.innerHTML = ic(on ? 'plus' : 'check', 20); }
+  else openSheet(plPickHTML(id));
+  render(true);
+}
+function plMove(pid, i, d) {
+  const p = plGet(pid); if (!p) return;
+  p.ids = p.ids.filter(x => TR[x]); const j = i + d; if (j < 0 || j >= p.ids.length) return;
+  [p.ids[i], p.ids[j]] = [p.ids[j], p.ids[i]]; plSave(); render(true);
+}
+function plRemove(pid, i) {
+  const p = plGet(pid); if (!p) return;
+  p.ids = p.ids.filter(x => TR[x]); p.ids.splice(i, 1); plSave();
+  if (!p.ids.length) S.plEdit = null; render(true);
+}
+function plDelete(pid) {
+  const p = plGet(pid); if (!p || !confirm(`Supprimer la playlist « ${p.name} » ?\nLes chants restent dans l’appli.`)) return;
+  S.pl = S.pl.filter(x => x !== p); plSave(); S.plEdit = null;
+  const top = S.route.stack[S.route.stack.length - 1]; if (top && top.type === 'pl' && top.id === pid) S.route.stack.pop();
+  render(); toast('Playlist supprimée');
+}
+const plEdRow = (tr, i, n, pid) => `<div class="row">${trArt(tr, 'sm')}<div class="meta"><div class="t1 ell">${titleTop(tr)}</div><div class="t2 ell">${esc(chName(tr))}</div></div>
+    <button class="fav" data-act="plmv" data-pl="${pid}" data-i="${i}" data-d="-1" aria-label="Monter" ${i === 0 ? 'disabled' : ''}>${ic('up', 20)}</button>
+    <button class="fav" data-act="plmv" data-pl="${pid}" data-i="${i}" data-d="1" aria-label="Descendre" ${i === n - 1 ? 'disabled' : ''}>${ic('down', 20)}</button>
+    <button class="fav" data-act="plrm" data-pl="${pid}" data-i="${i}" aria-label="Retirer de la playlist">${ic('close', 20)}</button></div>`;
+document.addEventListener('input', e => { if (e.target.id === 'plq') plAddRes(); });
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'plForm') return;
+  e.preventDefault();
+  const f = e.target, name = $('#plName').value.trim().slice(0, 60) || 'Ma playlist';
+  if (f.dataset.id) { const p = plGet(f.dataset.id); if (p) { p.name = name; plSave(); } closeSheet(); render(true); toast('Playlist renommée'); return; }
+  const add = f.dataset.add && TR[f.dataset.add] ? f.dataset.add : null;
+  const p = { id: 'p' + Date.now().toString(36), name, ids: add ? [add] : [] };
+  S.pl.push(p); plSave(); closeSheet();
+  if (add) { render(true); toast(`Ajouté à « ${name} »`); return; }
+  S.plEdit = null; S.route = { tab: 'library', stack: [{ type: 'pl', id: p.id }] }; render(); toast('Playlist créée');
+});
 const THEMES = [
   {k:'cierge', name:'Cierge', bg:'#0f0c0a', up:'#272019', ac:'#dbb066'},
   {k:'velours', name:'Saphir velours', bg:'#061123', up:'#0c254b', ac:'#dbb066'},
@@ -2798,7 +2898,7 @@ document.addEventListener('click', e => {
       const n = Date.now(); S.aideTaps = (n - (S.aideAt || 0) < 1500 ? (S.aideTaps || 0) : 0) + 1; S.aideAt = n;
       if (S.aideTaps >= 5) { S.aideTaps = 0; S.cfg.aide = !S.cfg.aide; if (S.cfg.aide) S.cfg.moi = false; store.set('cfg', S.cfg); toast(S.cfg.aide ? 'Mode aide : import et modification ouverts' : 'Mode aide désactivé'); render(true); }
       break; }
-    case 'back': S.route.stack.pop(); render(); break;
+    case 'back': S.route.stack.pop(); S.plEdit = null; render(); break;
     case 'goto': if (desk()) { if (S.big) { S.big = false; syncDesk(); renderPBody(); updateUI(); } } else closePlayer(); if (el.dataset.type !== 'settings') S.route = { tab: 'periods', stack: [] }; S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
     case 'play': playList(el.dataset.list, +el.dataset.i || 0, false); if (el.dataset.t) seekWhenReady(+el.dataset.t); break;
     case 'lfind': S.pview = S.pview === 'find' ? 'lyrics' : 'find'; renderPlayer(); pokeControls(); break;
@@ -2815,6 +2915,20 @@ document.addEventListener('click', e => {
     case 'jourSuite': closeSheet(); if (S.jourSuite) { const { P, k } = S.jourSuite; S.jourSuite = null; jouerSeg(P, k); toast(P.lectures[P.segs[k].lec].ref); } break;
     case 'jourPoursuivre': closeSheet(); play(); break;
     case 'fav': setFav(el.dataset.id); break;
+    case 'plnew': openSheet(plNameHTML(null, el.dataset.add)); $('#plName').focus(); break;
+    case 'plpick': openSheet(plPickHTML(el.dataset.id)); break;
+    case 'pltog': plToggle(el.dataset.pl, el.dataset.id, el); break;
+    case 'pladd': S.plAdd = el.dataset.pl; openSheet(plAddHTML()); plAddRes(); break;
+    case 'pldone': closeSheet(); break;
+    case 'pledit': S.plEdit = S.plEdit === el.dataset.pl ? null : el.dataset.pl; render(true); break;
+    case 'plmv': plMove(el.dataset.pl, +el.dataset.i, +el.dataset.d); break;
+    case 'plrm': plRemove(el.dataset.pl, +el.dataset.i); break;
+    case 'plmenu': { const p = plGet(el.dataset.pl); if (!p) break;
+      openSheet(`<div class="sh-head">${artHTML(plTeinte(p), graph(p.name.trim())[0]?.toUpperCase() || '♪', 'sm')}<div class="tt"><div class="tt1 ell">${esc(p.name)}</div><div class="tt2 ell">${plN(listIds('pl:' + p.id).length)}</div></div></div>
+        <button class="mi" data-act="plren" data-pl="${p.id}">Renommer${ic('pencil')}</button>
+        <button class="mi" data-act="pldel" data-pl="${p.id}" data-close="1">Supprimer la playlist${ic('trash')}</button>`); break; }
+    case 'plren': openSheet(plNameHTML(plGet(el.dataset.pl))); { const f = $('#plName'); f.focus(); f.select(); } break;
+    case 'pldel': plDelete(el.dataset.pl); break;
     case 'openp': if (!e.target.closest('.mbtn')) openPlayer(); break;
     case 'closep': closePlayer(); break;
     case 'toggle': toggle(); break;
@@ -2830,7 +2944,7 @@ document.addEventListener('click', e => {
       updateUI(); if (S.pview === 'queue') renderPBody(); toast(S.shuffle ? 'Lecture aléatoire activée' : 'Lecture aléatoire désactivée'); break;
     case 'repeat': S.repeat = (S.repeat + 1) % 3; updateUI(); if (S.pview === 'queue') renderPBody(); toast(['Répétition désactivée', 'Répéter la liste', 'Répéter ce chant'][S.repeat]); break;
     case 'view': setView(S.pview === el.dataset.v ? (S.big && desk() ? 'lyrics' : 'art') : el.dataset.v); break;
-    case 'dgo': S.route = { tab: el.dataset.type === 'chanter' ? 'library' : 'periods', stack: [{ type: el.dataset.type, id: el.dataset.id }] }; render(); break;
+    case 'dgo': S.route = { tab: el.dataset.type === 'chanter' || el.dataset.type === 'pl' ? 'library' : 'periods', stack: [{ type: el.dataset.type, id: el.dataset.id }] }; render(); break;
     case 'dpanel':   // ordinateur : bouton Paroles ou À suivre de la barre du haut (ouvre, change ou ferme le panneau de droite)
       if (S.full && !S.big && S.pview === el.dataset.v) { closePlayer(); break; }
       S.big = false; S.pview = el.dataset.v; if (S.full) { syncDesk(); renderPBody(); updateUI(); } else openPlayer(); break;
@@ -2951,6 +3065,7 @@ function renderSide() {
     ${[['home', 'Accueil'], ['periods', 'Périodes'], ['library', 'Bibliothèque']].map(([k, n]) => `<button class="ds-nav${on(k)}" data-act="tab" data-tab="${k}">${ic(k, 19)}${n}</button>`).join('')}
     <div class="ds-h">Périodes</div>
     ${PERIOD_ORDER.map(k => `<button class="ds-per${sel('period', k)}" data-act="dgo" data-type="period" data-id="${k}"><i style="background:${PERIODS[k].c[0]}"></i><span class="ell">${PERIODS[k].name}</span></button>`).join('')}
+    ${S.pl.length ? `<div class="ds-h">Mes playlists</div>${S.pl.map(p => `<button class="ds-per${sel('pl', p.id)}" data-act="dgo" data-type="pl" data-id="${p.id}"><i style="background:${plTeinte(p).c[0]}"></i><span class="ell">${esc(p.name)}</span></button>`).join('')}` : ''}
     <div class="ds-h">Chantres</div>
     ${chOrdre().map(([id, c]) => `<button class="ds-ch${sel('chanter', id)}" data-act="dgo" data-type="chanter" data-id="${id}">${avHTML(c)}<span class="ell">${esc(c.name)}</span></button>`).join('')}`;
   el.scrollTop = y;
