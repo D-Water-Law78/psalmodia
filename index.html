@@ -162,7 +162,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .pt-word{font-family:var(--f-cop);font-size:14px;opacity:.85}
 .pt-name{font-family:var(--f-display);font-size:19px;line-height:1.15;text-wrap:balance;display:block}
 .pt-date{font-size:12px;opacity:.82;margin-top:4px;display:block}
-/* Sélecteur d'univers de l'accueil : Chants, Psaumes, Lectures, Cantiques (chacun avec son propre aléatoire) */
+/* Sélecteur d'univers de l'accueil : Hymnes, Psaumes, Évangiles, Chant (chacun avec son propre aléatoire) */
 .useg{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:4px;border-radius:99px!important;margin:2px 0 18px}
 .useg button{height:38px;border-radius:99px;font-size:13.5px;font-weight:600;color:var(--ivory);display:flex;align-items:center;justify-content:center;transition:background .25s,color .25s}
 .useg button.on{color:var(--gold);background:rgba(var(--wash),.12)}
@@ -797,7 +797,7 @@ const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits 
 // Les quatre évangélistes (lectures lues, rangées par livre puis par chapitre ; ev = livre)
 const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',img:'evangiles/case-mt-6f3efe.jpg',c:['#70a8e1','#1c365f']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:'evangiles/marc-c-b57ad8.jpg',c:['#ec4a3a','#6b0f1a']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',img:'evangiles/case-lc-f34d62.jpg',c:['#b08ad8','#2a1240']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',img:'evangiles/case-jn-3e3cbb.jpg',c:['#ffd24d','#b07818']}};
 // Univers de l'accueil : les psaumes et les lectures ont leur page et leur aléatoire, à part des chants
-const UNIVS = [['chants','Chants'],['psaumes','Psaumes'],['lectures','Lectures'],['taranim','Cantiques']];
+const UNIVS = [['chants','Hymnes'],['psaumes','Psaumes'],['lectures','Évangiles'],['taranim','Chant']];
 const horsChants = t => t.col === 'psaumes' || t.col === 'lectures' || t.col === 'taranim';
 const OFFICES = {vepres:'Vêpres',tasbeha:'Tasbeha',matines:'Matines',liturgie:'Liturgie',mariage:'Mariage',bapteme:'Baptême',funerailles:'Funérailles'};
 const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
