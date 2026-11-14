@@ -788,14 +788,14 @@ const PERIODS = {
   rameaux:{name:'Rameaux',word:'Ⲱⲥⲁⲛⲛⲁ',c:['#6f9a3d','#1c2d10'],desc:"Samedi de Lazare et dimanche des Rameaux."},
   pascha:{name:'Semaine Sainte',word:'Ⲡⲁⲥⲭⲁ',c:['#5a1a22','#0b0808'],desc:"La semaine de la Pâque, jusqu'au Samedi de la Joie."},
   resurrection:{name:'Résurrection',word:'Ⲁⲛⲁⲥⲧⲁⲥⲓⲥ',c:['#f1d898','#a8731f'],ink:'#3a2608',light:true,desc:"Les jours joyeux après Pâques, jusqu'à l'Ascension."},
-  pentecote:{name:'Ascension et Pentecôte',word:'Ⲡⲉⲛⲧⲏⲕⲟⲥⲧⲏ',c:['#e2673f','#5a170b'],desc:"De l'Ascension à la descente de l'Esprit Saint."},
+  pentecote:{name:'Ascension et Pentecôte',word:'Ⲡⲉⲛⲧⲏⲕⲟⲥⲧⲏ',c:['#f5a83a','#a11a12'],desc:"De l'Ascension à la descente de l'Esprit Saint."},
   apotres:{name:'Jeûne des Apôtres',word:'Ⲁⲡⲟⲥⲧⲟⲗⲟⲥ',c:['#3d8a95','#0f2a30'],desc:"De la Pentecôte à la fête des saints Pierre et Paul."},
   assomption:{name:'Jeûne de la Vierge',word:'Ⲙⲁⲣⲓⲁ',c:['#4a78d4','#14244f'],desc:"Quinze jours de jeûne jusqu'à l'Assomption."}
 };
 const PERIOD_ORDER = ['annuel','nayrouz','kiahk','nativite','theophanie','ninive','careme','rameaux','pascha','resurrection','pentecote','apotres','assomption'];
 const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits de messe', lectures:'Lectures', taranim:'Cantiques'};
 // Les quatre évangélistes (lectures lues, rangées par livre puis par chapitre ; ev = livre)
-const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',img:'evangiles/case-mt-6f3efe.jpg',c:['#70a8e1','#1c365f']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:'evangiles/marc-c-b57ad8.jpg',c:['#ba2c43','#350d17']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',img:'evangiles/case-lc-f34d62.jpg',c:['#b08ad8','#2a1240']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',img:'evangiles/case-jn-3e3cbb.jpg',c:['#ffd24d','#b07818']}};
+const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',img:'evangiles/case-mt-6f3efe.jpg',c:['#70a8e1','#1c365f']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:'evangiles/marc-c-b57ad8.jpg',c:['#ec4a3a','#6b0f1a']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',img:'evangiles/case-lc-f34d62.jpg',c:['#b08ad8','#2a1240']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',img:'evangiles/case-jn-3e3cbb.jpg',c:['#ffd24d','#b07818']}};
 // Univers de l'accueil : les psaumes et les lectures ont leur page et leur aléatoire, à part des chants
 const UNIVS = [['chants','Chants'],['psaumes','Psaumes'],['lectures','Lectures'],['taranim','Cantiques']];
 const horsChants = t => t.col === 'psaumes' || t.col === 'lectures' || t.col === 'taranim';
