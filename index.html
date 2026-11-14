@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1310,7 +1310,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '14.11.2026 · e204a78c88'; // remplacé par tools/build.sh
+const APP_VERSION = '14.11.2026 · 5e1d5a4cb9'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2970,6 +2970,9 @@ function applyTheme() {
 function setTheme(k) { store.set('theme', k); applyTheme(); render(true); }
 function setCfg(k, v) { S.cfg[k] = v; store.set('cfg', S.cfg); render(true); updateUI(); if (S.full && S.pview === 'lyrics') { renderPBody(); } pokeControls(); }
 
+// Pas de zoom dans l'appli : pincement (Safari iOS ignore user-scalable=no) ; le double-tap est déjà coupé par touch-action:manipulation
+['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 $('#player').addEventListener('pointerdown', () => pokeControls(), true);
 document.addEventListener('pointerdown', e => { if (e.target.closest('.hdel, [data-act="hclr"]')) S.histTouch = true; }, true);   // le clavier se ferme mais l'historique reste
 document.addEventListener('click', e => {
