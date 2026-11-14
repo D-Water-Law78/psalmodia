@@ -1316,7 +1316,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '15.11.2026 · a8382ba570'; // remplacé par tools/build.sh
+const APP_VERSION = '15.11.2026 · 3dc94cf5e1'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1382,6 +1382,7 @@ function listIds(key) {
   if (k === 'fav') return [...S.fav].filter(x => TR[x]);   // dans l'ordre choisi (glisser la poignée), sinon ordre d'ajout
   if (k === 'pl') { const p = plGet(id); return p ? p.ids.filter(x => TR[x]) : []; }   // playlist personnelle, dans l'ordre choisi
   if (k === 'recent') return recentIds();
+  if (k === 'recents') return S.recent.filter(id => TR[id]);   // page « Reprendre » : tous les chants écoutés gardés, du plus récent au plus ancien
   if (k === 'imported') return TRACKS.filter(t => t.src).map(t => t.id);
   if (k === 'search') return S.results;
   if (k === 'lsearch') return S.lresults || [];
@@ -1389,7 +1390,7 @@ function listIds(key) {
   if (k === 'ajouts') return TRACKS.slice().sort((x, y) => ajoutDe(y) - ajoutDe(x)).map(t => t.id);   // « Ajoutés récemment » : du plus récent au plus ancien
   return sorted(() => true);
 }
-const listName = key => { const [k, id] = key.split(':'); return k === 'pl' ? (plGet(id)?.name || 'Playlist') : k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
+const listName = key => { const [k, id] = key.split(':'); return k === 'pl' ? (plGet(id)?.name || 'Playlist') : k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'fav' ? 'Favoris' : k === 'recent' || k === 'recents' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
 function recentIds() {
   const ids = S.recent.filter(id => TR[id]);
   TRACKS.forEach(t => { if (ids.length < 8 && !ids.includes(t.id)) ids.push(t.id); });
@@ -1446,13 +1447,13 @@ function renderHome() {
     ${NEXT ? `<button class="s-next" data-act="open" data-type="period" data-id="${NEXT.id}"><span class="n-ey">Ensuite</span><span class="n-nm">${PERIODS[NEXT.id].name}</span><span class="n-d">dans ${NEXT.days} jour${NEXT.days > 1 ? 's' : ''}</span>${ic('chev', 16)}</button>` : ''}
   </section>
   ${dlHTML()}
-  <div class="sh"><h2>Reprendre</h2></div>
+  <div class="sh"><button class="shl" data-act="open" data-type="recent" data-id="all"><h2>Reprendre</h2>${ic('chev', 18)}</button><button data-act="open" data-type="recent" data-id="all">Tout voir</button></div>
   <div class="hscroll">${recentIds().map((id, i) => { const t = TR[id]; return `<button class="card" data-act="play" data-list="recent" data-i="${i}">${trArt(t, 'md')}<div class="c1 ell">${titleTop(t)}</div><div class="c2 ell">${titleSub(t) || esc(chName(t))}</div></button>`; }).join('')}</div>
   <div class="sh"><button class="shl" data-act="open" data-type="chanters" data-id="all"><h2>Chantres</h2>${ic('chev', 18)}</button><button data-act="open" data-type="chanters" data-id="all">Tout voir</button></div>
   <div class="hscroll">${chOrdre().map(([id, c]) => `<button class="chan" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c)}<span>${esc(c.name)}</span></button>`).join('')}</div>
   <div class="sh"><h2>Offices et collections</h2></div>
   <div class="chips">${chipsHTML()}</div>
-  <div class="sh"><button class="shl" data-act="tab" data-tab="periods"><h2>L'année liturgique</h2>${ic('chev', 18)}</button><button data-act="tab" data-tab="periods">Tout voir</button></div>
+  <div class="sh"><h2>L'année liturgique</h2><button data-act="tab" data-tab="periods">Tout voir</button></div>
   <div class="pgrid">${[NEXT && NEXT.id, 'pascha', 'careme'].filter((v, i, a) => v && a.indexOf(v) === i && v !== SEASON_NOW).slice(0, 2).map(tileHTML).join('')}</div>
   <p class="foot">Les nouveaux chants arrivent tout seuls avec les mises à jour de l'appli.</p>`;
 }
@@ -1828,6 +1829,9 @@ function renderDetail(it) {
     const p = plGet(it.id) || { id: it.id, name: 'Playlist', ids: [] };
     list = 'pl:' + it.id; title = esc(p.name); sub = plN(ids0(list));
     head = artHTML(plTeinte(p), graph(p.name.trim())[0]?.toUpperCase() || '♪', 'xl');
+  } else if (it.type === 'recent') {
+    list = 'recents'; title = 'Reprendre'; sub = `${ids0('recents')} chant${ids0('recents') > 1 ? 's' : ''} écouté${ids0('recents') > 1 ? 's' : ''}`;
+    head = artHTML('nativite', '↺', 'xl');
   } else if (it.type === 'imported') {
     list = 'imported'; title = 'Sur cet iPhone'; sub = 'Chants avec leur fichier audio';
     head = artHTML('theophanie', 'Ⲯ', 'xl');
@@ -1937,7 +1941,7 @@ function load(id) {
   S.cur = id; S.t = 0; S.loopA = S.loopB = null; S.passage = null;
   EC.debut(id);   // termine et compte l'écoute précédente
   if (au(tr)) { A.src = au(tr); A.playbackRate = S.rate; } else { A.pause(); A.removeAttribute('src'); A.load(); }
-  S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 12); store.set('recent', S.recent);
+  S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 50); store.set('recent', S.recent);
   if (!tr.L && (S.pview === 'lyrics' || S.pview === 'find')) S.pview = 'art';
   renderPlayer(); setMediaSession(tr);
 }
