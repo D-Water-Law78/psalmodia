@@ -12,7 +12,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
 </head><body>
 <title>Psalmodia</title>
-<script>try{var th=JSON.parse(localStorage.getItem('psalmodia:theme')||'null');if(th&&th!=='cierge')document.documentElement.dataset.theme=th}catch(e){}</script>
+<script>try{var th=JSON.parse(localStorage.getItem('psalmodia:theme')||'null');if(th&&th!=='cierge')document.documentElement.dataset.theme=th;var ac=JSON.parse(localStorage.getItem('psalmodia:accent')||'null');if(ac)document.documentElement.dataset.accent=ac}catch(e){}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,6 +44,9 @@
 :root[data-theme="velours"]{--night:#061123;--surface:#0b1c35;--raised:#0c254b;--glass:rgba(17,38,70,.78);--sheet:rgba(15,32,56,.94);--fade:6,17,35;--av1:#1e375c;--av2:#0b1728;--avph:#112440}
 :root[data-theme="nuit"]{--night:#030c1b;--surface:#07142b;--raised:#071c3f;--glass:rgba(11,29,59,.78);--sheet:rgba(13,30,59,.94);--fade:3,12,27;--av1:#1b345f;--av2:#09152a;--avph:#0f2243}
 :root[data-theme="graphite"]{--night:#000000;--surface:#1c1c1e;--raised:#2c2c2e;--ivory:#f5f5f7;--muted:#98989f;--faint:#6e6e73;--gold:#fa2d48;--on-gold:#ffffff;--line:rgba(255,255,255,.1);--glass:rgba(30,30,32,.8);--sheet:rgba(28,28,30,.95);--fade:0,0,0;--top:#000000;--av1:#3a3a3c;--av2:#1c1c1e;--avph:#2c2c2e}
+:root[data-theme="ardoise"]{--night:#11151b;--surface:#181e26;--raised:#232b36;--ivory:#eef1f5;--muted:#94a0ae;--faint:#67727f;--line:rgba(238,241,245,.09);--glass:rgba(35,43,54,.8);--sheet:rgba(30,37,47,.95);--fade:17,21,27;--top:#11151b;--av1:#34404f;--av2:#161b22;--avph:#232b36}
+:root[data-theme="pourpre"]{--night:#150a12;--surface:#1f0f1b;--raised:#33182d;--muted:#ab93a3;--faint:#7d6574;--glass:rgba(45,20,40,.8);--sheet:rgba(40,18,36,.95);--fade:21,10,18;--top:#150a12;--av1:#47213f;--av2:#1f0f1b;--avph:#2e1529}
+:root[data-theme="olivier"]{--night:#0a130e;--surface:#101c14;--raised:#17281d;--muted:#93a596;--faint:#66786a;--glass:rgba(22,38,28,.8);--sheet:rgba(20,34,25,.95);--fade:10,19,14;--top:#0a130e;--av1:#24402e;--av2:#0f1a13;--avph:#183022}
 /* Nacre (clair) : texte bleu marine, or assombri pour rester lisible. Sous l'heure de l'iPhone, une bande bleu nuit, car l'heure y est toujours écrite en blanc. */
 :root[data-theme="nacre"]{--night:#f7f8fb;--surface:#ffffff;--raised:#eaeef2;--ivory:#142039;--muted:#5a6680;--faint:#7d879b;--gold:#a67a24;--on-gold:#ffffff;
   --line:rgba(20,33,61,.09);--glass:rgba(255,255,255,.8);--glass-sh:0 1px 0 rgba(20,33,61,.06),0 8px 24px rgba(20,33,61,.10);
@@ -252,6 +255,20 @@ body.dk .pl-acts{max-width:420px}
 .thd i{position:absolute;right:6px;bottom:6px;width:12px;height:12px;border-radius:50%}
 .thd.on{box-shadow:inset 0 0 0 1px rgba(var(--wash),.18),0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
 .thn{padding:6px 14px 14px;font-size:14px;color:var(--muted)}
+.cpk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 6px;padding:16px 10px 14px}
+.cpk.acc{grid-template-columns:repeat(6,minmax(0,1fr))}
+.cpk button{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
+.cpk .thd{display:grid;place-items:center;color:#fff}
+.cpk button.on .thd{box-shadow:inset 0 0 0 1px rgba(var(--wash),.18),0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
+.cpk .nm{font-size:12px;line-height:1.25;color:var(--muted);max-width:100%;text-align:center;overflow-wrap:anywhere}
+.cpk button.on .nm{color:var(--ivory);font-weight:600}
+.acd{width:38px;height:38px;border-radius:50%;background:var(--c);display:grid;place-items:center;color:var(--on-gold);box-shadow:inset 0 0 0 1px rgba(var(--wash),.18)}
+.acd.auto{background:conic-gradient(var(--c) 0 50%,var(--raised) 0)}
+.cpk button.on .acd{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--c)}
+.cpk button:not(.on) .acd .ic{display:none}
+.cprev{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center;padding:12px 14px 14px;border-top:1px solid var(--line)}
+.cprev .btn{height:40px;font-size:14px;pointer-events:none}
+.cprev .cp-h{color:var(--gold);display:grid;place-items:center;width:36px}
 
 /* ---------- Dock : mini-lecteur + onglets flottants ---------- */
 .dock-fade{position:fixed;left:0;right:0;bottom:0;height:calc(160px + env(safe-area-inset-bottom,0px));z-index:29;pointer-events:none;
@@ -1293,7 +1310,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '14.11.2026 · 8edd30db12'; // remplacé par tools/build.sh
+const APP_VERSION = '14.11.2026 · 9a1258fa6c'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const isFav = id => S.fav.has(id);
@@ -1744,10 +1761,12 @@ const sw = (k, label, sub) => `<div class="gr"><span>${label}${sub ? `<small>${s
 function renderSettings() {
   const nSync = TRACKS.filter(t => store.get('sync2:' + t.id, null)).length;
   return `<div class="bar"><button class="backb" data-act="back">${ic('back')}Retour</button></div><h1>Réglages</h1>
-  <div class="grp-h">Thème</div>
-  <div class="grp"><div class="thm">${THEMES.map(t => `<button class="thd${t.k === curTheme().k ? ' on' : ''}" data-act="theme" data-v="${t.k}" aria-label="${t.name}" style="background:linear-gradient(135deg,${t.up},${t.bg})"><i style="background:${t.ac}"></i></button>`).join('')}</div>
-    <div class="thn">${curTheme().name}</div></div>
-  <p class="grp-f">Le thème choisi reste enregistré sur cet iPhone.</p>
+  <div class="grp-h">Couleur principale</div>
+  <div class="grp"><div class="cpk">${THEMES.map(t => `<button class="${t.k === curTheme().k ? 'on' : ''}" data-act="theme" data-v="${t.k}" aria-pressed="${t.k === curTheme().k}"><span class="thd" style="background:linear-gradient(135deg,${t.up},${t.bg})">${t.k === curTheme().k ? ic('check', 18) : ''}</span><span class="nm">${t.name.replace(' (Apple Music)', '').replace(' (clair)', '')}</span></button>`).join('')}</div></div>
+  <div class="grp-h">Couleur secondaire</div>
+  <div class="grp"><div class="cpk acc">${[{ k: '', name: 'Du thème' }, ...ACCENTS].map(a => { const on = (curAccent()?.k || '') === a.k, c = a.k ? (curTheme().k === 'nacre' ? a.l[0] : a.d[0]) : curTheme().ac; return `<button class="${on ? 'on' : ''}" data-act="accent" data-v="${a.k}" aria-pressed="${on}"><span class="acd${a.k ? '' : ' auto'}" style="--c:${c}">${on ? ic('check', 16) : ''}</span><span class="nm">${a.name}</span></button>`; }).join('')}</div>
+    <div class="cprev"><span class="btn pri">${ic('play', 16)}Lecture</span><span class="btn">${ic('shuffle', 16)}Aléatoire</span><span class="cp-h">${ic('heartf', 20)}</span></div></div>
+  <p class="grp-f">« Du thème » : ${curTheme().k === 'graphite' ? 'le rouge' : 'l’or'} prévu pour ${curTheme().name.replace(' (Apple Music)', '').replace(' (clair)', '')}. Ces couleurs restent enregistrées sur cet iPhone, chacun choisit les siennes.</p>
   <div class="grp-h">Boutons du lecteur</div>
   <div class="grp">${sw('skipBtns', 'Reculer / avancer', 'Deux petits boutons sous la barre de lecture')}
     <div class="gr"><span>Durée du saut</span><div class="seg">${[5, 10, 15, 30].map(v => `<button class="${S.cfg.skipSec === v ? 'on' : ''}" data-act="skipsec" data-v="${v}">${v} s</button>`).join('')}</div></div>
@@ -2919,12 +2938,30 @@ const THEMES = [
   {k:'velours', name:'Saphir velours', bg:'#061123', up:'#0c254b', ac:'#dbb066'},
   {k:'nuit', name:'Saphir de nuit', bg:'#030c1b', up:'#071c3f', ac:'#dbb066'},
   {k:'graphite', name:'Graphite (Apple Music)', bg:'#000000', up:'#2c2c2e', ac:'#fa2d48'},
+  {k:'ardoise', name:'Ardoise', bg:'#11151b', up:'#232b36', ac:'#dbb066'},
+  {k:'pourpre', name:'Pourpre', bg:'#150a12', up:'#33182d', ac:'#dbb066'},
+  {k:'olivier', name:'Olivier', bg:'#0a130e', up:'#17281d', ac:'#dbb066'},
   {k:'nacre', name:'Nacre (clair)', bg:'#f7f8fb', up:'#eaeef2', ac:'#a67a24'}
 ];
+// Couleur secondaire (boutons, chant en cours, cœurs) : au choix de chacun, sinon celle du thème. d = thèmes sombres, l = Nacre (clair)
+const ACCENTS = [
+  {k:'or', name:'Or', d:['#dbb066','#1b140c'], l:['#a67a24','#ffffff']},
+  {k:'rouge', name:'Rouge', d:['#fa2d48','#ffffff'], l:['#d61f3c','#ffffff']},
+  {k:'bleu', name:'Bleu', d:['#0a84ff','#ffffff'], l:['#0068d6','#ffffff']},
+  {k:'violet', name:'Violet', d:['#bf5af2','#ffffff'], l:['#8a3fc4','#ffffff']},
+  {k:'argent', name:'Argent', d:['#d1d1d6','#000000'], l:['#5f6370','#ffffff']}
+];
+(() => { const st = document.createElement('style');
+  st.textContent = ACCENTS.map(a => `:root[data-accent="${a.k}"],:root[data-accent="${a.k}"] #player{--gold:${a.d[0]};--on-gold:${a.d[1]}}:root[data-theme="nacre"][data-accent="${a.k}"]{--gold:${a.l[0]};--on-gold:${a.l[1]}}`).join('\n');
+  document.body.appendChild(st); })();   // après la feuille principale, pour passer devant les couleurs du thème
+const curAccent = () => ACCENTS.find(a => a.k === store.get('accent', null)) || null;
+const accentOf = t => { const a = curAccent(); return a ? (t.k === 'nacre' ? a.l[0] : a.d[0]) : t.ac; };
+function setAccent(k) { if (k) store.set('accent', k); else { try { localStorage.removeItem('psalmodia:accent'); } catch (e) {} } applyTheme(); render(true); updateUI(); }
 const curTheme = () => THEMES.find(t => t.k === store.get('theme', 'cierge')) || THEMES[0];
 function applyTheme() {
   const t = curTheme();
   if (t.k === 'cierge') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t.k;
+  const a = curAccent(); if (a) document.documentElement.dataset.accent = a.k; else delete document.documentElement.dataset.accent;
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t.k === 'nacre' ? '#18294a' : t.bg;
 }
 function setTheme(k) { store.set('theme', k); applyTheme(); render(true); }
@@ -3031,6 +3068,7 @@ document.addEventListener('click', e => {
     case 'cfg': setCfg(el.dataset.k, !S.cfg[el.dataset.k]); break;
     case 'lsz': setCfg('lsize', +el.dataset.v); break;
     case 'theme': setTheme(el.dataset.v); break;
+    case 'accent': setAccent(el.dataset.v); break;
     case 'skipsec': setCfg('skipSec', +el.dataset.v); break;
     case 'skip': seek(S.t + (+el.dataset.d) * S.cfg.skipSec); pokeControls(); break;
     case 'wseek': {
