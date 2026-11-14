@@ -390,7 +390,7 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
 .ln.now .u.c.hold{transition:none;transform:translateY(calc(var(--p,0) * -.08em)) scale(calc(1.02 + var(--p,0) * .1));filter:drop-shadow(0 0 calc(var(--p,0) * 12px) rgba(255,255,255,.7))}
 #player.no-emph .ln.now .u.c,#player.no-emph .ln.now .u.c.hold{transform:none;filter:none}
 .tr:empty{display:none}
-.tr{font-size:17px;font-weight:600;line-height:1.3;color:rgba(255,255,255,.3);margin-top:7px;transition:color .4s}
+.tr{font-size:var(--trs,17px);font-weight:600;line-height:1.3;color:rgba(255,255,255,.3);margin-top:7px;transition:color .4s}
 .ln.now .tr{color:rgba(255,255,255,.68)}
 /* Feuille de hazaat (bêta) : au-dessus des paroles, défile avec le chant */
 .hz{--hzf:calc(var(--lfs,30px) * .9);flex:none;position:relative;overflow:hidden;height:calc(var(--hzf) * 2.6);margin:4px -6px 0;padding:0 6px}
@@ -586,7 +586,7 @@ body.dk-big #pTop .tt2{font-size:17px}
 body.dk-big #pCtl{grid-column:1;grid-row:3;position:static!important;width:min(100%,50vh,480px);justify-self:center;margin-top:6px}
 body.dk-big #player.ctl-hidden #pCtl{opacity:1;transform:none;pointer-events:auto}
 body.dk-big #pBody{grid-column:2;grid-row:1 / -1;min-height:0}
-body.dk-big .tr{font-size:21px}
+body.dk-big .tr{font-size:calc(var(--trs,17px) * 1.24)}
 body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 </style>
 
@@ -1300,7 +1300,7 @@ const audioTag = tr => au(tr) ? '' : `<span class="nosnd">${tr.yt ? 'à importer
 const chName = tr => [tr.ch, tr.ch2].filter(k => CH[k]).map(k => CH[k].name).join(' et ');   // ch2 : second chantre (chant à deux voix)
 
 /* ---------- État ---------- */
-const DEF_CFG = { autoDl: true, xRate: true, xLoop: true, xSync: false, xShuffle: false, xRepeat: false, xAirplay: true, trFr: true, emph: true, holdPill: true, autoHide: true, lsize: 1, copDate: true, skipBtns: true, skipSec: 10, psAlea: false };
+const DEF_CFG = { autoDl: true, xRate: true, xLoop: true, xSync: false, xShuffle: false, xRepeat: false, xAirplay: true, trFr: true, emph: true, holdPill: true, autoHide: true, lsize: 1, trSize: 0, copDate: true, skipBtns: true, skipSec: 10, psAlea: false };
 const S = {
   route: { tab: 'home', stack: [] },
   cur: null, playing: false, t: 0, rate: 1, queue: [], qi: 0, qFrom: '', shuffle: false, repeat: 0,
@@ -1310,9 +1310,10 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '14.11.2026 · 9a1258fa6c'; // remplacé par tools/build.sh
+const APP_VERSION = '14.11.2026 · e204a78c88'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
+const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
 const isFav = id => S.fav.has(id);
 const curTrack = () => S.cur ? TR[S.cur] : null;
 
@@ -1774,7 +1775,8 @@ function renderSettings() {
   <p class="grp-f">Un bouton masqué reste accessible dans le menu « … » du lecteur.</p>
   <div class="grp-h">Paroles</div>
   <div class="grp">${sw('trFr', 'Traduction française', 'Sous chaque ligne copte')}${sw('emph', 'Faire ressortir la lettre chantée', 'Elle grossit et brille pendant les vocalises')}${sw('holdPill', 'Compteur de vocalise', 'Affiche le temps restant sur une lettre tenue')}${sw('autoHide', 'Masquer les commandes', 'Pendant les paroles, toucher l’écran les fait revenir')}
-    <div class="gr"><span>Taille du texte</span><div class="seg">${['Petit', 'Moyen', 'Grand'].map((l, i) => `<button class="${S.cfg.lsize === i ? 'on' : ''}" data-act="lsz" data-v="${i}">${l}</button>`).join('')}</div></div></div>
+    <div class="gr"><span>Taille du texte</span><div class="seg">${['Petit', 'Moyen', 'Grand'].map((l, i) => `<button class="${S.cfg.lsize === i ? 'on' : ''}" data-act="lsz" data-v="${i}">${l}</button>`).join('')}</div></div>
+    <div class="gr"><span>Taille du français</span><div class="seg">${['Petit', 'Moyen', 'Grand'].map((l, i) => `<button class="${(S.cfg.trSize || 0) === i ? 'on' : ''}" data-act="trsz" data-v="${i}">${l}</button>`).join('')}</div></div></div>
   <div class="grp-h">Accueil</div>
   <div class="grp">${sw('copDate', 'Date copte du jour')}</div>
   <div class="grp-h">Chants</div>
@@ -2437,6 +2439,7 @@ function updateUI() {
   document.body.classList.toggle('playing', S.playing);
   pl.classList.toggle('no-tr', !c.trFr); pl.classList.toggle('no-emph', !c.emph); pl.classList.toggle('syncing', !!S.sync);
   pl.style.setProperty('--lfs', LSIZES[c.lsize] * (S.big && desk() ? 1.45 : 1) + 'px');
+  pl.style.setProperty('--trs', (TRSIZES[c.trSize] || 17) + 'px');
   $('#cPlay').innerHTML = ic(S.playing ? 'pause' : 'play', 50);
   $('#cPlay').setAttribute('aria-label', S.playing ? 'Pause' : 'Lecture');
   $('#mPlay').innerHTML = ic(S.playing ? 'pause' : 'play', 26);
@@ -3067,6 +3070,7 @@ document.addEventListener('click', e => {
     case 'squit': S.sync = null; renderPBody(); updateUI(); pokeControls(); toast('Synchronisation annulée'); break;
     case 'cfg': setCfg(el.dataset.k, !S.cfg[el.dataset.k]); break;
     case 'lsz': setCfg('lsize', +el.dataset.v); break;
+    case 'trsz': setCfg('trSize', +el.dataset.v); break;
     case 'theme': setTheme(el.dataset.v); break;
     case 'accent': setAccent(el.dataset.v); break;
     case 'skipsec': setCfg('skipSec', +el.dataset.v); break;
