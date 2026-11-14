@@ -168,9 +168,9 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .pt-word{font-family:var(--f-cop);font-size:14px;opacity:.85}
 .pt-name{font-family:var(--f-display);font-size:19px;line-height:1.15;text-wrap:balance;display:block}
 .pt-date{font-size:12px;opacity:.82;margin-top:4px;display:block}
-/* Sélecteur d'univers de l'accueil : Hymnes, Psaumes, Évangiles, Chant (chacun avec son propre aléatoire) */
-.useg{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:4px;border-radius:99px!important;margin:2px 0 18px}
-.useg button{height:38px;border-radius:99px;font-size:13.5px;font-weight:600;color:var(--ivory);display:flex;align-items:center;justify-content:center;transition:background .25s,color .25s}
+/* Sélecteur d'univers de l'accueil : Hymnes, Liturgie, Psaumes, Évangiles, Chant (chacun avec son propre aléatoire) */
+.useg{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:4px;border-radius:99px!important;margin:2px 0 18px}
+.useg button{height:38px;border-radius:99px;font-size:clamp(11px,3.3vw,13.5px);white-space:nowrap;font-weight:600;color:var(--ivory);display:flex;align-items:center;justify-content:center;transition:background .25s,color .25s}
 .useg button.on{color:var(--gold);background:rgba(var(--wash),.12)}
 .season.evh{min-height:0;aspect-ratio:1;display:flex;flex-direction:column;justify-content:flex-end;color:#f6ecd9;background:linear-gradient(0deg,rgba(18,11,6,.96) 0%,rgba(18,11,6,.8) 34%,rgba(18,11,6,0) 58%),url(evangiles/christ-cercle-329ee9.jpg) 50% 0%/100% auto no-repeat,#120b06}   /* bords de la carte = bord extérieur du cercle rouge */
 .evh .cop-t{font-family:var(--f-cop);font-size:40px;line-height:1;color:var(--gold);text-shadow:0 2px 12px rgba(0,0,0,.6)}
@@ -184,6 +184,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .evt.img .lt{display:none}
 .evt .cn{font-family:var(--f-cop);font-size:26px;line-height:1.05;color:var(--gold)}
 .evt small{font-size:12px;opacity:.75;margin-top:4px}
+.lit2{margin-top:14px}.lit2 .evt{min-height:120px}.lit2 .cn{font-family:var(--f-display);font-size:19px;color:#f6ecd9}
 .badge{position:absolute;top:12px;right:12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.4);color:#f6ecd9;padding:3px 8px;border-radius:99px}
 
 .row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
@@ -803,7 +804,8 @@ const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits 
 // Les quatre évangélistes (lectures lues, rangées par livre puis par chapitre ; ev = livre)
 const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',img:'evangiles/case-mt-6f3efe.jpg',c:['#70a8e1','#1c365f']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:'evangiles/marc-c-b57ad8.jpg',c:['#ec4a3a','#6b0f1a']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',img:'evangiles/case-lc-f34d62.jpg',c:['#b08ad8','#2a1240']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',img:'evangiles/case-jn-3e3cbb.jpg',c:['#ffd24d','#b07818']}};
 // Univers de l'accueil : les psaumes et les lectures ont leur page et leur aléatoire, à part des chants
-const UNIVS = [['chants','Hymnes'],['psaumes','Psaumes'],['lectures','Évangiles'],['taranim','Chant']];
+// Ordre : les chants de l'office (Hymnes, puis la Liturgie), la Parole dans l'ordre où elle est lue à la messe (Psaume puis Évangile), enfin les chants hors office
+const UNIVS = [['chants','Hymnes'],['liturgie','Liturgie'],['psaumes','Psaumes'],['lectures','Évangiles'],['taranim','Chant']];
 const horsChants = t => t.col === 'psaumes' || t.col === 'lectures' || t.col === 'taranim';
 const OFFICES = {vepres:'Vêpres',tasbeha:'Tasbeha',matines:'Matines',liturgie:'Liturgie',mariage:'Mariage',bapteme:'Baptême',funerailles:'Funérailles'};
 const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -1296,7 +1298,7 @@ CUSTOM.forEach(r => { const t = { id: r.id, ti: r.ti, cop: '', p: 'annuel', ch: 
 const META = store.get('meta', {});
 Object.entries(META).forEach(([id, m]) => { if (TR[id]) Object.assign(TR[id], m); });
 // Code couleur : chaque rubrique a sa teinte (vignette, lecteur), comme les périodes ; les chants de l'office gardent celle de leur période
-const TEINTES = {taranim:{name:'Cantiques',word:'Ⲥ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
+const TEINTES = {liturgie:{name:'Liturgie',word:'Ⲗ',c:['#b07a2a','#3a2208']}, taranim:{name:'Cantiques',word:'Ⲥ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
 const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
 const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[0]).replace(/\p{M}/gu, '');
 // Titre copte en premier, titre français en dessous
@@ -1378,6 +1380,7 @@ function listIds(key) {
   if (k === 'chanter') return sorted(t => t.ch === id || t.ch2 === id);
   if (k === 'office') return id === 'tasbeha' ? parOrdre(ORDRE_TASBEHA, sorted(t => t.of === id)) : sorted(t => t.of === id);
   if (k === 'col') return id === 'lectures' ? TRACKS.filter(t => t.col === id).sort((a, b) => Object.keys(EVANG).indexOf(a.ev) - Object.keys(EVANG).indexOf(b.ev) || a.id.localeCompare(b.id)).map(t => t.id) : sorted(t => t.col === id);
+  if (k === 'univ' && id === 'liturgie') return [...listIds('office:liturgie'), ...listIds('col:messe').filter(x => TR[x].of !== 'liturgie')];   // onglet Liturgie : chants de la liturgie + extraits de messe
   if (k === 'ev') return TRACKS.filter(t => t.ev === id).sort((a, b) => a.id.localeCompare(b.id)).map(t => t.id);
   if (k === 'fav') return [...S.fav].filter(x => TR[x]);   // dans l'ordre choisi (glisser la poignée), sinon ordre d'ajout
   if (k === 'pl') { const p = plGet(id); return p ? p.ids.filter(x => TR[x]) : []; }   // playlist personnelle, dans l'ordre choisi
@@ -1389,7 +1392,7 @@ function listIds(key) {
   if (k === 'ajouts') return TRACKS.slice().sort((x, y) => ajoutDe(y) - ajoutDe(x)).map(t => t.id);   // « Ajoutés récemment » : du plus récent au plus ancien
   return sorted(() => true);
 }
-const listName = key => { const [k, id] = key.split(':'); return k === 'pl' ? (plGet(id)?.name || 'Playlist') : k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
+const listName = key => { const [k, id] = key.split(':'); return k === 'pl' ? (plGet(id)?.name || 'Playlist') : k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'univ' ? 'Liturgie' : k === 'fav' ? 'Favoris' : k === 'recent' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
 function recentIds() {
   const ids = S.recent.filter(id => TR[id]);
   TRACKS.forEach(t => { if (ids.length < 8 && !ids.includes(t.id)) ids.push(t.id); });
@@ -1413,6 +1416,14 @@ function renderUniv() {
     const ids = listIds('col:lectures');
     return `<section class="season evh"><div class="eyebrow">Les lectures</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les 4 Évangiles</div><div class="s-desc">L’Évangile du jour, à chaque office</div><div class="s-actions jour">${OFF_JOUR.map(([k, n]) => { const r = evangileDuJour(k); return `<button class="s-btn pri" data-act="jour" data-o="${k}" ${r ? `aria-label="${n} : ${r.ref}"` : 'disabled'}>${ic(k, 16)}${n}</button>`; }).join('')}</div></section>`
       + `<div class="sh"><h2>Les Évangélistes</h2></div><div class="evg2">${Object.entries(EVANG).map(([k, E]) => { const n = listIds('ev:' + k).length; return `<button class="evt${E.img ? ' img' : ''}" style="${E.c ? `--c1:${E.c[0]};--c2:${E.c[1]};` : ''}${E.img ? `--im:url(${E.img})` : ''}" data-act="open" data-type="ev" data-id="${k}"><span class="lt">${E.l}</span><span class="cn">${E.cop}</span><small>${n ? n + ' chapitre' + (n > 1 ? 's' : '') : 'bientôt'}</small></button>`; }).join('')}</div>`;
+  }
+  if (S.univ === 'liturgie') {
+    const all = listIds('univ:liturgie'), li = listIds('office:liturgie'), me = listIds('col:messe'), T = TEINTES.liturgie.c;
+    return `<section class="season" style="--c1:${T[0]};--c2:${T[1]};--ink:#f6ecd9"><div class="s-lt">Ⲗ</div><div class="eyebrow">La sainte liturgie</div><div class="s-name">Liturgie</div><div class="s-desc">Les chants de la messe · l’aléatoire ne joue que la liturgie</div><div class="s-actions">
+      <button class="s-btn pri" data-act="shufplay" data-list="univ:liturgie" ${all.length ? '' : 'disabled'}>${ic('shuffle', 16)} Aléatoire</button>
+      <button class="s-btn" data-act="play" data-list="univ:liturgie" data-i="0" ${all.length ? '' : 'disabled'}>${ic('play', 16)} Lecture</button></div></section>
+    <div class="evg2 lit2"><button class="evt" style="--c1:${T[0]};--c2:${T[1]}" data-act="open" data-type="office" data-id="liturgie"><span class="lt">Ⲗ</span><span class="cn">Chants de la liturgie</span><small>${li.length} chant${li.length > 1 ? 's' : ''}</small></button><button class="evt" style="--c1:#7a4a2c;--c2:#2a160b" data-act="open" data-type="col" data-id="messe"><span class="lt">Ⲙ</span><span class="cn">Extraits de messe</span><small>${me.length} extrait${me.length > 1 ? 's' : ''}</small></button></div>
+    <div class="sh"><h2>Chants de la liturgie</h2></div>${li.map((id, i) => rowHTML(TR[id], 'univ:liturgie', i)).join('')}`;
   }
   return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-lt">Ⲥ</div><div class="eyebrow">Les cantiques</div><div class="s-name"><span class="lt1">Ⲥ</span>antiques</div><div class="s-desc">Chants spirituels, en dehors de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
     + (() => { const ids = listIds('col:taranim'); return ids.length ? `<div class="sh"><h2>Tous les cantiques</h2></div>${ids.map((id, i) => rowHTML(TR[id], 'col:taranim', i)).join('')}` : `<p class="empty">Pas encore de cantiques ici.<br>Envoie-les-moi et je les range dans cette rubrique.</p>`; })();
