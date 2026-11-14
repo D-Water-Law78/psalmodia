@@ -799,7 +799,7 @@ const PERIODS = {
   assomption:{name:'Jeûne de la Vierge',word:'Ⲙⲁⲣⲓⲁ',c:['#4a78d4','#14244f'],desc:"Quinze jours de jeûne jusqu'à l'Assomption."}
 };
 const PERIOD_ORDER = ['annuel','nayrouz','kiahk','nativite','theophanie','ninive','careme','rameaux','pascha','resurrection','pentecote','apotres','assomption'];
-const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits de messe', lectures:'Lectures', taranim:'Cantiques'};
+const COLS = {apprentissage:'Apprentissage', psaumes:'Psaumes', messe:'Extraits de messe', lectures:'Évangiles', taranim:'Chant'};
 // Les quatre évangélistes (lectures lues, rangées par livre puis par chapitre ; ev = livre)
 const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',img:'evangiles/case-mt-6f3efe.jpg',c:['#70a8e1','#1c365f']}, mc:{cop:'Ⲙⲁⲣⲕⲟⲥ',fr:'Marc',l:'Ⲙ',img:'evangiles/marc-c-b57ad8.jpg',c:['#ec4a3a','#6b0f1a']}, lc:{cop:'Ⲗⲟⲩⲕⲁⲥ',fr:'Luc',l:'Ⲗ',img:'evangiles/case-lc-f34d62.jpg',c:['#b08ad8','#2a1240']}, jn:{cop:'Ⲓⲱⲁⲛⲛⲏⲥ',fr:'Jean',l:'Ⲓ',img:'evangiles/case-jn-3e3cbb.jpg',c:['#ffd24d','#b07818']}};
 // Univers de l'accueil : les psaumes et les lectures ont leur page et leur aléatoire, à part des chants
@@ -1296,8 +1296,8 @@ CUSTOM.forEach(r => { const t = { id: r.id, ti: r.ti, cop: '', p: 'annuel', ch: 
 const META = store.get('meta', {});
 Object.entries(META).forEach(([id, m]) => { if (TR[id]) Object.assign(TR[id], m); });
 // Code couleur : chaque rubrique a sa teinte (vignette, lecteur), comme les périodes ; les chants de l'office gardent celle de leur période
-const TEINTES = {taranim:{name:'Cantiques',word:'Ⲥ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
-const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Lectures',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
+const TEINTES = {taranim:{name:'Chant',word:'Ⲥ',c:['#9f3c6f','#311122']}, psaumes:{name:'Psaumes',word:'Ⲯⲁⲗⲙⲟⲥ',c:['#3a7fd6','#0c2350']}};
+const teinteDe = tr => { if (TEINTES[tr.col]) return TEINTES[tr.col]; const E = tr.col === 'lectures' && EVANG[tr.ev]; if (E && E.c) return {name:'Évangiles',word:E.cop,c:E.c}; return PERIODS[tr.p] || PERIODS.annuel; };
 const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[0]).replace(/\p{M}/gu, '');
 // Titre copte en premier, titre français en dessous
 const titleTop = tr => tr.cop ? `<span class="cop">${tr.cop}</span>` : esc(tr.col === 'psaumes' ? tr.ti.replace(/^Psaume /, '') : tr.ti);   // « Psaume » retiré : le numéro suffit
@@ -1411,11 +1411,11 @@ function renderUniv() {
   }
   if (S.univ === 'lectures') {
     const ids = listIds('col:lectures');
-    return `<section class="season evh"><div class="eyebrow">Les lectures</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les 4 Évangiles</div><div class="s-desc">L’Évangile du jour, à chaque office</div><div class="s-actions jour">${OFF_JOUR.map(([k, n]) => { const r = evangileDuJour(k); return `<button class="s-btn pri" data-act="jour" data-o="${k}" ${r ? `aria-label="${n} : ${r.ref}"` : 'disabled'}>${ic(k, 16)}${n}</button>`; }).join('')}</div></section>`
+    return `<section class="season evh"><div class="eyebrow">Les Évangiles</div><div class="cop-t">Ⲡⲓⲉⲩⲁⲅⲅⲉⲗⲓⲟⲛ</div><div class="s-name">Les 4 Évangiles</div><div class="s-desc">L’Évangile du jour, à chaque office</div><div class="s-actions jour">${OFF_JOUR.map(([k, n]) => { const r = evangileDuJour(k); return `<button class="s-btn pri" data-act="jour" data-o="${k}" ${r ? `aria-label="${n} : ${r.ref}"` : 'disabled'}>${ic(k, 16)}${n}</button>`; }).join('')}</div></section>`
       + `<div class="sh"><h2>Les Évangélistes</h2></div><div class="evg2">${Object.entries(EVANG).map(([k, E]) => { const n = listIds('ev:' + k).length; return `<button class="evt${E.img ? ' img' : ''}" style="${E.c ? `--c1:${E.c[0]};--c2:${E.c[1]};` : ''}${E.img ? `--im:url(${E.img})` : ''}" data-act="open" data-type="ev" data-id="${k}"><span class="lt">${E.l}</span><span class="cn">${E.cop}</span><small>${n ? n + ' chapitre' + (n > 1 ? 's' : '') : 'bientôt'}</small></button>`; }).join('')}</div>`;
   }
-  return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-lt">Ⲥ</div><div class="eyebrow">Les cantiques</div><div class="s-name"><span class="lt1">Ⲥ</span>antiques</div><div class="s-desc">Chants spirituels, en dehors de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'cantique')
-    + (() => { const ids = listIds('col:taranim'); return ids.length ? `<div class="sh"><h2>Tous les cantiques</h2></div>${ids.map((id, i) => rowHTML(TR[id], 'col:taranim', i)).join('')}` : `<p class="empty">Pas encore de cantiques ici.<br>Envoie-les-moi et je les range dans cette rubrique.</p>`; })();
+  return univHero('', `--c1:${TEINTES.taranim.c[0]};--c2:${TEINTES.taranim.c[1]};--ink:#f6ecd9`, `<div class="s-lt">Ⲥ</div><div class="eyebrow">Hors office</div><div class="s-name"><span class="lt1">Ⲥ</span>hant</div><div class="s-desc">Chants spirituels, en dehors de l’office</div>`, 'col:taranim', listIds('col:taranim').length, 'chant')
+    + (() => { const ids = listIds('col:taranim'); return ids.length ? `<div class="sh"><h2>Tous les chants</h2></div>${ids.map((id, i) => rowHTML(TR[id], 'col:taranim', i)).join('')}` : `<p class="empty">Pas encore de chants ici.<br>Envoie-les-moi et je les range dans cette rubrique.</p>`; })();
 }
 // Lettrine d'Avva Marcos pour un titre français : seulement les lettres coptes qui ont la même forme que la latine
 const LT_LAT = {T:'Ⲧ', N:'Ⲛ', K:'Ⲕ', A:'Ⲁ', C:'Ⲥ', O:'Ⲟ', I:'Ⲓ', M:'Ⲙ'};
@@ -1457,7 +1457,7 @@ function renderHome() {
   <p class="foot">Les nouveaux chants arrivent tout seuls avec les mises à jour de l'appli.</p>`;
 }
 function chipsHTML() {
-  // Pastilles à leur taille, dans un ordre qui remplit bien les lignes : apprentissage, offices dans l'ordre de la journée, messe, lectures, psaumes, cantiques, sacrements
+  // Pastilles à leur taille, dans un ordre qui remplit bien les lignes : apprentissage, offices dans l'ordre de la journée, messe, lectures, psaumes, chant (taranim), sacrements
   // (sur iPhone : 4 lignes de 3, presque pleines)
   const ORDRE_CHIPS = ['col:apprentissage', 'office:vepres', 'office:tasbeha', 'office:matines', 'office:liturgie', 'col:messe', 'col:lectures', 'col:psaumes', 'col:taranim', 'office:bapteme', 'office:mariage', 'office:funerailles'];
   const tous = [...Object.keys(OFFICES).map(id => 'office:' + id), ...Object.keys(COLS).map(id => 'col:' + id)];
@@ -1844,8 +1844,8 @@ function renderDetail(it) {
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
     ? [...secs, null].map(sc => { const so = sc && (ORDRE[it.id] || {})[sc], sub0 = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))), sub = Array.isArray(so) ? parOrdre(so, sub0) : sub0; return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
-    : it.type === 'chanter' && ids.some(id => TR[id].col === 'taranim') && ids.some(id => TR[id].col !== 'taranim')   // chantre qui a aussi des taranim : intertitres « Chants » puis « Taranim »
-    ? ids.map((id, i) => { const ta = TR[id].col === 'taranim'; return (i === 0 || ta !== (TR[ids[i - 1]].col === 'taranim') ? `<div class="sh"><h2>${ta ? COLS.taranim : 'Chants'}</h2></div>` : '') + rowHTML(TR[id], list, i, numbered); }).join('')
+    : it.type === 'chanter' && ids.some(id => TR[id].col === 'taranim') && ids.some(id => TR[id].col !== 'taranim')   // chantre qui a aussi des taranim : intertitres « Hymnes » puis « Chant »
+    ? ids.map((id, i) => { const ta = TR[id].col === 'taranim'; return (i === 0 || ta !== (TR[ids[i - 1]].col === 'taranim') ? `<div class="sh"><h2>${ta ? COLS.taranim : 'Hymnes'}</h2></div>` : '') + rowHTML(TR[id], list, i, numbered); }).join('')
     : list === 'office:tasbeha'   // intertitre à chaque étape de la tasbeha
     ? ids.map((id, i) => (i === 0 || etapeTasbeha(id) !== etapeTasbeha(ids[i - 1]) ? `<div class="sh mom"><h3>${etapeTasbeha(id)}</h3></div>` : '') + rowHTML(TR[id], list, i, numbered)).join('')
     : ids.map((id, i) => (it.type === 'col' ? momHead(ids, i) : '') + rowHTML(TR[id], list, i, numbered)).join('');
