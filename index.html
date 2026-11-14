@@ -1316,7 +1316,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '14.11.2026 · 5e1d5a4cb9'; // remplacé par tools/build.sh
+const APP_VERSION = '15.11.2026 · a8382ba570'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1452,7 +1452,7 @@ function renderHome() {
   <div class="hscroll">${chOrdre().map(([id, c]) => `<button class="chan" data-act="open" data-type="chanter" data-id="${id}">${avHTML(c)}<span>${esc(c.name)}</span></button>`).join('')}</div>
   <div class="sh"><h2>Offices et collections</h2></div>
   <div class="chips">${chipsHTML()}</div>
-  <div class="sh"><h2>L'année liturgique</h2><button data-act="tab" data-tab="periods">Tout voir</button></div>
+  <div class="sh"><button class="shl" data-act="tab" data-tab="periods"><h2>L'année liturgique</h2>${ic('chev', 18)}</button><button data-act="tab" data-tab="periods">Tout voir</button></div>
   <div class="pgrid">${[NEXT && NEXT.id, 'pascha', 'careme'].filter((v, i, a) => v && a.indexOf(v) === i && v !== SEASON_NOW).slice(0, 2).map(tileHTML).join('')}</div>
   <p class="foot">Les nouveaux chants arrivent tout seuls avec les mises à jour de l'appli.</p>`;
 }
@@ -2993,7 +2993,12 @@ document.addEventListener('click', e => {
   switch (a) {
     case 'hdel': { const h = histGet(); h.splice(+el.dataset.i, 1); store.set('recherches', h); renderResults(S.q || ''); break; }
     case 'hclr': store.set('recherches', []); renderResults(S.q || ''); break;
-    case 'tab': S.route = { tab: el.dataset.tab, stack: [] }; render(); break;
+    case 'tab': {   // deux touches rapides sur Accueil : retour à Hymnes
+      const n = Date.now(), dbl = el.dataset.tab === 'home' && S.homeTapAt && n - S.homeTapAt < 450;
+      S.homeTapAt = el.dataset.tab === 'home' && !dbl ? n : 0;
+      if (dbl && S.univ !== 'chants') { S.univ = 'chants'; store.set('univ', S.univ); }
+      S.route = { tab: el.dataset.tab, stack: [] }; render(); break;
+    }
     case 'open': S.route.stack.push({ type: el.dataset.type, id: el.dataset.id }); render(); break;
     case 'ver': {   // 5 touches de suite : cet iPhone est celui du propriétaire (ses écoutes sont comptées à part)
       const n = Date.now(); S.verTaps = (n - (S.verAt || 0) < 1500 ? (S.verTaps || 0) : 0) + 1; S.verAt = n;
