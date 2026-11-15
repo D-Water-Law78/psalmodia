@@ -813,7 +813,7 @@ const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join
 // Chantres par ordre alphabétique (accueil, bibliothèque, choix du chantre)
 const chOrdre = () => Object.entries(CH).sort((a, b) => a[1].name.localeCompare(b[1].name, 'fr'));
 const avHTML = (c, cls = '') => c.img ? `<span class="av ${cls} ph" style="background-image:url(${c.img})"></span>` : `<span class="av ${cls}">${initials(c.name)}</span>`;
-const CH = {ayad:{name:'Ibrahim Ayad',img:'chantres/ayad.jpg'},antonios:{name:'Anba Antonios',img:'chantres/antonios.jpg'},mounir:{name:'Bola Mounir',img:'chantres/mounir.jpg'},raphael:{name:'Anba Raphaël',img:'chantres/raphael.jpg'},philopater:{name:'Abouna Philopater Kamal',img:'chantres/philopater.jpg'},villejuif:{name:'Chœur de Villejuif',img:'chantres/villejuif.jpg'},markmoheb:{name:'Mark Moheb',img:'chantres/markmoheb.jpg'},muharraq:{name:'Monastère d’Al-Muharraq',img:'chantres/muharraq.jpg'},seminaire:{name:'Chœur du Séminaire'},karas:{name:'Anba Karas',img:'chantres/karas.jpg'},arsanios:{name:'Abouna Arsanios El-Baramousy',img:'chantres/arsanios.jpg'},johnibrahim:{name:'Abouna John Ibrahim',img:'chantres/johnibrahim.jpg'},mettias:{name:'Abouna Mettias Nasr'},karasyoussef:{name:'Abouna Karas Youssef',img:'chantres/karasyoussef.jpg'},zakaemad:{name:'Abouna Zaka Emad'},yoannes:{name:'Anba Yoannes'},polikarpos:{name:'Abouna Polikarpos El-Souriani',img:'chantres/polikarpos.jpg'},minaabood:{name:'Abouna Mina Abood',img:'chantres/minaabood.jpg'},boktor:{name:'Abouna Boktor Nessim',img:'chantres/boktor.jpg'},abakir:{name:'Anba Abakir',img:'chantres/abakir.jpg'},antoniosayad:{name:'Abouna Antonios Ayad',img:'chantres/antoniosayad.jpg'},youhannanassif:{name:'Abouna Youhanna Nassif'},mathieu:{name:'Abouna Mathieu',img:'chantres/mathieu.jpg'},abraham:{name:'Abouna Abraham Shenouda',img:'chantres/abraham.jpg'},rewisfarid:{name:'Abouna Rewis Farid',img:'chantres/rewisfarid.jpg'},lukamaher:{name:'Abouna Luka Maher',img:'chantres/lukamaher.jpg'},zosima:{name:'Anba Zosima',img:'chantres/zosima.jpg'},mousaroshdy:{name:'Abouna Moussa Roshdy'},bolesmalak:{name:'Boles Malak'}, ...store.get('chanters', {})};
+const CH = {ayad:{name:'Ibrahim Ayad',img:'chantres/ayad.jpg'},antonios:{name:'Anba Antonios',img:'chantres/antonios.jpg'},mounir:{name:'Bola Mounir',img:'chantres/mounir.jpg'},raphael:{name:'Anba Raphaël',img:'chantres/raphael.jpg'},philopater:{name:'Abouna Philopater Kamal',img:'chantres/philopater.jpg'},villejuif:{name:'Chœur de Villejuif',img:'chantres/villejuif.jpg'},markmoheb:{name:'Mark Moheb',img:'chantres/markmoheb.jpg'},muharraq:{name:'Monastère d’Al-Muharraq',img:'chantres/muharraq.jpg'},seminaire:{name:'Chœur du Séminaire'},karas:{name:'Anba Karas',img:'chantres/karas.jpg'},arsanios:{name:'Abouna Arsanios El-Baramousy',img:'chantres/arsanios.jpg'},johnibrahim:{name:'Abouna John Ibrahim',img:'chantres/johnibrahim.jpg'},mettias:{name:'Abouna Mettias Nasr'},karasyoussef:{name:'Abouna Karas Youssef',img:'chantres/karasyoussef.jpg'},zakaemad:{name:'Abouna Zaka Emad'},yoannes:{name:'Anba Yoannes'},polikarpos:{name:'Abouna Polikarpos El-Souriani',img:'chantres/polikarpos.jpg'},minaabood:{name:'Abouna Mina Abood',img:'chantres/minaabood.jpg'},boktor:{name:'Abouna Boktor Nessim',img:'chantres/boktor.jpg'},abakir:{name:'Anba Abakir',img:'chantres/abakir.jpg'},antoniosayad:{name:'Abouna Antonios Ayad',img:'chantres/antoniosayad.jpg'},youhannanassif:{name:'Abouna Youhanna Nassif'},mathieu:{name:'Abouna Mathieu',img:'chantres/mathieu.jpg'},abraham:{name:'Abouna Abraham Shenouda',img:'chantres/abraham.jpg'},rewisfarid:{name:'Abouna Rewis Farid',img:'chantres/rewisfarid.jpg'},lukamaher:{name:'Abouna Luka Maher',img:'chantres/lukamaher.jpg'},zosima:{name:'Anba Zosima',img:'chantres/zosima.jpg'},mousaroshdy:{name:'Abouna Moussa Roshdy'},bolesmalak:{name:'Boles Malak'},anbamarc:{name:'Anba Marc',img:'chantres/anbamarc.jpg'}, ...store.get('chanters', {})};
 
 // Sections affichées dans une période, dans cet ordre
 const SECTIONS = ['Funérailles générales', 'Toute la semaine', 'Jeudi saint', 'Vendredi saint', 'Samedi de la Joie'];
@@ -1018,7 +1018,7 @@ const TRACKS = [
   {id:'fal-nousabbih-anton',dur:293,ti:"Louons le Seigneur, car Il s’est couvert de gloire",cop:'Ⲁⲥⲱⲙⲉⲛ ⲧⲱ Ⲕⲩⲣⲓⲱ',note:"Ascension, Pentecôte et Jeûne des Apôtres, en arabe",p:'pentecote',p2:'apotres',ch:'antoniosayad',yt:'sc:shehata88/1rjaacuispbk'},
   {id:'ainahti-aikoti-lipon-raphael',dur:878,ti:"J’ai cru · Je T’ai cherché · Et aussi",cop:'Ⲁⲓⲛⲁϩϯ · Ⲁⲓⲕⲱϯ · Ⲗⲟⲓⲡⲟⲛ',note:"Psalies du dimanche, copte et arabe · église de l’Ange, Zaher, 2007",p:'annuel',of:'tasbeha',ch:'raphael',yt:'sc:marco-magued/tasbe7a'},
   {id:'liturgie-basile-abakir',dur:3931,ti:"Liturgie de saint Basile",cop:'',note:"Liturgie entière, copte et arabe",p:'annuel',of:'liturgie',col:'messe',m:'entiere',ch:'abakir',yt:'sc:john-mankarious/stbasil-liturgy-by-anba-abakir'},
-  {id:'messe-gregorienne-abraham',dur:3404,ti:"Liturgie de saint Grégoire",cop:'',note:"Liturgie entière, de l’Agios à la confession, avec la fraction annuelle de la Nativité · français, copte et arabe",p:'annuel',of:'liturgie',col:'messe',m:'entiere',ch:'abraham',yt:'sc:user-694414572/messe-gregorienne-en-presence'},
+  {id:'messe-gregorienne-abraham',dur:3404,ti:"Liturgie de saint Grégoire",cop:'',note:"Liturgie entière, de l’Agios à la confession, avec la fraction annuelle de la Nativité · français, copte et arabe",p:'annuel',of:'liturgie',col:'messe',m:'entiere',ch:'abraham',ch2:'anbamarc',yt:'sc:user-694414572/messe-gregorienne-en-presence'},
   {id:'liturgie-abakir-ayad',dur:4737,ti:"Liturgie de saint Basile, avec Ibrahim Ayad",cop:'',note:"Liturgie entière, du Trisagion à la fraction · copte et arabe · Évangile Luc 10, 21-24",p:'annuel',of:'liturgie',col:'messe',m:'entiere',ch:'abakir',ch2:'ayad',yt:'sc:jacobfanous/liturgy-with-anba-abakir-ibrahim-ayad'},
   {id:'agios-gregorien-abraham',dur:197,ti:"Saint, saint, saint",cop:'Ⲭⲟⲩⲁⲃ ⲭ̀ⲟⲩⲁⲃ Ⲡ̀ϭⲟⲓⲥ',note:"Liturgie de saint Grégoire · copte puis français",p:'annuel',of:'liturgie',col:'messe',m:'agios',ch:'abraham',yt:'sc:user-836588554/agios-messe-gr-gorienne-p-re'},
   {id:'fraction-fils-mathieu',dur:456,ti:"Ô Fils unique, Dieu le Verbe, qui nous a aimés",cop:'',note:"Fraction pour le Fils, en français",p:'annuel',of:'liturgie',col:'messe',m:'fraction',ch:'mathieu',yt:'sc:user-694414572/fraction-o-fils-unique-abouna'},
@@ -1027,12 +1027,12 @@ const TRACKS = [
   {id:'pek-thronos-villejuif',dur:1007,ti:'Ton trône, ô Dieu',cop:'Ⲡⲉⲕⲑ̀ⲣⲟⲛⲟⲥ',note:'Vendredi saint 2025 · sans paroles',p:PS,sec:'Vendredi saint',ch:'villejuif',yt:'YhCbjHbejAU'},
   {id:'tou-dipnou-villejuif',dur:186,ti:'À ta Cène mystique',cop:'Ⲧⲟⲩ ⲇⲓⲡⲛⲟⲩ',note:'En arabe puis en français · Jeudi saint 2025',p:PS,sec:'Jeudi saint',ch:'villejuif',yt:'C6sLbh2UzYo'},
   {id:'ioudas-villejuif',dur:503,ti:'Judas, le transgresseur',cop:'Ⲓⲟⲩⲇⲁⲥ ⲟⲩⲡⲁⲣⲁⲛⲟⲙⲟⲥ',note:'En arabe puis en français · Jeudi saint 2024',p:PS,sec:'Jeudi saint',ch:'villejuif',yt:'Y7MJj1kbdmA'},
-  {id:'ontos-villejuif',dur:331,ti:"Car c’est ainsi vraiment",cop:'Ⲟⲛⲧⲱⲥ',note:"Air long, avec Anba Marc",p:'apotres',of:'liturgie',ch:'villejuif',ch2:'abraham',yt:'sc:user-247964288/lahn-ondos-with-h-e-anba-marc'},
+  {id:'ontos-villejuif',dur:331,ti:"Car c’est ainsi vraiment",cop:'Ⲟⲛⲧⲱⲥ',note:"Air long, avec Anba Marc",p:'apotres',of:'liturgie',ch:'villejuif',ch2:'abraham',ch3:'anbamarc',yt:'sc:user-247964288/lahn-ondos-with-h-e-anba-marc'},
   {id:'meghalo-ayad',dur:1033,ti:"Le grand archiprêtre",cop:'Ⲙⲉⲅⲁⲗⲟⲩ',note:"Avec l’Agios, chœur des diacres de Paris",p:'careme',of:'liturgie',ch:'ayad',yt:'sc:user-247964288/meghalo'},
   {id:'doxologie-aube-samedi-joie-seminaire',dur:525,ti:"Lumière véritable",cop:'Ⲡⲓⲟⲩⲱⲓⲛⲓ ⲛ̀ⲧⲁⲫ̀ⲙⲏⲓ',note:"Doxologie de l’aube, en arabe",p:PS,sec:'Samedi de la Joie',ch:'seminaire',yt:'sc:robeir-samir/zoksologiat-baker-arabic-sabt-el-fara7'},
   {id:'aube-samedi-joie-seminaire',dur:1252,ti:"Psalie et théotokie du samedi",cop:'Ⲁϥϯ ⲙ̀ⲡ̀ⲟⲩⲛⲟϥ ⲛ̀ⲛⲉⲛⲯⲩⲭⲏ',note:"Aube du Samedi de la Joie, en arabe · la psalie propre du jour (5:22-9:36) est sans paroles",p:PS,sec:'Samedi de la Joie',ch:'seminaire',yt:'sc:christian-library/dfuu6dqlzv6u'},
   {id:'louanges-samedi-joie-seminaire',dur:2240,ti:"3e Hos et Aripsalin",cop:'Ⲕⲥ̀ⲙⲁⲣⲱⲟⲩⲧ Ⲡ̀ⲟ̅ⲥ̅ Ⲫϯ ⲛ̀ⲧⲉ ⲛⲉⲛⲓⲟϯ',note:"Louanges du Samedi de la Joie, en copte et en arabe · l’air long d’Aripsalin (10:20-23:45) et Ⲧⲉⲛⲉⲛ (29:40-fin) sont sans paroles",p:PS,sec:'Samedi de la Joie',ch:'seminaire',yt:'sc:christian-library/el-tasabe7'},
-  {id:'lamentations-jeremie-abraham',dur:620,ti:'Lamentations de Jérémie, chapitre 3',cop:'',note:'En français et en arabe · 12e heure du Vendredi saint',p:PS,sec:'Vendredi saint',ch:'abraham',yt:'sc:merael_2006/lamentations-de-jeremie-arabe'},
+  {id:'lamentations-jeremie-abraham',dur:620,ti:'Lamentations de Jérémie, chapitre 3',cop:'',note:'En français et en arabe · 12e heure du Vendredi saint',p:PS,sec:'Vendredi saint',ch:'abraham',ch2:'anbamarc',yt:'sc:merael_2006/lamentations-de-jeremie-arabe'},
   {id:'pihmot-gar-long',dur:319,ti:"La grâce de Dieu le Père",cop:'Ⲡⲓϩ̀ⲙⲟⲧ ⲅⲁⲣ',note:"Air long, après l’Épître de saint Paul",p:'annuel',of:'liturgie',col:'messe',m:'parole',ch:null,yt:'sc:merael_2006/h-long'},
   {id:'psali-adam-nayrouz-philopater',dur:517,ti:"Je me prosterne vers Toi",cop:'Ϯⲛⲁⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲕ',note:"Psalie Adam du Nayrouz",p:'nayrouz',of:'tasbeha',ch:'philopater',yt:'sc:sotem-efnoti/7z7hhptfhvmd'},
   {id:'amdah-fiki-antonios',dur:857,ti:"Je te louerai, ô Élue",cop:'',note:"Madih en arabe",p:'kiahk',of:'tasbeha',ch:'antonios',yt:'sc:sotem-efnoti/rmfkxrbbsq0h'},
@@ -1305,7 +1305,7 @@ const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[
 const titleTop = tr => tr.cop ? `<span class="cop">${tr.cop}</span>` : esc(tr.col === 'psaumes' ? tr.ti.replace(/^Psaume /, '') : tr.ti);   // « Psaume » retiré : le numéro suffit
 const titleSub = tr => tr.cop ? esc(tr.ti) : '';
 const audioTag = tr => au(tr) ? '' : `<span class="nosnd">${tr.yt ? 'à importer' : 'exemple'}</span>`;
-const chName = tr => [tr.ch, tr.ch2].filter(k => CH[k]).map(k => CH[k].name).join(' et ');   // ch2 : second chantre (chant à deux voix)
+const chName = tr => { const n = [tr.ch, tr.ch2, tr.ch3].filter(k => CH[k]).map(k => CH[k].name); return n.length > 2 ? n.slice(0, -1).join(', ') + ' et ' + n.at(-1) : n.join(' et '); };   // ch2, ch3 : autres chantres
 
 /* ---------- État ---------- */
 const DEF_CFG = { autoDl: true, xRate: true, xLoop: true, xSync: false, xShuffle: false, xRepeat: false, xAirplay: true, trFr: true, emph: true, holdPill: true, autoHide: true, lsize: 1, trSize: 0, copDate: true, skipBtns: true, skipSec: 10, psAlea: false };
@@ -1318,7 +1318,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '15.11.2026 · c6b5e09975'; // remplacé par tools/build.sh
+const APP_VERSION = '15.11.2026 · d6a95af96a'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1377,7 +1377,7 @@ function listIds(key) {
   const [k, id] = key.split(':');
   const sorted = f => sortTracks(TRACKS.filter(f)).map(t => t.id);
   if (k === 'period') return parOrdre(ordreDe(id), sorted(t => (t.p === id || t.p2 === id) && !horsChants(t) && (t.col !== 'messe' || id !== 'annuel')));   // les extraits de messe de saison vont aussi dans leur période   // p2 : seconde période (ex. Ⲁ̀ ⲧⲁⲓ ⲡⲁⲣⲑⲉⲛⲟⲥ, annuel et Jeûne de la Vierge)   // psaumes et extraits de messe ont leur propre collection
-  if (k === 'chanter') return sorted(t => t.ch === id || t.ch2 === id);
+  if (k === 'chanter') return sorted(t => t.ch === id || t.ch2 === id || t.ch3 === id);
   if (k === 'office') return id === 'tasbeha' ? parOrdre(ORDRE_TASBEHA, sorted(t => t.of === id)) : sorted(t => t.of === id);
   if (k === 'col') return id === 'lectures' ? TRACKS.filter(t => t.col === id).sort((a, b) => Object.keys(EVANG).indexOf(a.ev) - Object.keys(EVANG).indexOf(b.ev) || a.id.localeCompare(b.id)).map(t => t.id) : sorted(t => t.col === id);
   if (k === 'univ' && id === 'liturgie') return [...listIds('office:liturgie'), ...listIds('col:messe').filter(x => TR[x].of !== 'liturgie')];   // onglet Liturgie : chants de la liturgie + extraits de messe
@@ -2807,7 +2807,7 @@ function menuHTML() {
   <button class="mi" data-act="edit" data-id="${tr.id}">Modifier les infos${ic('pencil')}</button>` : ''}
   ${tr.user ? `<button class="mi" data-act="delcustom" data-id="${tr.id}" data-close="1">Supprimer ce fichier de l’iPhone${ic('trash')}</button>` : ''}
   <button class="mi" data-act="goto" data-type="period" data-id="${tr.p}" data-close="1">Voir « ${P.name} »${ic('calendar')}</button>
-  ${[tr.ch, tr.ch2].filter(k => CH[k]).map(k => `<button class="mi" data-act="goto" data-type="chanter" data-id="${k}" data-close="1">Voir ${esc(CH[k].name)}${ic('person')}</button>`).join('')}
+  ${[tr.ch, tr.ch2, tr.ch3].filter(k => CH[k]).map(k => `<button class="mi" data-act="goto" data-type="chanter" data-id="${k}" data-close="1">Voir ${esc(CH[k].name)}${ic('person')}</button>`).join('')}
   <button class="mi" data-act="goto" data-type="settings" data-id="s" data-close="1">Réglages du lecteur${ic('gear')}</button>`;
 }
 function editHTML(id) {
