@@ -1321,6 +1321,13 @@ const glyphOf = tr => tr.glyph || (graph(tr.cop)[0] || graph(teinteDe(tr).word)[
 // Titre copte en premier, titre français en dessous
 const titleTop = tr => tr.cop ? `<span class="cop">${tr.cop}</span>` : esc(tr.col === 'psaumes' ? tr.ti.replace(/^Psaume /, '') : tr.ti);   // « Psaume » retiré : le numéro suffit
 const titleSub = tr => tr.cop ? esc(tr.ti) : '';
+// sous-titre sans la langue (« en arabe et en français »…) : le user ne veut pas qu'on l'affiche
+const L = '(?:copte|arabe|français|grec|anglais)';
+const LL = `(?:en\\s+)?${L}(?:\\s*(?:,|et|puis|ou)\\s*(?:en\\s+)?${L})*`;
+const reP = new RegExp(`\\s*\\([^)]*\\b${L}\\b[^)]*\\)`, 'gi');
+const reQ = new RegExp(`,?\\s*(?:début et fin|conclusion|refrain|répons)\\s+en\\s+${L}`, 'gi');
+const reL = new RegExp(`(^|[\\s,])${LL}(?=$|[\\s,·.])`, 'gi');
+const sansLangue = s => (s || '').split(' · ').map(x => x.replace(reP, '').replace(reQ, '').replace(reL, '$1').replace(/\s+,/g, ',').replace(/,\s*,/g, ',').replace(/^[\s,]+|[\s,]+$/g, '').replace(/\s{2,}/g, ' ')).map(x => x.replace(/^puis\s+/i, '')).filter(x => x && !/^\([^)]*\)$/.test(x)).join(' · ').replace(/^./, c => c.toUpperCase());
 const audioTag = tr => au(tr) ? '' : `<span class="nosnd">${tr.yt ? 'à importer' : 'exemple'}</span>`;
 const chName = tr => { const n = [tr.ch, tr.ch2, tr.ch3].filter(k => CH[k]).map(k => CH[k].name); return n.length > 2 ? n.slice(0, -1).join(', ') + ' et ' + n.at(-1) : n.join(' et '); };   // ch2, ch3 : autres chantres
 
@@ -1335,7 +1342,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '16.11.2026 · 336bcd9770'; // remplacé par tools/build.sh
+const APP_VERSION = '16.11.2026 · b908c13d86'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1354,7 +1361,7 @@ const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
 function rowHTML(tr, list, i, numbered, grip) {
   const cur = S.cur === tr.id;
   const lead = numbered ? `<span class="num">${cur ? eq() : i + 1}</span>` : trArt(tr, 'sm');
-  const sub = [titleSub(tr) || (tr.note ? esc(tr.note) : ''), esc(chName(tr))].filter(Boolean).join(' · ');
+  const sub = [titleSub(tr) || (tr.note ? esc(sansLangue(tr.note)) : ''), esc(chName(tr))].filter(Boolean).join(' · ');
   return `<div class="row${cur ? ' is-cur' : ''}" data-act="play" data-list="${list}" data-i="${i}" role="button" tabindex="0">
     ${lead}<div class="meta"><div class="t1 ell">${titleTop(tr)}${audioTag(tr)}</div><div class="t2 ell">${sub}</div></div>
     <span class="dur">${tr.dur ? fmt(tr.dur) : ''}</span>
@@ -2237,7 +2244,7 @@ function renderPBody() {
   if (!L) { b.innerHTML = `<div class="nolyr">Pas encore de paroles pour ce chant.<br>Envoie-moi le texte copte et la traduction, je les ajoute.</div>`; return; }
   const items = lyricItems(L, tr.dur || 1);
   b.classList.toggle('has-hz', !!hzData(tr));
-  b.innerHTML = `${hzHTML(tr)}<div class="lyr" id="lyr"><div class="lyr-in">${L.ar ? '<div class="lyr-note">Chant en arabe · traduction française</div>' : ''}${items.map((it, ii) => {
+  b.innerHTML = `${hzHTML(tr)}<div class="lyr" id="lyr"><div class="lyr-in">${items.map((it, ii) => {
     if (it.k === 'gap') return `<div class="ln gap" data-act="lseek" data-ii="${ii}"><span class="dots"><i></i><i></i><i></i></span></div>`;
     const v = L.v[it.vi];
     if (v.w) return `<div class="ln" data-act="lseek" data-ii="${ii}"><div class="vcop">${v.w.map((w, wi) => `<span class="w" data-act="wseek" data-vi="${it.vi}" data-wi="${wi}">${w.g.map(g => `<span class="l">${g}</span>`).join('')}</span>`).join('')}</div><div class="tr">${esc(v.fr)}</div></div>`;
@@ -2301,7 +2308,7 @@ function bindLyrDrag(box) {
     if (drag && drag.moved) { suppressClick = performance.now(); box.classList.remove('dragging'); const m = hardClamp(LY.manual); if (m !== LY.manual) { LY.manual = m; placeLines(false); } arm(); }
     drag = null;
   });
-  box.addEventListener('wheel', e => { if (!LY) return; free(); box.classList.add('dragging'); LY.manual = hardClamp(LY.manual - e.deltaY); placeLines(false); clearTimeout(box._wt); box._wt = setTimeout(() => box.classList.remove('dragging'), 120); arm(); }, { passive: true });
+  box.addEventListener('wheel', e => { if (!LY) return; e.preventDefault(); free(); box.classList.add('dragging'); LY.manual = hardClamp(LY.manual - e.deltaY); placeLines(false); clearTimeout(box._wt); box._wt = setTimeout(() => box.classList.remove('dragging'), 120); arm(); }, { passive: false });
 }
 function clearUnits(el) { $$('.f,.c,.up,.hold', el).forEach(x => { x.classList.remove('f', 'c', 'up', 'hold'); x.style.removeProperty('--p'); }); el.classList.remove('end'); }
 // ——— Feuille de hazaat (version bêta) ———
