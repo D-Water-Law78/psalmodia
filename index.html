@@ -98,11 +98,18 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
   background:radial-gradient(120% 90% at 15% 0%,rgba(255,255,255,.22),transparent 55%),linear-gradient(150deg,var(--c1),var(--c2));
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .art .gl{font-family:var(--f-lettrine);font-size:54cqi;line-height:1;text-shadow:0 2px 24px rgba(0,0,0,.25)}
-.art .xc{position:absolute;right:7%;bottom:7%;width:16%;height:16%;opacity:.45}
+.art .xc{position:absolute;right:7%;bottom:7%;width:16%;height:16%;opacity:.45;display:none}   /* croix « signature » : retirée le 19/11 à la demande du user, on verra plus tard */
 .art.xs{width:40px;height:40px;border-radius:8px}
 .art.sm{width:48px;height:48px;border-radius:8px}
 .art.md{width:100%;aspect-ratio:1;border-radius:12px}
 .art.xl{width:min(62vw,230px);aspect-ratio:1;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.plrow .art.xs{width:32px;height:32px;border-radius:7px}   /* pochette des playlists dans la Bibliothèque */
+.chzoom{border-radius:50%;cursor:zoom-in}
+.chz{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px 16px;cursor:zoom-out;
+  background:rgba(var(--fade),0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);transition:background .3s,backdrop-filter .3s,-webkit-backdrop-filter .3s}
+.chz.on{background:rgba(var(--fade),.55);-webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2)}
+.chz img{max-width:min(100%,460px);max-height:72vh;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5);transition:transform .32s cubic-bezier(.32,.72,0,1),border-radius .32s;will-change:transform}
+.chz-n{font-family:var(--f-display);font-size:22px;color:var(--ivory);opacity:0;transition:opacity .25s .1s}.chz.on .chz-n{opacity:1}
 
 .season{position:relative;overflow:hidden;border-radius:22px;padding:20px;color:var(--ink);
   background:radial-gradient(120% 90% at 10% 0%,rgba(255,255,255,.2),transparent 55%),linear-gradient(150deg,var(--c1),var(--c2))}
@@ -616,7 +623,7 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 .qc .etq::before,.qleg .etq::before{content:"";display:inline-block;width:0;height:calc(50% + .39em);vertical-align:baseline}
 .qc .etq[data-l="gregoire"],.qleg .etq[data-l="gregoire"]{color:#2a2010}
 .sh.mom+.qleg{margin-top:4px}.qleg{display:flex;gap:14px;margin:-6px 2px 14px;font-size:12.5px;color:var(--faint)}.qleg span{display:inline-flex;align-items:center;gap:6px}.qleg .etq{width:18px;height:18px;font-size:11px}
-.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding-inline:0}.qc.mini .chan{width:calc((100% - 30px) / 4);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:80px;height:80px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
+.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding:6px 4px 4px;margin-top:-6px}.qc.mini .chan{width:calc((100% - 30px) / 4);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:80px;height:80px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
 .qc.mini .chan.off{opacity:.4}.qc.mini .chan.on .av{box-shadow:0 0 0 2px var(--night),0 0 0 4px var(--gold)}.qc.mini .chan.on>span:not(.etqs){color:var(--gold);font-weight:600}
 </style>
 
@@ -1373,7 +1380,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '19.11.2026 · e9913f49f9'; // remplacé par tools/build.sh
+const APP_VERSION = '19.11.2026 · 4053a6e3f0'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1649,7 +1656,7 @@ function renderLibrary() {
   ${droits() ? `<button class="lrow" data-act="import">${ic('import')}Importer des fichiers audio<span class="cnt">MP3, M4A</span></button>` : ''}
   <button class="lrow" data-act="open" data-type="settings" data-id="s">${ic('gear')}Réglages</button>
   <div class="sh"><h2>Mes playlists</h2></div>
-  ${S.pl.map(p => `<button class="lrow" data-act="open" data-type="pl" data-id="${p.id}">${ic('queue')}<span class="ell">${esc(p.name)}</span><span class="cnt">${listIds('pl:' + p.id).length}</span></button>`).join('')}
+  ${S.pl.map(p => `<button class="lrow plrow" data-act="open" data-type="pl" data-id="${p.id}">${artHTML(plTeinte(p), plLettre(p), 'xs')}<span class="ell">${esc(p.name)}</span><span class="cnt">${listIds('pl:' + p.id).length}</span></button>`).join('')}
   <button class="lrow" data-act="plnew">${ic('plus')}Nouvelle playlist</button>
   <div class="sh"><h2>Ajoutés récemment</h2></div>
   ${listIds('ajouts').slice(0, 6).map((id, i) => rowHTML(TR[id], 'ajouts', i)).join('')}`;
@@ -1959,7 +1966,7 @@ function renderDetail(it) {
     head = artHTML(it.id, graph(P.word)[0], 'xl');
   } else if (it.type === 'chanter') {
     list = 'chanter:' + it.id; title = esc(CH[it.id].name); sub = 'Chantre';
-    head = avHTML(CH[it.id], 'lg');
+    head = CH[it.id].img ? `<button class="chzoom" data-act="chzoom" data-id="${it.id}" aria-label="Voir la photo en grand">${avHTML(CH[it.id], 'lg')}</button>` : avHTML(CH[it.id], 'lg');
   } else if (it.type === 'office') {
     list = 'office:' + it.id; title = OFFICES[it.id]; sub = 'Office';
     head = artHTML('annuel', '☩', 'xl');
@@ -1976,7 +1983,7 @@ function renderDetail(it) {
   } else if (it.type === 'pl') {
     const p = plGet(it.id) || { id: it.id, name: 'Playlist', ids: [] };
     list = 'pl:' + it.id; title = esc(p.name); sub = plN(ids0(list));
-    head = artHTML(plTeinte(p), graph(p.name.trim())[0]?.toUpperCase() || '♪', 'xl');
+    head = artHTML(plTeinte(p), plLettre(p), 'xl');
   } else if (it.type === 'recent') {
     list = 'recents'; title = 'Reprendre'; sub = `${ids0('recents')} chant${ids0('recents') > 1 ? 's' : ''} écouté${ids0('recents') > 1 ? 's' : ''}`;
     head = artHTML('nativite', '↺', 'xl');
@@ -2987,6 +2994,8 @@ function setFav(id) {
 const plGet = id => S.pl.find(p => p.id === id);
 const plSave = () => store.set('playlists', S.pl);
 const plN = n => n + ' chant' + (n > 1 ? 's' : '');
+const PL_COP = {a:'Ⲁ',b:'Ⲃ',c:'Ⲥ',d:'Ⲇ',e:'Ⲉ',f:'Ϥ',g:'Ⲅ',h:'Ϩ',i:'Ⲓ',j:'Ϫ',k:'Ⲕ',l:'Ⲗ',m:'Ⲙ',n:'Ⲛ',o:'Ⲟ',p:'Ⲡ',q:'Ⲕ',r:'Ⲣ',s:'Ⲥ',t:'Ⲧ',u:'Ⲩ',v:'Ⲃ',w:'Ⲱ',x:'Ⲝ',y:'Ⲩ',z:'Ⲍ'};
+const plLettre = p => { const g = (graph(p.name.trim())[0] || '').normalize('NFD')[0]?.toLowerCase() || ''; return PL_COP[g] || (/[\u2c80-\u2cff\u03e2-\u03ef]/.test(g) ? g.toUpperCase() : 'Ⲯ'); };   // première lettre de la playlist, en copte décoré
 const plTeinte = p => PERIODS[PERIOD_ORDER[[...p.id].reduce((h, c) => h + c.charCodeAt(0), 0) % PERIOD_ORDER.length]] || PERIODS.annuel;   // couleur stable, d'après l'identifiant
 function plNameHTML(p, add) {   // nom d'une nouvelle playlist (add : chant à y mettre tout de suite) ou renommage
   return `<form class="form" id="plForm" data-id="${p ? p.id : ''}" data-add="${add || ''}"><h3>${p ? 'Renommer la playlist' : 'Nouvelle playlist'}</h3>
@@ -3098,7 +3107,6 @@ document.addEventListener('submit', e => {
 const THEMES = [
   {k:'cierge', name:'Cierge', bg:'#0f0c0a', up:'#272019', ac:'#dbb066'},
   {k:'velours', name:'Saphir velours', bg:'#061123', up:'#0c254b', ac:'#dbb066'},
-  {k:'nuit', name:'Saphir de nuit', bg:'#030c1b', up:'#071c3f', ac:'#dbb066'},
   {k:'graphite', name:'Graphite (Apple Music)', bg:'#000000', up:'#2c2c2e', ac:'#fa2d48'},
   {k:'ardoise', name:'Ardoise', bg:'#11151b', up:'#232b36', ac:'#dbb066'},
   {k:'pourpre', name:'Pourpre', bg:'#150a12', up:'#33182d', ac:'#dbb066'},
@@ -3119,12 +3127,28 @@ const ACCENTS = [
 const curAccent = () => ACCENTS.find(a => a.k === store.get('accent', null)) || null;
 const accentOf = t => { const a = curAccent(); return a ? (t.k === 'nacre' ? a.l[0] : a.d[0]) : t.ac; };
 function setAccent(k) { if (k) store.set('accent', k); else { try { localStorage.removeItem('psalmodia:accent'); } catch (e) {} } applyTheme(); render(true); updateUI(); }
-const curTheme = () => THEMES.find(t => t.k === store.get('theme', 'cierge')) || THEMES[0];
+const curTheme = () => { const k = store.get('theme', 'cierge'); return THEMES.find(t => t.k === (k === 'nuit' ? 'velours' : k)) || THEMES[0]; };   // Saphir de nuit retiré le 19/11
 function applyTheme() {
   const t = curTheme();
   if (t.k === 'cierge') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t.k;
   const a = curAccent(); if (a) document.documentElement.dataset.accent = a.k; else delete document.documentElement.dataset.accent;
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t.k === 'nacre' ? '#18294a' : t.bg;
+}
+function chZoom(el) {   // photo du chantre en grand, sur la page floutée ; elle part de la bulle et y revient
+  const c = CH[el.dataset.id], av = el.querySelector('.av'), r = av.getBoundingClientRect();
+  const big = c.img.replace('chantres/', 'chantres/grand/'), z = document.createElement('div');
+  z.className = 'chz'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', c.name);
+  z.innerHTML = `<img alt="${esc(c.name)}"><div class="chz-n">${esc(c.name)}</div>`;
+  const im = z.querySelector('img'); im.src = big; im.onerror = () => { im.onerror = null; im.src = c.img; };
+  document.body.append(z);
+  const place = () => {   // départ : la bulle ; arrivée : centre de l'écran
+    const w = Math.min(innerWidth - 32, 460), q = im.getBoundingClientRect(), k = r.width / q.width;
+    im.style.transform = `translate(${r.left + r.width / 2 - (q.left + q.width / 2)}px,${r.top + r.height / 2 - (q.top + q.height / 2)}px) scale(${k})`; im.style.borderRadius = '50%';
+    return w;
+  };
+  const go = () => { place(); void im.offsetWidth; z.classList.add('on'); im.style.transform = ''; im.style.borderRadius = ''; };
+  im.complete ? go() : (im.onload = go);
+  z.addEventListener('click', () => { z.classList.remove('on'); place(); setTimeout(() => z.remove(), 320); });
 }
 function setTheme(k) { store.set('theme', k); applyTheme(); render(true); }
 function setCfg(k, v) { S.cfg[k] = v; store.set('cfg', S.cfg); render(true); updateUI(); if (S.full && S.pview === 'lyrics') { renderPBody(); } pokeControls(); }
@@ -3189,7 +3213,7 @@ document.addEventListener('click', e => {
     case 'plmv': plMove(el.dataset.pl, +el.dataset.i, +el.dataset.d); break;
     case 'plrm': plRemove(el.dataset.pl, +el.dataset.i); break;
     case 'plmenu': { const p = plGet(el.dataset.pl); if (!p) break;
-      openSheet(`<div class="sh-head">${artHTML(plTeinte(p), graph(p.name.trim())[0]?.toUpperCase() || '♪', 'sm')}<div class="tt"><div class="tt1 ell">${esc(p.name)}</div><div class="tt2 ell">${plN(listIds('pl:' + p.id).length)}</div></div></div>
+      openSheet(`<div class="sh-head">${artHTML(plTeinte(p), plLettre(p), 'sm')}<div class="tt"><div class="tt1 ell">${esc(p.name)}</div><div class="tt2 ell">${plN(listIds('pl:' + p.id).length)}</div></div></div>
         <button class="mi" data-act="plren" data-pl="${p.id}">Renommer${ic('pencil')}</button>
         <button class="mi" data-act="pldel" data-pl="${p.id}" data-close="1">Supprimer la playlist${ic('trash')}</button>`); break; }
     case 'plren': openSheet(plNameHTML(plGet(el.dataset.pl))); { const f = $('#plName'); f.focus(); f.select(); } break;
@@ -3240,6 +3264,7 @@ document.addEventListener('click', e => {
     case 'trsz': setCfg('trSize', +el.dataset.v); break;
     case 'theme': setTheme(el.dataset.v); break;
     case 'accent': setAccent(el.dataset.v); break;
+    case 'chzoom': chZoom(el); break;
     case 'litqf': {   // bulle d'un prêtre célébrant : seulement ses chants ; la retoucher : tous
       const q = el.closest('.qc'), x = q ? q.scrollLeft : 0, f = document.querySelector('.fil');
       litQF = litQF === el.dataset.id ? '' : el.dataset.id; litFilX = f ? f.scrollLeft : null; render(true);
