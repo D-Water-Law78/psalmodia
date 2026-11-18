@@ -610,6 +610,14 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 .tg{font-style:normal;font-size:10.5px;font-weight:650;padding:0 6px;border-radius:99px;margin-right:5px;vertical-align:1px;display:inline-block;line-height:1.6;font-family:-apple-system,system-ui,sans-serif}.tg.pr{color:#fff;background:color-mix(in srgb,var(--c1) 70%,#000)}
 .art .lvc{position:absolute;right:3px;bottom:3px;width:18px;height:18px;border-radius:50%;font-style:normal;display:block;text-align:center;font-family:var(--f-cop);font-size:12px;font-weight:600;line-height:0;color:#fff;background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 0 0 1.5px rgba(0,0,0,.55);z-index:3}.art .lvc[data-l="gregoire"]{color:#2a2010}.art .lvc::before{content:"";display:inline-block;width:0;height:calc(50% + .39em);vertical-align:baseline}
 .t3{font-size:13px;color:color-mix(in srgb,currentColor 75%,transparent);margin-top:3px}.t3 .chp{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:-6px;margin-right:6px;display:inline-block}.t3 .chi{font-style:normal;font-size:11px;font-weight:700;text-align:center;line-height:22px;overflow:hidden;background:var(--glass)}
+.t3 .chs{display:inline-flex;vertical-align:-6px;margin-right:7px}.t3 .chs>*{width:22px;height:22px;border-radius:50%;object-fit:cover;flex:none;display:block;font-style:normal;font-size:10px;font-weight:700;text-align:center;line-height:22px;background:var(--glass);box-shadow:0 0 0 1.5px var(--night)}.t3 .chs>*+*{margin-left:-8px}.t3 .chs>:nth-child(1){z-index:3}.t3 .chs>:nth-child(2){z-index:2}
+.qc .etqs{display:flex;gap:5px;justify-content:center;margin-top:2px}
+.qc .etq,.qleg .etq{font-style:normal;width:22px;height:22px;border-radius:50%;display:inline-block;text-align:center;font-family:var(--f-cop);font-size:13px;font-weight:600;line-height:0;color:#fff;background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.qc .etq::before,.qleg .etq::before{content:"";display:inline-block;width:0;height:calc(50% + .39em);vertical-align:baseline}
+.qc .etq[data-l="gregoire"],.qleg .etq[data-l="gregoire"]{color:#2a2010}
+.sh.mom+.qleg{margin-top:4px}.qleg{display:flex;gap:14px;margin:-6px 2px 14px;font-size:12.5px;color:var(--faint)}.qleg span{display:inline-flex;align-items:center;gap:6px}.qleg .etq{width:18px;height:18px;font-size:11px}
+.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding-inline:0}.qc.mini .chan{width:calc((100% - 30px) / 4);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:80px;height:80px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
+.qc.mini .chan.off{opacity:.4}.qc.mini .chan.on .av{box-shadow:0 0 0 2px var(--night),0 0 0 4px var(--gold)}.qc.mini .chan.on>span:not(.etqs){color:var(--gold);font-weight:600}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -828,7 +836,7 @@ const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join
 // Chantres par ordre alphabétique (accueil, bibliothèque, choix du chantre)
 const chOrdre = () => Object.entries(CH).sort((a, b) => a[1].name.localeCompare(b[1].name, 'fr'));
 const avHTML = (c, cls = '') => c.img ? `<span class="av ${cls} ph" style="background-image:url(${c.img})"></span>` : `<span class="av ${cls}">${initials(c.name)}</span>`;
-const CH = {ayad:{name:'Ibrahim Ayad',img:'chantres/ayad.jpg'},antonios:{name:'Anba Antonios',img:'chantres/antonios.jpg'},mounir:{name:'Bola Mounir',img:'chantres/mounir.jpg'},raphael:{name:'Anba Raphaël',img:'chantres/raphael.jpg'},philopater:{name:'Abouna Philopater Kamal',img:'chantres/philopater.jpg'},villejuif:{name:'Chœur de Villejuif',img:'chantres/villejuif.jpg'},markmoheb:{name:'Mark Moheb',img:'chantres/markmoheb.jpg'},muharraq:{name:'Monastère d’Al-Muharraq',img:'chantres/muharraq.jpg'},seminaire:{name:'Chœur du Séminaire'},karas:{name:'Anba Karas',img:'chantres/karas.jpg'},arsanios:{name:'Abouna Arsanios El-Baramousy',img:'chantres/arsanios.jpg'},johnibrahim:{name:'Abouna John Ibrahim',img:'chantres/johnibrahim.jpg'},mettias:{name:'Abouna Mettias Nasr'},karasyoussef:{name:'Abouna Karas Youssef',img:'chantres/karasyoussef.jpg'},zakaemad:{name:'Abouna Zaka Emad'},yoannes:{name:'Anba Yoannes'},polikarpos:{name:'Abouna Polikarpos El-Souriani',img:'chantres/polikarpos.jpg'},minaabood:{name:'Abouna Mina Abood',img:'chantres/minaabood.jpg'},boktor:{name:'Abouna Boktor Nessim',img:'chantres/boktor.jpg'},abakir:{name:'Anba Abakir',img:'chantres/abakir.jpg'},antoniosayad:{name:'Abouna Antonios Ayad',img:'chantres/antoniosayad.jpg'},youhannanassif:{name:'Abouna Youhanna Nassif'},mathieu:{name:'Abouna Mathieu',img:'chantres/mathieu.jpg'},abraham:{name:'Abouna Abraham Shenouda',img:'chantres/abraham.jpg'},rewisfarid:{name:'Abouna Rewis Farid',img:'chantres/rewisfarid.jpg'},lukamaher:{name:'Abouna Luka Maher',img:'chantres/lukamaher.jpg'},zosima:{name:'Anba Zosima',img:'chantres/zosima.jpg'},mousaroshdy:{name:'Abouna Moussa Roshdy'},bolesmalak:{name:'Boles Malak'},anbamarc:{name:'Anba Marc',img:'chantres/anbamarc.jpg?v=4'},draveil:{name:'Chœur de Draveil'}, ...store.get('chanters', {})};
+const CH = {ayad:{name:'Ibrahim Ayad',img:'chantres/ayad.jpg'},antonios:{name:'Anba Antonios',img:'chantres/antonios.jpg'},mounir:{name:'Bola Mounir',img:'chantres/mounir.jpg'},raphael:{name:'Anba Raphaël',img:'chantres/raphael.jpg'},philopater:{name:'Abouna Philopater Kamal',img:'chantres/philopater.jpg'},villejuif:{name:'Chœur de Villejuif',img:'chantres/villejuif.jpg'},markmoheb:{name:'Mark Moheb',img:'chantres/markmoheb.jpg'},muharraq:{name:'Monastère d’Al-Muharraq',img:'chantres/muharraq.jpg'},seminaire:{name:'Chœur du Séminaire',img:'chantres/seminaire.jpg'},karas:{name:'Anba Karas',img:'chantres/karas.jpg'},arsanios:{name:'Abouna Arsanios El-Baramousy',img:'chantres/arsanios.jpg'},johnibrahim:{name:'Abouna John Ibrahim',img:'chantres/johnibrahim.jpg'},mettias:{name:'Abouna Mettias Nasr'},karasyoussef:{name:'Abouna Karas Youssef',img:'chantres/karasyoussef.jpg'},zakaemad:{name:'Abouna Zaka Emad'},yoannes:{name:'Anba Yoannes'},polikarpos:{name:'Abouna Polikarpos El-Souriani',img:'chantres/polikarpos.jpg'},minaabood:{name:'Abouna Mina Abood',img:'chantres/minaabood.jpg'},boktor:{name:'Abouna Boktor Nessim',img:'chantres/boktor.jpg'},abakir:{name:'Anba Abakir',img:'chantres/abakir.jpg'},antoniosayad:{name:'Abouna Antonios Ayad',img:'chantres/antoniosayad.jpg'},youhannanassif:{name:'Abouna Youhanna Nassif'},mathieu:{name:'Abouna Mathieu',img:'chantres/mathieu.jpg'},abraham:{name:'Abouna Abraham Shenouda',img:'chantres/abraham.jpg'},rewisfarid:{name:'Abouna Rewis Farid',img:'chantres/rewisfarid.jpg'},lukamaher:{name:'Abouna Luka Maher',img:'chantres/lukamaher.jpg'},zosima:{name:'Anba Zosima',img:'chantres/zosima.jpg'},mousaroshdy:{name:'Abouna Moussa Roshdy'},bolesmalak:{name:'Boles Malak'},anbamarc:{name:'Anba Marc',img:'chantres/anbamarc.jpg?v=4'},draveil:{name:'Chœur de Draveil',img:'chantres/draveil.jpg'}, ...store.get('chanters', {})};
 
 // Sections affichées dans une période, dans cet ordre
 const SECTIONS = ['Funérailles générales', 'Toute la semaine', 'Jeudi saint', 'Vendredi saint', 'Samedi de la Joie'];
@@ -1365,7 +1373,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '18.11.2026 · 4535be480e'; // remplacé par tools/build.sh
+const APP_VERSION = '19.11.2026 · e9913f49f9'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1487,13 +1495,28 @@ const litStepOf = id => (LITS.find(s => s[4].includes(fineOf(id))) || [])[1];
 const litOrdre = () => listIds('univ:liturgie').filter(id => litStepOf(id)).sort((a, b) => FINE.indexOf(fineOf(a)) - FINE.indexOf(fineOf(b)) || (TR[a].m === 'fraction' ? rank(PERIOD_ORDER, TR[a].p) - rank(PERIOD_ORDER, TR[b].p) : 0));
 let litStep = store.get('litStep', 'anaphore'), litFilX = null;   // étape choisie (gardée) ; position du fil à garder après un toucher
 const chPic = tr => { const k = [tr.ch, tr.ch2].find(x => CH[x]); if (!k) return ''; const c = CH[k]; return c.img ? `<img class="chp" src="${c.img}" alt="">` : `<i class="chp chi">${esc(c.name.replace(/^(Abouna|Anba|Moallem|Mo3allem)\s+/, '').slice(0, 1))}</i>`; };
+const chPics = tr => {   // plusieurs chantres : bulles superposées (comme Instagram)
+  const ks = [tr.ch, tr.ch2, tr.ch3].filter(k => CH[k]); if (ks.length < 2) return chPic(tr);
+  return `<span class="chs">${ks.map(k => { const c = CH[k]; return c.img ? `<img src="${c.img}" alt="">` : `<i class="chi">${esc(c.name.replace(/^(Abouna|Anba|Moallem|Mo3allem)\s+/, '').slice(0, 1))}</i>`; }).join('')}</span>`;
+};
+let litQF = '';   // chantre choisi dans les bulles « Prêtre célébrant de cette étape » : seulement ses chants
+function litQui(ids) {   // prêtres célébrants de l'étape : photo, nombre de chants, sceaux des messes
+  const cnt = {}, lits = {};
+  ids.forEach(id => { const t = TR[id]; [t.ch, t.ch2, t.ch3].filter(k => CH[k]).forEach(k => { cnt[k] = (cnt[k] || 0) + 1; const l = litDe(id); if (LITC[l]) (lits[k] = lits[k] || {})[l] = 1; }); });
+  const chs = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]); if (!chs.length) return '';
+  const LVN = {basile:'Basile', gregoire:'Grégoire', cyrille:'Cyrille'};
+  const et = l => `<i class="etq" data-l="${l}" style="--c1:${LITC[l][0]};--c2:${LITC[l][1]}">${LITL[l]}</i>`;
+  return `<div class="sh mom"><h3>Prêtre célébrant de cette étape</h3></div><p class="qleg">${['basile', 'gregoire', 'cyrille'].map(l => `<span>${et(l)}Saint ${LVN[l]}</span>`).join('')}</p>`
+    + `<div class="hscroll qc mini">${chs.map(k => { const c = CH[k], L = ['basile', 'gregoire', 'cyrille'].filter(l => (lits[k] || {})[l]); return `<button class="chan${litQF ? (litQF === k ? ' on' : ' off') : ''}" data-act="litqf" data-id="${k}" aria-pressed="${litQF === k}">${avHTML(c)}<span>${esc(c.name)}</span><small>${cnt[k]} chant${cnt[k] > 1 ? 's' : ''}</small><span class="etqs">${L.map(et).join('')}</span></button>`; }).join('')}</div>`;
+}
 function litRow(id, list, i) {   // sceau de la messe sur l'image ; traduction, puis photo + chantre dessous
   const tr = TR[id], l = litDe(id), c = LITC[l];
   let h = rowHTML(tr, list, i);
   if (c) h = h.replace('<svg class="xc">', `<i class="lvc" data-l="${l}" style="--c1:${c[0]};--c2:${c[1]}">${LITL[l]}</i><svg class="xc">`);
-  const per = [tr.p, tr.p2].filter(p => p && p !== 'annuel' && PERIODS[p]).map(p => `<i class="tg pr" style="--c1:${PERIODS[p].c[0]}">${PERIODS[p].name}</i>`).join('');
+  const per = (tr.p === 'annuel' && tr.p2 && PERIODS[tr.p2] ? `<i class="tg pr" style="--c1:${PERIODS.annuel.c[0]}">Annuel</i>` : '')   // de toute l'année, avec un temps à lui : deux étiquettes
+    + [tr.p, tr.p2].filter(p => p && p !== 'annuel' && PERIODS[p]).map(p => `<i class="tg pr" style="--c1:${PERIODS[p].c[0]}">${PERIODS[p].name}</i>`).join('');
   const tra = titleSub(tr) || (tr.note ? esc(tr.ch === 'draveil' ? sansLangue(tr.note) : tr.note) : ''), nom = esc(chName(tr));
-  return h.replace(/<div class="t2 ell">[^<]*<\/div>/, () => (per || tra ? `<div class="t2 ell">${per}${tra}</div>` : '') + (nom ? `<div class="t3 ell">${chPic(tr)}${nom}</div>` : ''));
+  return h.replace(/<div class="t2 ell">[^<]*<\/div>/, () => (per || tra ? `<div class="t2 ell">${per}${tra}</div>` : '') + (nom ? `<div class="t3 ell">${chPics(tr)}${nom}</div>` : ''));
 }
 function renderLiturgie() {
   const ids0 = litOrdre(), autres = listIds('univ:liturgie').filter(id => !litStepOf(id));
@@ -1507,7 +1530,8 @@ function renderLiturgie() {
     const P = LITP.find(p => p[0] === S[0]);
     card = `<div class="stepcard" style="--c1:${P[2][0]};--c2:${P[2][1]}"><span class="lt">${S[3]}</span><div><div class="eyebrow">${P[0] === 'offrande' ? 'Offrande de l’Agneau' : 'Liturgie des ' + P[1].toLowerCase()} · étape ${vis.indexOf(S) + 1} sur ${vis.length}</div><div class="sc-n">${S[2]}</div><div class="sc-d">${S[4].filter(f => ids.some(id => fineOf(id) === f)).join(' · ')}</div></div><button class="sc-p" data-act="play" data-list="${list}" data-i="0" aria-label="Écouter cette étape">${ic('play', 18)}</button></div>`;
     let lastF = '';
-    rows = ids.map((id, i) => { const f = fineOf(id), h = f !== lastF && S[4].length > 1 ? `<div class="sh mom"><h3>${f}</h3></div>` : ''; lastF = f; return h + litRow(id, list, i); }).join('');
+    if (litQF && !ids.some(id => [TR[id].ch, TR[id].ch2, TR[id].ch3].includes(litQF))) litQF = '';
+    rows = litQui(ids) + ids.map((id, i) => { if (litQF && ![TR[id].ch, TR[id].ch2, TR[id].ch3].includes(litQF)) return ''; const f = fineOf(id), h = f !== lastF && S[4].length > 1 ? `<div class="sh mom"><h3>${f}</h3></div>` : ''; lastF = f; return h + litRow(id, list, i); }).join('');
   }
   const ent = autres.length ? `<div class="sh st"><h2>Liturgies entières</h2></div>` + autres.map((id, i) => litRow(id, 'litv:entieres', i)).join('') : '';
   return `<section class="season litfil" style="--c1:#eba83a;--c2:#7e420c;--ink:#fffaf0"><div class="s-lt">Ⲗ</div><div class="eyebrow">La sainte liturgie</div><div class="s-name"><span class="lt1">Ⲗ</span>iturgie</div><div class="s-desc">Fais glisser le fil : chaque étape de la messe, dans l’ordre</div><div class="s-actions">
@@ -3216,6 +3240,10 @@ document.addEventListener('click', e => {
     case 'trsz': setCfg('trSize', +el.dataset.v); break;
     case 'theme': setTheme(el.dataset.v); break;
     case 'accent': setAccent(el.dataset.v); break;
+    case 'litqf': {   // bulle d'un prêtre célébrant : seulement ses chants ; la retoucher : tous
+      const q = el.closest('.qc'), x = q ? q.scrollLeft : 0, f = document.querySelector('.fil');
+      litQF = litQF === el.dataset.id ? '' : el.dataset.id; litFilX = f ? f.scrollLeft : null; render(true);
+      const q2 = document.querySelector('.qc.mini'); if (q2) q2.scrollLeft = x; break; }
     case 'skipsec': setCfg('skipSec', +el.dataset.v); break;
     case 'skip': seek(S.t + (+el.dataset.d) * S.cfg.skipSec); pokeControls(); break;
     case 'wseek': {
@@ -3360,7 +3388,7 @@ document.addEventListener('click', e => {   // boules du fil de la messe
   const b = e.target.closest('.nd[data-litst]'); if (!b) return;
   e.preventDefault(); e.stopPropagation();
   const f = document.querySelector('.fil'), y = scrollY;
-  litFilX = f ? f.scrollLeft : null; litStep = b.dataset.litst; store.set('litStep', litStep); render(true);
+  litFilX = f ? f.scrollLeft : null; litStep = b.dataset.litst; litQF = ''; store.set('litStep', litStep); render(true);
   scrollTo(0, y);
 }, true);
 if (document.querySelector('link[rel=manifest]') && 'serviceWorker' in navigator) {
