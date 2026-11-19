@@ -1415,7 +1415,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '19.11.2026 · 8cd62b7490'; // remplacé par tools/build.sh
+const APP_VERSION = '19.11.2026 · 026c832252'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1570,6 +1570,8 @@ const LITS = [   // partie, clé, nom, lettre, moments
   ['croyants', 'fraction', 'Fraction', 'Ⲫ', ['Introduction à la fraction', 'Fraction']],
   ['croyants', 'communion', 'Communion', 'Ⲥ', ['Confession', 'Communion']],
   ['croyants', 'fin', 'Canon final', 'Ⲕ', ['Canon final']]];
+const LT_ETAPE = {A:'Ⲁ', I:'Ⲓ', H:'Ⲏ', O:'Ⲟ', R:'Ⲣ', F:'Ⲫ', C:'Ⲥ'};   // 19/11 : 1re lettre du titre de chaque étape en lettrine d'Avva Marcos, comme « Ⲗiturgies entières »
+const ltEtape = n => LT_ETAPE[n[0]] ? `<span class="lt1">${LT_ETAPE[n[0]]}</span>${n.slice(1)}` : n;
 const litStepOf = id => (LITS.find(s => s[4].includes(fineOf(id))) || [])[1];
 const litOrdre = () => listIds('univ:liturgie').filter(id => litStepOf(id)).sort((a, b) => FINE.indexOf(fineOf(a)) - FINE.indexOf(fineOf(b)) || (TR[a].m === 'fraction' ? rank(PERIOD_ORDER, TR[a].p) - rank(PERIOD_ORDER, TR[b].p) : 0));
 let litStep = store.get('litStep', 'anaphore'), litFilX = null, litEnt = false;   // litEnt : liturgies entières ouvertes   // étape choisie (gardée) ; position du fil à garder après un toucher
@@ -1609,7 +1611,7 @@ function renderLiturgie() {
   if (S) {
     const P = LITP.find(p => p[0] === S[0]);
     const tS = vis.length > 1 ? vis.indexOf(S) / (vis.length - 1) : 0;   // 19/11 : carte de l'étape à la couleur de son point sur la frise
-    card = `<div class="stepcard sclit" style="background:linear-gradient(115deg,${litPoint(tS - .2)},${litPoint(tS)},${litPoint(tS + .2)})"><span class="lt">${S[3]}</span><div><div class="eyebrow">${P[0] === 'offrande' ? 'Offrande de l’Agneau' : 'Liturgie des ' + P[1].toLowerCase()} · étape ${vis.indexOf(S) + 1} sur ${vis.length}</div><div class="sc-n">${S[2]}</div><div class="sc-d">${S[4].filter(f => ids.some(id => fineOf(id) === f)).join(' · ')}</div></div><button class="sc-p" data-act="play" data-list="${list}" data-i="0" aria-label="Écouter cette étape">${ic('play', 18)}</button></div>`;
+    card = `<div class="stepcard sclit" style="background:linear-gradient(115deg,${litPoint(tS - .2)},${litPoint(tS)},${litPoint(tS + .2)})"><span class="lt">${S[3]}</span><div><div class="eyebrow">${P[0] === 'offrande' ? 'Offrande de l’Agneau' : 'Liturgie des ' + P[1].toLowerCase()} · étape ${vis.indexOf(S) + 1} sur ${vis.length}</div><div class="sc-n">${ltEtape(S[2])}</div><div class="sc-d">${S[4].filter(f => ids.some(id => fineOf(id) === f)).join(' · ')}</div></div><button class="sc-p" data-act="play" data-list="${list}" data-i="0" aria-label="Écouter cette étape">${ic('play', 18)}</button></div>`;
     let lastF = '';
     if (litQF && !ids.some(id => [TR[id].ch, TR[id].ch2, TR[id].ch3].includes(litQF))) litQF = '';
     rows = litQui(ids) + ids.map((id, i) => { if (litQF && ![TR[id].ch, TR[id].ch2, TR[id].ch3].includes(litQF)) return ''; const f = fineOf(id), h = f !== lastF && S[4].length > 1 ? `<div class="sh mom"><h3>${f}</h3></div>` : ''; lastF = f; return h + litRow(id, list, i); }).join('');
