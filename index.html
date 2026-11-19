@@ -47,6 +47,11 @@
 :root[data-theme="ardoise"]{--night:#11151b;--surface:#181e26;--raised:#232b36;--ivory:#eef1f5;--muted:#94a0ae;--faint:#67727f;--line:rgba(238,241,245,.09);--glass:rgba(35,43,54,.8);--sheet:rgba(30,37,47,.95);--fade:17,21,27;--top:#11151b;--av1:#34404f;--av2:#161b22;--avph:#232b36}
 :root[data-theme="pourpre"]{--night:#150a12;--surface:#1f0f1b;--raised:#33182d;--muted:#ab93a3;--faint:#7d6574;--glass:rgba(45,20,40,.8);--sheet:rgba(40,18,36,.95);--fade:21,10,18;--top:#150a12;--av1:#47213f;--av2:#1f0f1b;--avph:#2e1529}
 :root[data-theme="olivier"]{--night:#0a130e;--surface:#101c14;--raised:#17281d;--muted:#93a596;--faint:#66786a;--glass:rgba(22,38,28,.8);--sheet:rgba(20,34,25,.95);--fade:10,19,14;--top:#0a130e;--av1:#24402e;--av2:#0f1a13;--avph:#183022}
+:root[data-theme="bordeaux"]{--night:#160608;--surface:#20090c;--raised:#321115;--muted:#ac9194;--faint:#7b6568;--glass:rgba(45,13,17,.8);--sheet:rgba(40,11,15,.95);--fade:22,6,8;--top:#160608;--av1:#491d23;--av2:#20090c;--avph:#331418}
+:root[data-theme="nil"]{--night:#061416;--surface:#081d21;--raised:#0f2e33;--muted:#91a8ac;--faint:#65787b;--glass:rgba(12,42,47,.8);--sheet:rgba(10,37,41,.95);--fade:6,20,22;--top:#061416;--av1:#1b454b;--av2:#081d21;--avph:#133035}
+:root[data-theme="indigo"]{--night:#080814;--surface:#0b0c1e;--raised:#14152f;--muted:#9191ac;--faint:#65667b;--glass:rgba(16,17,43,.8);--sheet:rgba(14,15,37,.95);--fade:8,8,20;--top:#080814;--av1:#212245;--av2:#0b0c1e;--avph:#171831}
+:root[data-theme="emeraude"]{--night:#05140f;--surface:#081f16;--raised:#0f3124;--muted:#91aca2;--faint:#657b73;--glass:rgba(11,45,33,.8);--sheet:rgba(10,39,28,.95);--fade:5,20,15;--top:#05140f;--av1:#1a4a38;--av2:#081f16;--avph:#123327}
+:root[data-theme="lavande"]{--night:#120e18;--surface:#181221;--raised:#241d30;--muted:#9a91ac;--faint:#6d657b;--glass:rgba(32,25,44,.8);--sheet:rgba(28,22,39,.95);--fade:18,14,24;--top:#120e18;--av1:#352c45;--av2:#181221;--avph:#262032}   /* 19/11 : Bordeaux, Nil, Indigo, Émeraude, Lavande */
 /* Nacre (clair) : texte bleu marine, or assombri pour rester lisible. Sous l'heure de l'iPhone, une bande bleu nuit, car l'heure y est toujours écrite en blanc. */
 :root[data-theme="nacre"]{--night:#f7f8fb;--surface:#ffffff;--raised:#eaeef2;--ivory:#142039;--muted:#5a6680;--faint:#7d879b;--gold:#a67a24;--on-gold:#ffffff;
   --line:rgba(20,33,61,.09);--glass:rgba(255,255,255,.8);--glass-sh:0 1px 0 rgba(20,33,61,.06),0 8px 24px rgba(20,33,61,.10);
@@ -275,6 +280,7 @@ body.dk .pl-acts{max-width:420px}
 .cpk .thd{display:grid;place-items:center;color:#fff}
 .cpk button.on .thd{box-shadow:inset 0 0 0 1px rgba(var(--wash),.18),0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
 .cpk .nm{font-size:12px;line-height:1.25;color:var(--muted);max-width:100%;text-align:center;overflow-wrap:anywhere}
+.cpk.acc .nm{font-size:11px;overflow-wrap:normal;white-space:nowrap;letter-spacing:-.1px}
 .cpk button.on .nm{color:var(--ivory);font-weight:600}
 .acd{width:38px;height:38px;border-radius:50%;background:var(--c);display:grid;place-items:center;color:var(--on-gold);box-shadow:inset 0 0 0 1px rgba(var(--wash),.18)}
 .acd.auto{background:conic-gradient(var(--c) 0 50%,var(--raised) 0)}
@@ -623,7 +629,7 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 .qc .etq::before,.qleg .etq::before{content:"";display:inline-block;width:0;height:calc(50% + .39em);vertical-align:baseline}
 .qc .etq[data-l="gregoire"],.qleg .etq[data-l="gregoire"]{color:#2a2010}
 .sh.mom+.qleg{margin-top:4px}.qleg{display:flex;gap:14px;margin:-6px 2px 14px;font-size:12.5px;color:var(--faint)}.qleg span{display:inline-flex;align-items:center;gap:6px}.qleg .etq{width:18px;height:18px;font-size:11px}
-.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding:6px 4px 4px;margin-top:-6px}.qc.mini .chan{width:calc((100% - 30px) / 4);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:80px;height:80px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
+.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding:6px 6px 4px;margin-top:-6px}.qc.mini .chan{width:calc((100% - 30px) / 4);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:70px;height:70px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
 .qc.mini .chan.off{opacity:.4}.qc.mini .chan.on .av{box-shadow:0 0 0 2px var(--night),0 0 0 4px var(--gold)}.qc.mini .chan.on>span:not(.etqs){color:var(--gold);font-weight:600}
 </style>
 
@@ -1380,7 +1386,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '19.11.2026 · 4053a6e3f0'; // remplacé par tools/build.sh
+const APP_VERSION = '19.11.2026 · fe1693e472'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -3110,7 +3116,11 @@ const THEMES = [
   {k:'graphite', name:'Graphite (Apple Music)', bg:'#000000', up:'#2c2c2e', ac:'#fa2d48'},
   {k:'ardoise', name:'Ardoise', bg:'#11151b', up:'#232b36', ac:'#dbb066'},
   {k:'pourpre', name:'Pourpre', bg:'#150a12', up:'#33182d', ac:'#dbb066'},
-  {k:'olivier', name:'Olivier', bg:'#0a130e', up:'#17281d', ac:'#dbb066'},
+{k:'bordeaux', name:'Bordeaux', bg:'#160608', up:'#321115', ac:'#dbb066'},
+  {k:'nil', name:'Nil', bg:'#061416', up:'#0f2e33', ac:'#dbb066'},
+  {k:'indigo', name:'Indigo', bg:'#080814', up:'#14152f', ac:'#dbb066'},
+  {k:'emeraude', name:'Émeraude', bg:'#05140f', up:'#0f3124', ac:'#dbb066'},
+  {k:'lavande', name:'Lavande', bg:'#120e18', up:'#241d30', ac:'#dbb066'},
   {k:'nacre', name:'Nacre (clair)', bg:'#f7f8fb', up:'#eaeef2', ac:'#a67a24'}
 ];
 // Couleur secondaire (boutons, chant en cours, cœurs) : au choix de chacun, sinon celle du thème. d = thèmes sombres, l = Nacre (clair)
@@ -3119,7 +3129,10 @@ const ACCENTS = [
   {k:'rouge', name:'Rouge', d:['#fa2d48','#ffffff'], l:['#d61f3c','#ffffff']},
   {k:'bleu', name:'Bleu', d:['#0a84ff','#ffffff'], l:['#0068d6','#ffffff']},
   {k:'violet', name:'Violet', d:['#bf5af2','#ffffff'], l:['#8a3fc4','#ffffff']},
-  {k:'argent', name:'Argent', d:['#d1d1d6','#000000'], l:['#5f6370','#ffffff']}
+  {k:'argent', name:'Argent', d:['#d1d1d6','#000000'], l:['#5f6370','#ffffff']},
+  {k:'turquoise', name:'Turquoise', d:['#64d2ff','#00202b'], l:['#0a86ad','#ffffff']},
+  {k:'orange', name:'Orange', d:['#ff9f0a','#2a1600'], l:['#c46a00','#ffffff']},
+  {k:'vert', name:'Vert', d:['#30d158','#002a0c'], l:['#1f8f3a','#ffffff']}
 ];
 (() => { const st = document.createElement('style');
   st.textContent = ACCENTS.map(a => `:root[data-accent="${a.k}"],:root[data-accent="${a.k}"] #player{--gold:${a.d[0]};--on-gold:${a.d[1]}}:root[data-theme="nacre"][data-accent="${a.k}"]{--gold:${a.l[0]};--on-gold:${a.l[1]}}`).join('\n');
@@ -3127,7 +3140,7 @@ const ACCENTS = [
 const curAccent = () => ACCENTS.find(a => a.k === store.get('accent', null)) || null;
 const accentOf = t => { const a = curAccent(); return a ? (t.k === 'nacre' ? a.l[0] : a.d[0]) : t.ac; };
 function setAccent(k) { if (k) store.set('accent', k); else { try { localStorage.removeItem('psalmodia:accent'); } catch (e) {} } applyTheme(); render(true); updateUI(); }
-const curTheme = () => { const k = store.get('theme', 'cierge'); return THEMES.find(t => t.k === (k === 'nuit' ? 'velours' : k)) || THEMES[0]; };   // Saphir de nuit retiré le 19/11
+const curTheme = () => { const k = store.get('theme', 'cierge'); return THEMES.find(t => t.k === ({nuit:'velours', olivier:'emeraude'}[k] || k)) || THEMES[0]; };   // retirés le 19/11 : Saphir de nuit (→ Saphir velours), Olivier (→ Émeraude)
 function applyTheme() {
   const t = curTheme();
   if (t.k === 'cierge') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t.k;
