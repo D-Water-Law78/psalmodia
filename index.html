@@ -1353,7 +1353,7 @@ const unitsOf = v => (v.ar || v.fr).split(/\s+/);
 /* 19/11 : l'audio est aussi sur 7 copies (psalmodia-audio2 … psalmodia-audio8), pour partager la bande passante de GitHub Pages.
    Chaque iPhone tire une copie au hasard et la garde ; si elle ne répond pas, il passe à la suivante (et la garde). */
 const AUDIO_ORIG = 'https://d-water-law78.github.io/psalmodia-audio/';
-const AUDIO_NB = 1;   // copies prêtes (1 = l'original seul) : passer à 8 quand les 7 copies sont en ligne
+const AUDIO_NB = 8;   // copies prêtes : l'original + psalmodia-audio2..8 (en ligne depuis le 19/11, 18 h 40)
 const AUDIO_COPIES = [AUDIO_ORIG, ...[2, 3, 4, 5, 6, 7, 8].map(k => `https://d-water-law78.github.io/psalmodia-audio${k}/`)].slice(0, AUDIO_NB);
 const AUDIO_CLE = 'audioK' + AUDIO_NB;   // nouveau tirage quand le nombre de copies change
 let audioK = +store.get(AUDIO_CLE, -1);
@@ -1414,7 +1414,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '19.11.2026 · 95cfb1aa36'; // remplacé par tools/build.sh
+const APP_VERSION = '19.11.2026 · cb5243cecf'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1551,7 +1551,7 @@ const litDe = id => {   // basile | gregoire | cyrille | commun
   if (i >= 6 && i <= 14) return 'basile';   // texte de saint Basile quand rien n'est précisé
   return 'commun';
 };
-const LITC = {basile:['#f5c542', '#9a6a08'], gregoire:['#fffaf0', '#d9c9a3'], cyrille:['#d62839', '#6e0a14']};   // 19/11 : couleurs de la carte « Liturgies entières »   // usage copte : or (tous les jours), blanc (grandes fêtes), rouge (saint Marc, martyr)
+const LITC = {basile:['#f5c542', '#b8860b'], gregoire:['#fff8e7', '#e6d6b4'], cyrille:['#d62839', '#8b0d1c']};   // 19/11 : exactement les couleurs de l'étiquette « Liturgies entières » (#b8860b, #f5c542, #fff8e7, #d62839, #8b0d1c)   // usage copte : or (tous les jours), blanc (grandes fêtes), rouge (saint Marc, martyr)
 const LITL = {basile:'Ⲃ', gregoire:'Ⲅ', cyrille:'Ⲕ'};
 const LIT_PAL = [[160, 112, 10], [184, 134, 11], [212, 160, 32], [236, 184, 62], [245, 197, 66], [224, 52, 62], [214, 40, 57], [184, 28, 44], [160, 20, 32], [139, 13, 28]];   // 19/11 : frise en ors purs puis rouges purs (le dégradé or → rouge donnait du beige et du saumon)
 const litK = t => Math.round(Math.max(0, Math.min(1, t)) * (LIT_PAL.length - 1));
