@@ -114,7 +114,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
   background:rgba(var(--fade),0);-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);transition:background .3s,backdrop-filter .3s,-webkit-backdrop-filter .3s}
 .chz.on{background:rgba(var(--fade),.55);-webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2)}
 .chz img{max-width:min(100%,460px);max-height:72vh;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.5);transition:transform .32s cubic-bezier(.32,.72,0,1),border-radius .32s;will-change:transform}
-.chz-n{font-family:var(--f-display);font-size:22px;color:var(--ivory);opacity:0;transition:opacity .25s .1s}.chz.on .chz-n{opacity:1}
+.chz-n{font-family:var(--f-ui,-apple-system,system-ui,sans-serif);font-size:21px;font-weight:700;letter-spacing:.005em;color:var(--ivory);text-align:center;line-height:1.25;opacity:0;transition:opacity .25s .1s;text-shadow:0 1px 12px rgba(var(--fade),.6)}.chz-n small{display:block;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}.chz.on .chz-n{opacity:1}
 
 .season{position:relative;overflow:hidden;border-radius:22px;padding:20px;color:var(--ink);
   background:radial-gradient(120% 90% at 10% 0%,rgba(255,255,255,.2),transparent 55%),linear-gradient(150deg,var(--c1),var(--c2))}
@@ -616,7 +616,7 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 .fil .pgrp{display:flex;flex-direction:column}.fil .pgh{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--c1);filter:brightness(1.25);padding:0 10px 8px;margin:0 6px 8px;border-bottom:2px solid color-mix(in srgb,var(--c1) 55%,transparent);white-space:nowrap;text-align:center}.fil .pgb{display:flex}
 .nd{position:relative;width:74px;background:none!important;padding:0;border-radius:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:inherit}
 .nd .fl{position:absolute;top:21px;left:0;right:0;height:3px;background:var(--c1);opacity:.6}.nd .fl.first{left:50%}.nd .fl.last{right:50%}
-.nd .dot{position:relative;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f-lettrine);font-size:21px;line-height:1;overflow:hidden;color:#f6ecd9;background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 0 0 4px var(--night)}
+.nd .dot{position:relative;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f-lettrine);font-size:21px;line-height:1;overflow:hidden;color:var(--ink,#f6ecd9);background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 0 0 4px var(--night)}
 .nd.on .dot{transform:scale(1.12);box-shadow:0 0 0 3px var(--night),0 0 0 5px var(--c1)}
 .nl{font-size:11.5px;font-weight:600;text-align:center;line-height:1.15;margin-top:2px}.nd:not(.on) .nl{opacity:.65}.nn{font-size:11px;color:var(--faint,#8e8e93);margin-top:-3px}
 .stepcard{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;border-radius:18px;padding:14px 16px;margin:14px 0 4px;color:#f6ecd9;background:linear-gradient(160deg,var(--c1),var(--c2))}.stepcard .lt{position:absolute;right:56px;top:-24px;font-family:var(--f-lettrine);font-size:120px;opacity:.18}.stepcard>div{flex:1;position:relative}.sc-n{font-family:var(--f-display);font-size:25px;margin-top:2px}.sc-d{font-size:12.5px;opacity:.8;margin-top:3px}.sc-p{position:relative;flex:none;width:44px;height:44px;border-radius:50%;background:#f6ecd9;color:#1b140c;display:flex;align-items:center;justify-content:center}
@@ -633,9 +633,9 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
 .qc .etq::before,.qleg .etq::before{content:"";display:inline-block;width:0;height:calc(50% + .39em);vertical-align:baseline}
 .qc .etq[data-l="gregoire"],.qleg .etq[data-l="gregoire"]{color:#2a2010}
 .sh.mom+.qleg{margin-top:4px}.qleg{display:flex;gap:14px;margin:-6px 2px 14px;font-size:12.5px;color:var(--faint)}.qleg span{display:inline-flex;align-items:center;gap:6px}.qleg .etq{width:18px;height:18px;font-size:11px}
-.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding:6px 6px 4px;margin-top:-6px}.qc.mini .chan{width:calc((100% - 30px) / 4);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:70px;height:70px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
+.qc.mini{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0!important;margin-inline:0;padding:6px 6px 4px;margin-top:-6px}.qc.mini .chan{width:calc((100% - 30px) / 3.6);gap:6px;scroll-snap-align:start;transition:opacity .2s}.qc.mini .av{width:70px;height:70px}.qc.mini .chan>span:not(.etqs){font-size:13px;line-height:1.2}.qc.mini .etq{width:20px;height:20px;font-size:12px}
 .qc.mini .chan>span:not(.etqs){min-height:calc(2 * 1.2em)}.qc.mini.l3 .chan>span:not(.etqs){min-height:calc(3 * 1.2em)}   /* noms sur 2 ou 3 lignes : nombres de chants et sceaux tous à la même hauteur */
-.qc.mini .chan.off{opacity:.4}.qc.mini .chan.on .av{box-shadow:0 0 0 2px var(--night),0 0 0 4px var(--gold)}.qc.mini .chan.on>span:not(.etqs){color:var(--gold);font-weight:600}
+.sh h2 .h2s{font-weight:500;color:var(--faint)}.qleg .qn{margin-left:auto;font-size:12px;color:var(--faint);display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.qc.mini .chan{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.qc.mini .chan.off{opacity:.4}.qc.mini .chan.on .av{box-shadow:0 0 0 2px var(--night),0 0 0 4px var(--gold)}.qc.mini .chan.on>span:not(.etqs){color:var(--gold);font-weight:600}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -994,7 +994,7 @@ const TRACKS = [
   {id:'paramoun-noel-cantique',dur:701,ti:'Cantique du Paramoun de la Nativité',cop:'',note:'Copte, arabe et français',p:'nativite',of:'liturgie',ch:'villejuif',yt:'WcmEJXZaGB0'},
   {id:'pouro-nativite-seminaire',dur:327,ti:"Ô Roi de la paix",cop:'Ⲡ̀ⲟⲩⲣⲟ ⲛ̀ⲧⲉ ϯϩⲓⲣⲏⲛⲏ',note:"Air joyeux de la Nativité, en copte · chœur du Séminaire sous la direction d’Ibrahim Ayad",p:'nativite',of:'liturgie',ch:'seminaire',ch2:'ayad',yt:'zld51r43YyU'},
   {id:'ana-awal-kalami',dur:387,ti:'Cantique du Paramoun de la Nativité',cop:'',note:'En arabe',p:'nativite',of:'liturgie',ch:'philopater',yt:'cOBrS2vsHug'},
-  {id:'aspasmos-watos-careme-ayad',dur:318,ti:'Aspasmos Watos du Carême',cop:'Ϯⲥⲱⲟⲩⲛ ϫⲉ ⲛ̀ⲑⲟⲕ ⲟ̀ⲩⲁ̀ⲅⲁⲑⲟⲥ',note:'En arabe',p:'careme',of:'liturgie',ch:'ayad',yt:'thcaB18eLIk'},
+  {id:'aspasmos-watos-careme-ayad',dur:318,ti:'Aspasmos Watos du Carême',cop:'Ϯⲥⲱⲟⲩⲛ ϫⲉ ⲛ̀ⲑⲟⲕ ⲟ̀ⲩⲁ̀ⲅⲁⲑⲟⲥ',note:'En arabe',p:'careme',of:'liturgie',ch:'ayad',ch2:'villejuif',yt:'thcaB18eLIk'},
   {id:'shere-ne-maria',dur:365,ti:'Salut à toi, Marie',cop:'Ⲭⲉⲣⲉ ⲛⲉ Ⲙⲁⲣⲓⲁ̀',note:'Théotokie du dimanche',p:'annuel',of:'tasbeha',ch:'raphael',yt:'ICrkwvLd3M8'},
   {id:'tenen-muharraq',dur:1106,ti:"Voici que nous offrons",cop:'Ⲧⲉⲛⲉⲛ',note:"Fin du 3e Hos",p:'kiahk',of:'tasbeha',ch:'muharraq',yt:'C9Y-8BgsXzw'},
   {id:'madih-trois-jeunes-gens',dur:518,ti:"Dieu éternel, avant les siècles",cop:'',note:"Madih des trois jeunes saints, en arabe",p:'kiahk',of:'tasbeha',ch:'seminaire',yt:'XfqE8oVEKvw'},
@@ -1344,6 +1344,22 @@ const prepL = raw => raw && ({ ar: !!raw.ar, v: raw.v.map(v => v.w
   : { fr: v.fr, ar: v.ar || null, t: v.t, e: v.e ?? null, wt: v.wt || null }) });
 // Mots chantés d'une ligne sans copte : l'arabe s'il est là, sinon le français
 const unitsOf = v => (v.ar || v.fr).split(/\s+/);
+/* 19/11 : l'audio est aussi sur 7 copies (psalmodia-audio2 … psalmodia-audio8), pour partager la bande passante de GitHub Pages.
+   Chaque iPhone tire une copie au hasard et la garde ; si elle ne répond pas, il passe à la suivante (et la garde). */
+const AUDIO_ORIG = 'https://d-water-law78.github.io/psalmodia-audio/';
+const AUDIO_NB = 1;   // copies prêtes (1 = l'original seul) : passer à 8 quand les 7 copies sont en ligne
+const AUDIO_COPIES = [AUDIO_ORIG, ...[2, 3, 4, 5, 6, 7, 8].map(k => `https://d-water-law78.github.io/psalmodia-audio${k}/`)].slice(0, AUDIO_NB);
+const AUDIO_CLE = 'audioK' + AUDIO_NB;   // nouveau tirage quand le nombre de copies change
+let audioK = +store.get(AUDIO_CLE, -1);
+if (!(audioK >= 0 && audioK < AUDIO_COPIES.length)) { audioK = Math.floor(Math.random() * AUDIO_COPIES.length); store.set(AUDIO_CLE, audioK); }
+const audioCopie = u => AUDIO_COPIES.some(c => u.startsWith(c)) ? AUDIO_COPIES[audioK] + u.slice(AUDIO_COPIES.find(c => u.startsWith(c)).length) : u;
+let audioEchecs = 0;
+function audioSuivante() {   // copie en panne : la suivante, pour tous les chants ; false quand on a tout essayé
+  if (++audioEchecs >= AUDIO_COPIES.length) return false;
+  audioK = (audioK + 1) % AUDIO_COPIES.length; store.set(AUDIO_CLE, audioK);
+  TRACKS.forEach(t => { if (t.remote) t.remote = audioCopie(t.remote); });
+  return true;
+}
 function addTrack(t) {
   t.L = t.L || prepL(t.lyr || LYRICS[t.id]);
   const saved = t.L && store.get('sync2:' + t.id, null);
@@ -1351,6 +1367,7 @@ function addTrack(t) {
     t.L.v.forEach((v, i) => { v.e = null; if (v.w && Array.isArray(saved[i])) v.w.forEach((w, k) => { w.t = saved[i][k][0]; w.lt = saved[i][k][1]; }); else if (!v.w) { if (saved[i] && typeof saved[i] === 'object') { if (saved[i].wt && saved[i].wt.length === unitsOf(v).length) { v.t = saved[i].t; v.wt = saved[i].wt; } } else v.t = saved[i]; } });
   }
   if (AUDIO[t.id]) { t.remote = AUDIO_BASE + encodeURIComponent(t.id) + '.m4a'; t.size = AUDIO[t.id]; }
+  if (t.remote) t.remote = audioCopie(t.remote);
   TR[t.id] = t;
 }
 TRACKS.forEach(addTrack);
@@ -1391,7 +1408,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '19.11.2026 · 523b04226a'; // remplacé par tools/build.sh
+const APP_VERSION = '19.11.2026 · 023d721192'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1450,7 +1467,7 @@ function listIds(key) {
   const [k, id] = key.split(':');
   const sorted = f => sortTracks(TRACKS.filter(f)).map(t => t.id);
   if (k === 'period') return parOrdre(ordreDe(id), sorted(t => (t.p === id || t.p2 === id) && !horsChants(t) && (t.col !== 'messe' || id !== 'annuel')));   // les extraits de messe de saison vont aussi dans leur période   // p2 : seconde période (ex. Ⲁ̀ ⲧⲁⲓ ⲡⲁⲣⲑⲉⲛⲟⲥ, annuel et Jeûne de la Vierge)   // psaumes et extraits de messe ont leur propre collection
-  if (k === 'chanter') return sorted(t => t.ch === id || t.ch2 === id || t.ch3 === id);
+  if (k === 'chanter') return chCats(sorted(t => t.ch === id || t.ch2 === id || t.ch3 === id)).flatMap(c => c[1].flatMap(g => g[1]));
   if (k === 'office') return id === 'tasbeha' ? parOrdre(ORDRE_TASBEHA, sorted(t => t.of === id)) : sorted(t => t.of === id);
   if (k === 'col') return id === 'lectures' ? TRACKS.filter(t => t.col === id).sort((a, b) => Object.keys(EVANG).indexOf(a.ev) - Object.keys(EVANG).indexOf(b.ev) || a.id.localeCompare(b.id)).map(t => t.id) : sorted(t => t.col === id);
   if (k === 'litv') return id === 'tout' ? litOrdre() : id === 'entieres' ? listIds('univ:liturgie').filter(x => !litStepOf(x)) : litOrdre().filter(x => litStepOf(x) === id);   // fil de la messe
@@ -1468,6 +1485,39 @@ function listIds(key) {
   return sorted(() => true);
 }
 const listName = key => { const [k, id] = key.split(':'); return k === 'litv' ? 'Liturgie' : k === 'pl' ? (plGet(id)?.name || 'Playlist') : k === 'period' ? PERIODS[id].name : k === 'chanter' ? (CH[id]?.name || '') : k === 'office' ? OFFICES[id] : k === 'col' ? COLS[id] : k === 'ev' ? EVANG[id].fr : k === 'univ' ? 'Liturgie' : k === 'fav' ? 'Favoris' : k === 'recent' || k === 'recents' ? 'Reprendre' : k === 'search' || k === 'lsearch' ? 'Recherche' : k === 'imported' ? 'Mes fichiers' : k === 'ajouts' ? 'Ajoutés récemment' : 'Tous les chants'; };
+/* 19/11 : page d'un chantre rangée par catégorie (offices dans l'ordre de la journée, puis Semaine sainte, hymnes des temps, psaumes…) ;
+   dans chaque catégorie, l'ordre de l'office (fil de la messe, ordre de la tasbeha, jours de la Semaine sainte). [[titre, [[sous-titre, ids]]]] */
+const CH_CATS = ['Vêpres', 'Tasbeha', 'Matines', 'Liturgie', 'Semaine sainte', 'Hymnes', 'Baptême', 'Mariage', 'Funérailles', 'Psaumes', 'Évangiles', 'Apprentissage', 'Chant'];
+function chCat(t) {
+  if (t.col === 'messe' || t.of === 'liturgie') return 'Liturgie';
+  if (t.of && OFFICES[t.of]) return OFFICES[t.of];
+  if (t.col === 'psaumes') return 'Psaumes'; if (t.col === 'lectures') return 'Évangiles'; if (t.col === 'taranim') return 'Chant';
+  if (t.p === 'pascha') return 'Semaine sainte';
+  if (t.col === 'apprentissage') return 'Apprentissage';
+  return 'Hymnes';
+}
+function chCats(ids) {
+  const per = {}, posP = (p, id) => { per[p] = per[p] || listIds('period:' + p); const i = per[p].indexOf(id); return i < 0 ? 1e4 : i; };
+  const lit = litOrdre(), stepName = id => (LITS.find(s => s[1] === litStepOf(id)) || [])[2];
+  const cats = {};
+  ids.forEach(id => { const c = chCat(TR[id]); (cats[c] = cats[c] || []).push(id); });
+  return Object.keys(cats).sort((a, b) => rank(CH_CATS, a) - rank(CH_CATS, b)).map(c => {
+    const L = cats[c], subs = {}, ordre = [];
+    const put = (k, id) => { if (!subs[k]) { subs[k] = []; ordre.push(k); } subs[k].push(id); };
+    if (c === 'Liturgie') {
+      L.filter(id => TR[id].m === 'entiere').forEach(id => put('Liturgies entières', id));
+      L.filter(id => TR[id].m !== 'entiere').sort((a, b) => rank(lit, a) - rank(lit, b)).forEach(id => put(stepName(id) || 'Autres chants', id));
+    } else if (c === 'Semaine sainte') {
+      L.sort((a, b) => rank(SECTIONS, secsOf(TR[a])[0]) - rank(SECTIONS, secsOf(TR[b])[0]) || posP('pascha', a) - posP('pascha', b)).forEach(id => put(SECTIONS.includes(secsOf(TR[id])[0]) ? secsOf(TR[id])[0] : 'Autres chants', id));
+    } else if (['Psaumes', 'Évangiles', 'Chant', 'Apprentissage'].includes(c)) {
+      L.forEach(id => put('', id));
+    } else {   // offices et hymnes : par temps de l'année, puis dans l'ordre de l'office
+      const tas = c === 'Tasbeha' ? listIds('office:tasbeha') : null;
+      L.sort((a, b) => rank(PERIOD_ORDER, TR[a].p) - rank(PERIOD_ORDER, TR[b].p) || (TR[a].p === 'annuel' && tas ? rank(tas, a) - rank(tas, b) : posP(TR[a].p, a) - posP(TR[b].p, b))).forEach(id => put((PERIODS[TR[id].p] || {}).name || '', id));
+    }
+    return [c, ordre.map(k => [k, subs[k]])];
+  });
+}
 function recentIds() {
   const ids = S.recent.filter(id => TR[id]);
   TRACKS.forEach(t => { if (ids.length < 8 && !ids.includes(t.id)) ids.push(t.id); });
@@ -1495,8 +1545,14 @@ const litDe = id => {   // basile | gregoire | cyrille | commun
   if (i >= 6 && i <= 14) return 'basile';   // texte de saint Basile quand rien n'est précisé
   return 'commun';
 };
-const LITC = {basile:['#e6b54e', '#7a4d0e'], gregoire:['#f6efe0', '#bfae8c'], cyrille:['#c63a2e', '#4a0e0a']};   // usage copte : or (tous les jours), blanc (grandes fêtes), rouge (saint Marc, martyr)
+const LITC = {basile:['#f5c542', '#9a6a08'], gregoire:['#fffaf0', '#d9c9a3'], cyrille:['#d62839', '#6e0a14']};   // 19/11 : couleurs de la carte « Liturgies entières »   // usage copte : or (tous les jours), blanc (grandes fêtes), rouge (saint Marc, martyr)
 const LITL = {basile:'Ⲃ', gregoire:'Ⲅ', cyrille:'Ⲕ'};
+const LIT_DEG = [[0, [184, 134, 11]], [.25, [236, 184, 62]], [.5, [246, 214, 140]], [.75, [214, 40, 57]], [1, [139, 13, 28]]];   // 19/11 : frise aux couleurs de la carte, le blanc du milieu remplacé par un or clair
+function litPoint(t, dark = 0) {
+  t = Math.max(0, Math.min(1, t)); let k = 1; while (k < LIT_DEG.length - 1 && LIT_DEG[k][0] < t) k++;
+  const [t0, a] = LIT_DEG[k - 1], [t1, b] = LIT_DEG[k], f = (t - t0) / (t1 - t0 || 1);
+  return `rgb(${a.map((v, j) => Math.round((v + (b[j] - v) * f) * (1 - dark))).join(',')})`;
+}
 const LITP = [['offrande', 'Offrande', ['#e0bc6a', '#6a4a14']], ['catechumenes', 'Catéchumènes', ['#c8732e', '#4a1e08']], ['croyants', 'Croyants', ['#8a2a4e', '#2a0816']]];
 const LITS = [   // partie, clé, nom, lettre, moments
   ['offrande', 'offrande', 'Action de grâces', 'Ⲟ', ['Offrande de l’Agneau']],
@@ -1524,7 +1580,7 @@ function litQui(ids) {   // prêtres célébrants de l'étape : photo, nombre de
   const chs = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]); if (!chs.length) return '';
   const LVN = {basile:'Basile', gregoire:'Grégoire', cyrille:'Cyrille'};
   const et = l => `<i class="etq" data-l="${l}" style="--c1:${LITC[l][0]};--c2:${LITC[l][1]}">${LITL[l]}</i>`;
-  return `<div class="sh mom"><h3>Prêtre célébrant de cette étape</h3></div><p class="qleg">${['basile', 'gregoire', 'cyrille'].map(l => `<span>${et(l)}Saint ${LVN[l]}</span>`).join('')}</p>`
+  return `<div class="sh mom"><h3>Prêtre célébrant de cette étape</h3></div><p class="qleg">${['basile', 'gregoire', 'cyrille'].map(l => `<span>${et(l)}${LVN[l]}</span>`).join('')}${chs.length > 3 ? `<span class="qn">${chs.length} ${ic('chev', 13)}</span>` : ''}</p>`
     + `<div class="hscroll qc mini l${chs.some(k => CH[k].name.length > 20) ? 3 : 2}">${chs.map(k => { const c = CH[k], L = ['basile', 'gregoire', 'cyrille'].filter(l => (lits[k] || {})[l]); return `<button class="chan${litQF ? (litQF === k ? ' on' : ' off') : ''}" data-act="litqf" data-id="${k}" aria-pressed="${litQF === k}">${avHTML(c)}<span>${esc(c.name)}</span><small>${cnt[k]} chant${cnt[k] > 1 ? 's' : ''}</small><span class="etqs">${L.map(et).join('')}</span></button>`; }).join('')}</div>`;
 }
 function litRow(id, list, i) {   // sceau de la messe sur l'image ; traduction, puis photo + chantre dessous
@@ -1541,12 +1597,14 @@ function renderLiturgie() {
   const vis = LITS.filter(s => ids0.some(id => litStepOf(id) === s[1]));
   if (!vis.some(s => s[1] === litStep) && vis.length) litStep = vis[0][1];
   let k = 0;
-  const fil = `<div class="fil"><div class="fil-in">${LITP.map(([pk, pn, pc]) => { const ss = vis.filter(s => s[0] === pk); return ss.length ? `<div class="pgrp" style="--c1:${pc[0]};--c2:${pc[1]}"><div class="pgh">${pn}</div><div class="pgb">${ss.map(s => { const n = ids0.filter(id => litStepOf(id) === s[1]).length, i = k++; return `<button class="nd${s[1] === litStep ? ' on' : ''}" data-litst="${s[1]}"><span class="fl${i ? '' : ' first'}${i === vis.length - 1 ? ' last' : ''}"></span><span class="dot">${s[3]}</span><span class="nl">${s[2]}</span><span class="nn">${n} chant${n > 1 ? 's' : ''}</span></button>`; }).join('')}</div></div>` : ''; }).join('')}</div></div>`;
+  const nV = vis.length, tOf = i => nV > 1 ? i / (nV - 1) : 0, ndSt = i => { const t = tOf(i); return `--c1:${litPoint(t)};--c2:${litPoint(t, .45)};--ink:${t > .36 && t < .62 ? '#3a2208' : '#fffaf0'}`; };
+  const fil = `<div class="fil"><div class="fil-in">${LITP.map(([pk, pn]) => { const ss = vis.filter(s => s[0] === pk); if (!ss.length) return ''; const k0 = k; return `<div class="pgrp" style="--c1:${litPoint(tOf(k0 + (ss.length - 1) / 2))}"><div class="pgh">${pn}</div><div class="pgb">${ss.map(s => { const n = ids0.filter(id => litStepOf(id) === s[1]).length, i = k++; return `<button class="nd${s[1] === litStep ? ' on' : ''}" data-litst="${s[1]}" style="${ndSt(i)}"><span class="fl${i ? '' : ' first'}${i === vis.length - 1 ? ' last' : ''}"></span><span class="dot">${s[3]}</span><span class="nl">${s[2]}</span><span class="nn">${n} chant${n > 1 ? 's' : ''}</span></button>`; }).join('')}</div></div>`; }).join('')}</div></div>`;
   const S = vis.find(s => s[1] === litStep), list = 'litv:' + litStep, ids = listIds(list);
   let card = '', rows = '';
   if (S) {
     const P = LITP.find(p => p[0] === S[0]);
-    card = `<div class="stepcard" style="--c1:${P[2][0]};--c2:${P[2][1]}"><span class="lt">${S[3]}</span><div><div class="eyebrow">${P[0] === 'offrande' ? 'Offrande de l’Agneau' : 'Liturgie des ' + P[1].toLowerCase()} · étape ${vis.indexOf(S) + 1} sur ${vis.length}</div><div class="sc-n">${S[2]}</div><div class="sc-d">${S[4].filter(f => ids.some(id => fineOf(id) === f)).join(' · ')}</div></div><button class="sc-p" data-act="play" data-list="${list}" data-i="0" aria-label="Écouter cette étape">${ic('play', 18)}</button></div>`;
+    const tS = vis.length > 1 ? vis.indexOf(S) / (vis.length - 1) : 0;   // 19/11 : carte de l'étape à la couleur de son point sur la frise
+    card = `<div class="stepcard" style="--c1:${litPoint(tS, .32)};--c2:${litPoint(tS, .72)}"><span class="lt">${S[3]}</span><div><div class="eyebrow">${P[0] === 'offrande' ? 'Offrande de l’Agneau' : 'Liturgie des ' + P[1].toLowerCase()} · étape ${vis.indexOf(S) + 1} sur ${vis.length}</div><div class="sc-n">${S[2]}</div><div class="sc-d">${S[4].filter(f => ids.some(id => fineOf(id) === f)).join(' · ')}</div></div><button class="sc-p" data-act="play" data-list="${list}" data-i="0" aria-label="Écouter cette étape">${ic('play', 18)}</button></div>`;
     let lastF = '';
     if (litQF && !ids.some(id => [TR[id].ch, TR[id].ch2, TR[id].ch3].includes(litQF))) litQF = '';
     rows = litQui(ids) + ids.map((id, i) => { if (litQF && ![TR[id].ch, TR[id].ch2, TR[id].ch3].includes(litQF)) return ''; const f = fineOf(id), h = f !== lastF && S[4].length > 1 ? `<div class="sh mom"><h3>${f}</h3></div>` : ''; lastF = f; return h + litRow(id, list, i); }).join('');
@@ -2016,8 +2074,8 @@ function renderDetail(it) {
     ? ids.map((id, i) => (i === 0 || groupOf(TR[id]) !== groupOf(TR[ids[i - 1]]) ? `<div class="sh"><h2>${groupName(groupOf(TR[id]))}</h2></div>` : '') + momHead(ids, i) + rowHTML(TR[id], list, i)).join('')
     : secs.length
     ? [...secs, null].map(sc => { const so = sc && (ORDRE[it.id] || {})[sc], sub0 = ids.filter(id => sc ? secsOf(TR[id]).includes(sc) : !secsOf(TR[id]).some(x => SECTIONS.includes(x))), sub = Array.isArray(so) ? parOrdre(so, sub0) : sub0; return sub.length ? (sc ? `<div class="sh"><h2>${sc}</h2></div>` : '') + sub.map(id => rowHTML(TR[id], list, ids.indexOf(id), true)).join('') : ''; }).join('')
-    : it.type === 'chanter' && ids.some(id => TR[id].col === 'taranim') && ids.some(id => TR[id].col !== 'taranim')   // chantre qui a aussi des taranim : intertitres « Hymnes » puis « Chant »
-    ? ids.map((id, i) => { const ta = TR[id].col === 'taranim'; return (i === 0 || ta !== (TR[ids[i - 1]].col === 'taranim') ? `<div class="sh"><h2>${ta ? COLS.taranim : 'Hymnes'}</h2></div>` : '') + rowHTML(TR[id], list, i, numbered); }).join('')
+    : it.type === 'chanter'   // 19/11 : par catégorie, puis par étape ou par temps
+    ? (() => { let i = 0; return chCats(ids).map(([c, gs]) => `<div class="sh"><h2>${c}${gs.length === 1 && gs[0][0] && gs[0][0] !== 'Annuel' ? ` <span class="h2s">· ${gs[0][0]}</span>` : ''}</h2></div>` + gs.map(([g, L]) => (gs.length > 1 && g ? `<div class="sh mom"><h3>${g}</h3></div>` : '') + L.map(id => rowHTML(TR[id], list, i++, numbered)).join('')).join('')).join(''); })()
     : list === 'office:tasbeha'   // intertitre à chaque étape de la tasbeha
     ? ids.map((id, i) => (i === 0 || etapeTasbeha(id) !== etapeTasbeha(ids[i - 1]) ? `<div class="sh mom"><h3>${etapeTasbeha(id)}</h3></div>` : '') + rowHTML(TR[id], list, i, numbered)).join('')
     : ids.map((id, i) => (it.type === 'col' ? momHead(ids, i) : '') + rowHTML(TR[id], list, i, numbered)).join('');
@@ -2051,6 +2109,12 @@ function render(keepScroll) {
 /* ---------- Lecture ---------- */
 const A = new Audio(); A.preload = 'auto'; A.setAttribute('x-webkit-airplay', 'allow'); A.setAttribute('playsinline', '');
 A.addEventListener('ended', () => ended());
+A.addEventListener('error', () => {   // 19/11 : la copie audio ne répond pas : on reprend le chant sur la copie suivante
+  const tr = curTrack(); if (!tr || tr.src || !tr.remote || A.src !== tr.remote) return;
+  const t = S.t, was = S.playing; if (!audioSuivante()) return;
+  A.src = tr.remote; A.playbackRate = S.rate; if (t) seekWhenReady(t); if (was) A.play().catch(() => {});
+});
+A.addEventListener('playing', () => { audioEchecs = 0; });
 const okDur = (tr, d) => isFinite(d) && d > 0 && (!tr.yt || !tr.dur || Math.abs(d - tr.dur) < tr.dur * 0.2);
 A.addEventListener('loadedmetadata', () => { const tr = curTrack(); if (tr && au(tr) && okDur(tr, A.duration)) tr.dur = A.duration; });
 let simLast = performance.now();
@@ -2876,8 +2940,10 @@ async function downloadMissing() {
     while (S.playing && curTrack() && !curTrack().src) await new Promise(r => setTimeout(r, 2000));
     DL.i++; DL.name = tr.ti; DL.cur = 0; dlUpdate(true);
     try {
-      const res = await fetch(tr.remote, { cache: 'no-store' });
-      if (!res.ok || !res.body) throw new Error(res.status);
+      let res = await fetch(tr.remote, { cache: 'no-store' }).catch(() => null);
+      while ((!res || !res.ok) && audioSuivante()) res = await fetch(tr.remote, { cache: 'no-store' }).catch(() => null);   // 19/11 : copie audio en panne → la suivante
+      if (!res || !res.ok || !res.body) throw new Error(res ? res.status : 'réseau');
+      audioEchecs = 0;
       const reader = res.body.getReader(), parts = [];
       for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); DL.cur += value.length; dlUpdate(); }
       const blob = new Blob(parts, { type: 'audio/mp4' });
@@ -3158,7 +3224,8 @@ function chZoom(el) {   // photo du chantre en grand, sur la page floutée ; ell
   const c = CH[el.dataset.id], av = el.querySelector('.av'), r = av.getBoundingClientRect();
   const big = c.img.replace('chantres/', 'chantres/grand/'), z = document.createElement('div');
   z.className = 'chz'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', c.name);
-  z.innerHTML = `<img alt="${esc(c.name)}"><div class="chz-n">${esc(c.name)}</div>`;
+  const nC = listIds('chanter:' + el.dataset.id).length;
+  z.innerHTML = `<img alt="${esc(c.name)}"><div class="chz-n">${esc(c.name)}<small>${nC} chant${nC > 1 ? 's' : ''}</small></div>`;
   const im = z.querySelector('img'); im.src = big; im.onerror = () => { im.onerror = null; im.src = c.img; };
   document.body.append(z);
   const place = () => {   // départ : la bulle ; arrivée : centre de l'écran
@@ -3430,6 +3497,15 @@ applyTheme();
 render();
 requestAnimationFrame(tick);
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+(() => {   // 19/11 : appui long sur la bulle d'un prêtre célébrant = sa photo en grand (le toucher normal garde le filtre de ses chants)
+  let tm = 0, x0 = 0, y0 = 0, el = null, mange = false;
+  const stop = () => { clearTimeout(tm); tm = 0; };
+  document.addEventListener('pointerdown', e => { const b = e.target.closest('.qc.mini .chan'); if (!b || !(CH[b.dataset.id] || {}).img) return; el = b; x0 = e.clientX; y0 = e.clientY; stop(); tm = setTimeout(() => { tm = 0; mange = true; setTimeout(() => { mange = false; }, 900); chZoom(el); }, 450); }, { passive: true });
+  document.addEventListener('pointermove', e => { if (tm && Math.hypot(e.clientX - x0, e.clientY - y0) > 8) stop(); }, { passive: true });
+  ['pointerup', 'pointercancel', 'scroll'].forEach(t => document.addEventListener(t, stop, { passive: true, capture: true }));
+  document.addEventListener('click', e => { if (mange && e.target.closest('.qc.mini .chan')) { mange = false; e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener('contextmenu', e => { if (e.target.closest('.qc.mini .chan')) e.preventDefault(); });
+})();
 document.addEventListener('click', e => {   // boules du fil de la messe
   const b = e.target.closest('.nd[data-litst]'); if (!b) return;
   e.preventDefault(); e.stopPropagation();
