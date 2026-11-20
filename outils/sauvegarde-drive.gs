@@ -9,6 +9,8 @@
  *  - Audios (dépôt « psalmodia-audio ») : tous les fichiers sont copiés dans
  *    « Sauvegarde Psalmodia / Audios ». Seuls les fichiers nouveaux ou modifiés
  *    sont recopiés. Un fichier supprimé sur GitHub n'est JAMAIS supprimé du Drive.
+ *    Les autres branches du dépôt audio : seuls les fichiers différents de main sont copiés.
+ *    (Les dépôts psalmodia-audio2 à 8 sont des copies exactes de psalmodia-audio.)
  *  - Le fichier « derniere-sauvegarde.txt » indique où en est la sauvegarde.
  *
  * Mise en route : choisir la fonction « installer » en haut, cliquer sur « Exécuter »,
@@ -90,8 +92,7 @@ function sauverAudio_(racine, etat, debut, notes) {
   const a = etat.audio;
   const toutes = branches_(CONFIG.depotAudio);
   const sha = toutes[CONFIG.branche];
-  const autres = Object.keys(toutes).filter(b => b !== CONFIG.branche);
-  if (autres.length) notes.push('ℹ️ Branches audio non copiées (seule « main » l’est) : ' + autres.join(', '));
+  sauverBranchesAudio_(racine, etat, toutes, debut, notes);
   if (a.cible !== sha) {
     const r = UrlFetchApp.fetch(
       `https://api.github.com/repos/${CONFIG.proprietaire}/${CONFIG.depotAudio}/git/trees/${sha}?recursive=1`,
@@ -122,6 +123,41 @@ function sauverAudio_(racine, etat, debut, notes) {
     if (copies % 5 === 0) ecrireEtat_(racine, etat);
   }
   if (copies) notes.push(`${copies} fichier(s) audio copié(s).`);
+}
+
+/* Branches du dépôt audio autres que « main » : on copie seulement les fichiers qui diffèrent de main,
+   dans « Autres branches / audio_<nom> ». */
+function sauverBranchesAudio_(racine, etat, toutes, debut, notes) {
+  etat.branchesAudio = etat.branchesAudio || {};
+  const principal = toutes[CONFIG.branche];
+  for (const b in toutes) {
+    if (b === CONFIG.branche || etat.branchesAudio[b] === toutes[b]) continue;
+    if (Date.now() - debut > CONFIG.minutesMax * 60000) return;
+    const r = UrlFetchApp.fetch(
+      `https://api.github.com/repos/${CONFIG.proprietaire}/${CONFIG.depotAudio}/compare/${principal}...${toutes[b]}`,
+      { headers: entetesGithub_(), muteHttpExceptions: true });
+    if (r.getResponseCode() !== 200) { notes.push('GitHub a demandé de patienter (branche audio ' + b + ').'); return; }
+    const fichiers = (JSON.parse(r.getContentText()).files || []).filter(f => f.status !== 'removed');
+    const base = dossier_(dossier_(racine, 'Autres branches'), 'audio_' + b.replace(/\//g, '_'));
+    for (const f of fichiers) {
+      const morceaux = f.filename.split('/');
+      const nom = morceaux.pop();
+      const dossier = morceaux.reduce((d, n) => dossier_(d, n), base);
+      const url = `https://raw.githubusercontent.com/${CONFIG.proprietaire}/${CONFIG.depotAudio}/${toutes[b]}/` +
+        f.filename.split('/').map(encodeURIComponent).join('/');
+      envoyer_(url, taille_(url), nom, dossier);
+    }
+    etat.branchesAudio[b] = toutes[b];
+    notes.push(`Branche audio « ${b} » sauvegardée (${fichiers.length} fichier(s) différent(s) de main).`);
+  }
+}
+
+function taille_(url) {
+  const r = UrlFetchApp.fetch(url, { headers: { Range: 'bytes=0-0' }, muteHttpExceptions: true });
+  const m = entete_(r, 'content-range').match(/\/(\d+)$/);
+  if (r.getResponseCode() === 206 && m) return Number(m[1]);
+  if (r.getResponseCode() === 200) return r.getBlob().getBytes().length;   // fichier vide ou d'un octet
+  throw new Error('fichier introuvable : ' + url);
 }
 
 /* Copie un fichier de GitHub vers Drive, par morceaux (les gros fichiers dépassent 50 Mo). */

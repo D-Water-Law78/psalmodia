@@ -12,6 +12,11 @@ L'appli est un site web (une « PWA » qu'on installe sur l'iPhone), en deux par
 | L'appli elle-même | `psalmodia` | `index.html` (tout le code, tous les textes copte/arabe/français, les traductions, les titres, les minutages mot par mot), `sw.js` (fonctionnement hors connexion), `manifest.webmanifest` (icône et nom sur l'écran d'accueil), `icons/`, `chantres/` (photos des chantres), `evangiles/` (images) | https://d-water-law78.github.io/psalmodia/ |
 | Les audios | `psalmodia-audio` | environ 420 fichiers `.m4a` (≈ 5 Go), `liste.json` (liste des audios et leur taille) | https://d-water-law78.github.io/psalmodia-audio/ |
 
+⚠️ **Les audios existent en 8 exemplaires identiques** : `psalmodia-audio` (l'original) et
+`psalmodia-audio2` … `psalmodia-audio8` (copies exactes, même contenu). L'appli répartit les utilisateurs
+au hasard entre ces 8 copies pour ne pas surcharger GitHub. C'est réglé dans `index.html` par la ligne
+`const AUDIO_NB = 8;`. La sauvegarde n'en garde qu'un exemplaire, puisqu'ils sont identiques.
+
 Les deux sont publiés gratuitement par **GitHub Pages** (Réglages du dépôt → Pages → « Deploy from a branch » → `main` / dossier racine).
 
 ## 2. Ce que contient la sauvegarde (Google Drive → « Sauvegarde Psalmodia »)
@@ -19,7 +24,7 @@ Les deux sont publiés gratuitement par **GitHub Pages** (Réglages du dépôt �
 | Dossier / fichier | Contenu | Mis à jour |
 |---|---|---|
 | `Textes (versions)/` | une copie complète de l'appli (`.zip`) à chaque mise à jour, les 100 dernières | automatiquement, toutes les 15 min si changement |
-| `Autres branches/` | les travaux pas encore publiés (branches GitHub autres que `main`) | automatiquement |
+| `Autres branches/` | les travaux pas encore publiés (branches GitHub autres que `main`, des deux dépôts) | automatiquement |
 | `Audios/` | tous les fichiers du dépôt des audios, à l'identique | automatiquement |
 | `psalmodia-historique-complet-AAAA-MM-JJ.bundle` | tout l'historique des modifications, toutes branches, depuis la première version (23/10/2026) | à refaire de temps en temps (demander à Claude) |
 | `derniere-sauvegarde.txt` | où en est la sauvegarde | à chaque vérification |
@@ -41,6 +46,10 @@ Les deux sont publiés gratuitement par **GitHub Pages** (Réglages du dépôt �
 5. **Si le nom du compte GitHub n'est plus `D-Water-Law78`** : dans `index.html`, remplacer partout
    `https://d-water-law78.github.io/psalmodia-audio` par la nouvelle adresse des audios
    (`https://<nouveau-compte>.github.io/psalmodia-audio`). Sinon l'appli s'affiche mais les audios ne se lisent pas.
+6. **Les 8 copies des audios** : soit créer aussi `psalmodia-audio2` … `psalmodia-audio8` avec exactement le
+   même contenu que `psalmodia-audio` (et activer Pages sur chacun), soit — plus simple — remplacer dans
+   `index.html` la ligne `const AUDIO_NB = 8;` par `const AUDIO_NB = 1;` pour n'utiliser que l'original.
+   ⚠️ Si on ne fait ni l'un ni l'autre, 7 personnes sur 8 n'auront pas de son.
 
 ### Méthode complète (avec tout l'historique)
 Sur un ordinateur avec `git` :
@@ -55,7 +64,13 @@ Puis activer GitHub Pages comme ci-dessus.
 N'importe quel autre hébergeur de site statique fonctionne aussi (Netlify, Cloudflare Pages…),
 à condition de mettre à jour l'adresse des audios (étape 5).
 
-## 4. Ce qui n'est PAS dans la sauvegarde
+## 4. Vérification faite le 20/11/2026
+
+L'appli a été reconstruite uniquement à partir de la sauvegarde, dans un dossier vide : les 63 fichiers
+sont identiques à l'octet près à l'original, l'appli démarre sans aucune erreur, l'accueil, les couleurs,
+les icônes et les chantres s'affichent, et les audios se lisent.
+
+## 5. Ce qui n'est PAS dans la sauvegarde
 
 - **Données personnelles de chaque iPhone** : favoris, playlists, réglages, thème, minutages faits sur le
   téléphone et pas encore envoyés, audios importés à la main. Ils restent dans le téléphone.
