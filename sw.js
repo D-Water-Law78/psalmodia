@@ -1,10 +1,20 @@
 // Psalmodia hors connexion. La page est prise sur le réseau d'abord (pour avoir toujours la dernière version),
 // le reste en cache. Le cache « psalmodia-audio » (les chants enregistrés) n'est jamais effacé.
-const C = 'psalmodia-185000f3c3';
-const KEEP = 'psalmodia-audio';
+// 20/11 : les images (icône du Christ, évangélistes, chantres) ont leur propre cache, gardé d'une version à l'autre :
+// avant, chaque mise à jour les effaçait et l'icône du Christ restait vide tant qu'elle n'était pas retéléchargée.
+const C = 'psalmodia-8dd5836b67';
+const IMG = 'psalmodia-img';
+const KEEP = ['psalmodia-audio', IMG];
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(SHELL))); self.skipWaiting(); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C && k !== KEEP).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+const IMAGES = ['./evangiles/christ-cercle-329ee9.jpg', './evangiles/case-mt-6f3efe.jpg', './evangiles/marc-c-b57ad8.jpg', './evangiles/case-lc-f34d62.jpg', './evangiles/case-jn-3e3cbb.jpg'];
+self.addEventListener('install', e => {
+  e.waitUntil(Promise.all([
+    caches.open(C).then(c => c.addAll(SHELL)),
+    caches.open(IMG).then(async c => { for (const u of IMAGES) if (!(await c.match(u))) await c.add(u).catch(() => {}); })   // une image qui manque ne bloque pas la mise à jour
+  ]));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C && !KEEP.includes(k)).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
   const r = e.request; if (r.method !== 'GET') return;
   const u = new URL(r.url);
@@ -19,7 +29,8 @@ self.addEventListener('fetch', e => {
   // et l'appli enregistre déjà les chants elle-même ; les mettre ici en ferait un double sur l'iPhone.
   if (r.headers.has('range') || /\/psalmodia-audio\/|\.(m4a|mp3|aac|wav|ogg)$/i.test(u.pathname)) return;
   if (u.origin !== location.origin && !/(^|\.)(gstatic|googleapis)\.com$/.test(u.hostname)) return;
-  e.respondWith(caches.open(C).then(async c => {
+  const img = u.origin === location.origin && /\.(jpe?g|png|webp|gif|svg)$/i.test(u.pathname) && !/\/icons\//.test(u.pathname);
+  e.respondWith(caches.open(img ? IMG : C).then(async c => {
     const hit = await c.match(r, { ignoreSearch: u.origin === location.origin });
     const net = fetch(r).then(res => { if (res.ok || res.type === 'opaque') c.put(r, res.clone()); return res; }).catch(() => hit);
     return hit || net;
