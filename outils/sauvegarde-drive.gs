@@ -5,6 +5,7 @@
  *  - Textes (dépôt « psalmodia ») : à chaque mise à jour, une nouvelle copie complète
  *    (.zip) est ajoutée dans « Sauvegarde Psalmodia / Textes (versions) ».
  *    Les anciennes versions sont gardées (les 100 dernières).
+ *    Les autres branches (travaux pas encore en ligne) vont dans « Autres branches ».
  *  - Audios (dépôt « psalmodia-audio ») : tous les fichiers sont copiés dans
  *    « Sauvegarde Psalmodia / Audios ». Seuls les fichiers nouveaux ou modifiés
  *    sont recopiés. Un fichier supprimé sur GitHub n'est JAMAIS supprimé du Drive.
@@ -57,28 +58,40 @@ function sauvegarder() {
 }
 
 /* ============ Textes ============ */
+/* Toutes les branches sont sauvegardées : « main » (l'appli en ligne) dans « Textes (versions) »,
+   les autres (travaux pas encore publiés) dans « Autres branches / <nom> ». */
 function sauverTextes_(racine, etat, notes) {
-  const sha = dernierCommit_(CONFIG.depotTextes);
-  if (etat.textes === sha) return;
-  const zip = telecharger_(`https://codeload.github.com/${CONFIG.proprietaire}/${CONFIG.depotTextes}/zip/${sha}`).getBlob();
-  const dossier = dossier_(racine, 'Textes (versions)');
-  zip.setName(`psalmodia-textes_${maintenant_('yyyy-MM-dd_HH\'h\'mm')}_${sha.slice(0, 7)}.zip`);
-  dossier.createFile(zip);
-  etat.textes = sha;
-  notes.push('Nouvelle version des textes sauvegardée : ' + zip.getName());
+  if (typeof etat.textes === 'string') etat.textes = { [CONFIG.branche]: etat.textes };
+  etat.textes = etat.textes || {};
+  const branches = branches_(CONFIG.depotTextes);
+  for (const nom in branches) {
+    const sha = branches[nom];
+    if (etat.textes[nom] === sha) continue;
+    const principale = nom === CONFIG.branche;
+    const dossier = principale ? dossier_(racine, 'Textes (versions)')
+      : dossier_(dossier_(racine, 'Autres branches'), nom.replace(/\//g, '_'));
+    const zip = telecharger_(`https://codeload.github.com/${CONFIG.proprietaire}/${CONFIG.depotTextes}/zip/${sha}`).getBlob();
+    zip.setName(`psalmodia-textes_${maintenant_('yyyy-MM-dd_HH\'h\'mm')}${principale ? '' : '_' + nom.replace(/\//g, '_')}_${sha.slice(0, 7)}.zip`);
+    dossier.createFile(zip);
+    etat.textes[nom] = sha;
+    notes.push('Nouvelle version sauvegardée : ' + zip.getName());
 
-  // On garde les N versions les plus récentes
-  const fichiers = [];
-  const it = dossier.getFiles();
-  while (it.hasNext()) fichiers.push(it.next());
-  fichiers.sort((a, b) => b.getDateCreated() - a.getDateCreated());
-  fichiers.slice(CONFIG.versionsAGarder).forEach(f => f.setTrashed(true));
+    // On garde les N versions les plus récentes
+    const fichiers = [];
+    const it = dossier.getFiles();
+    while (it.hasNext()) fichiers.push(it.next());
+    fichiers.sort((a, b) => b.getDateCreated() - a.getDateCreated());
+    fichiers.slice(principale ? CONFIG.versionsAGarder : 20).forEach(f => f.setTrashed(true));
+  }
 }
 
 /* ============ Audios ============ */
 function sauverAudio_(racine, etat, debut, notes) {
   const a = etat.audio;
-  const sha = dernierCommit_(CONFIG.depotAudio);
+  const toutes = branches_(CONFIG.depotAudio);
+  const sha = toutes[CONFIG.branche];
+  const autres = Object.keys(toutes).filter(b => b !== CONFIG.branche);
+  if (autres.length) notes.push('ℹ️ Branches audio non copiées (seule « main » l’est) : ' + autres.join(', '));
   if (a.cible !== sha) {
     const r = UrlFetchApp.fetch(
       `https://api.github.com/repos/${CONFIG.proprietaire}/${CONFIG.depotAudio}/git/trees/${sha}?recursive=1`,
@@ -161,11 +174,18 @@ function envoyer_(url, taille, nom, dossier) {
 }
 
 /* ============ Outils ============ */
-function dernierCommit_(depot) {
+function branches_(depot) {
   const txt = telecharger_(`https://github.com/${CONFIG.proprietaire}/${depot}.git/info/refs?service=git-upload-pack`).getContentText();
-  const m = txt.match(new RegExp('([0-9a-f]{40}) refs/heads/' + CONFIG.branche + '(?=[\\s\\u0000])'));
-  if (!m) throw new Error('version introuvable pour ' + depot);
-  return m[1];
+  const res = {};
+  const re = /([0-9a-f]{40}) refs\/heads\/([^\s\u0000]+)/g;
+  let m;
+  while ((m = re.exec(txt))) res[m[2]] = m[1];
+  if (!res[CONFIG.branche]) throw new Error('version introuvable pour ' + depot);
+  return res;
+}
+
+function dernierCommit_(depot) {
+  return branches_(depot)[CONFIG.branche];
 }
 
 function telecharger_(url) {
@@ -222,7 +242,9 @@ function ecrireRapport_(racine, etat, notes) {
   const lignes = [
     'Dernière vérification : ' + maintenant_('dd/MM/yyyy à HH:mm'),
     '',
-    'Textes : ' + (etat.textes ? 'à jour (version ' + etat.textes.slice(0, 7) + ')' : 'pas encore sauvegardés'),
+    'Textes : ' + (etat.textes && etat.textes[CONFIG.branche]
+      ? 'à jour (version ' + etat.textes[CONFIG.branche].slice(0, 7) + ', ' + Object.keys(etat.textes).length + ' branche(s) sauvegardée(s))'
+      : 'pas encore sauvegardés'),
     'Audios : ' + faits + ' / ' + total + ' fichiers à jour' + (total && faits === total ? ' ✅' : ' (copie en cours…)'),
     ''
   ].concat(notes);
