@@ -1368,19 +1368,19 @@ const prepL = raw => raw && ({ ar: !!raw.ar, v: raw.v.map(v => v.w
   : { fr: v.fr, ar: v.ar || null, t: v.t, e: v.e ?? null, wt: v.wt || null }) });
 // Mots chantés d'une ligne sans copte : l'arabe s'il est là, sinon le français
 const unitsOf = v => (v.ar || v.fr).split(/\s+/);
-/* 19/11 : l'audio est aussi sur 7 copies (psalmodia-audio2 … psalmodia-audio8), pour partager la bande passante de GitHub Pages.
-   Chaque iPhone tire une copie au hasard et la garde ; si elle ne répond pas, il passe à la suivante (et la garde). */
+/* 21/11 : l'audio est d'abord pris sur Cloudflare R2 (téléchargements gratuits, sans limite de volume).
+   Secours : les 8 copies GitHub (psalmodia-audio, psalmodia-audio2 … 8) ; si Cloudflare ne répond pas, l'iPhone passe
+   à une copie GitHub tirée au hasard, puis à la suivante. À chaque ouverture de l'appli, on repart de Cloudflare. */
 const AUDIO_ORIG = 'https://d-water-law78.github.io/psalmodia-audio/';
-const AUDIO_NB = 8;   // copies prêtes : l'original + psalmodia-audio2..8 (en ligne depuis le 19/11, 18 h 40)
-const AUDIO_COPIES = [AUDIO_ORIG, ...[2, 3, 4, 5, 6, 7, 8].map(k => `https://d-water-law78.github.io/psalmodia-audio${k}/`)].slice(0, AUDIO_NB);
-const AUDIO_CLE = 'audioK' + AUDIO_NB;   // nouveau tirage quand le nombre de copies change
-let audioK = +store.get(AUDIO_CLE, -1);
-if (!(audioK >= 0 && audioK < AUDIO_COPIES.length)) { audioK = Math.floor(Math.random() * AUDIO_COPIES.length); store.set(AUDIO_CLE, audioK); }
+const AUDIO_R2 = 'https://pub-5a4666eb921248cfaf60a1f3520e594c.r2.dev/';
+const AUDIO_GH = [AUDIO_ORIG, ...[2, 3, 4, 5, 6, 7, 8].map(k => `https://d-water-law78.github.io/psalmodia-audio${k}/`)];
+const AUDIO_COPIES = [AUDIO_R2, ...AUDIO_GH];
+let audioK = 0;   // 0 = Cloudflare
 const audioCopie = u => AUDIO_COPIES.some(c => u.startsWith(c)) ? AUDIO_COPIES[audioK] + u.slice(AUDIO_COPIES.find(c => u.startsWith(c)).length) : u;
 let audioEchecs = 0;
-function audioSuivante() {   // copie en panne : la suivante, pour tous les chants ; false quand on a tout essayé
+function audioSuivante() {   // adresse en panne : la suivante, pour tous les chants ; false quand on a tout essayé
   if (++audioEchecs >= AUDIO_COPIES.length) return false;
-  audioK = (audioK + 1) % AUDIO_COPIES.length; store.set(AUDIO_CLE, audioK);
+  audioK = audioK === 0 ? 1 + Math.floor(Math.random() * AUDIO_GH.length) : 1 + (audioK % AUDIO_GH.length);
   TRACKS.forEach(t => { if (t.remote) t.remote = audioCopie(t.remote); });
   return true;
 }
@@ -1432,7 +1432,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '20.11.2026 · 185000f3c3'; // remplacé par tools/build.sh
+const APP_VERSION = '20.11.2026 · 185000f3c3 · r2'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
