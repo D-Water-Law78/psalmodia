@@ -1501,7 +1501,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 25bfd510b4'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · 7e6c00b29f'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2233,10 +2233,10 @@ A.addEventListener('error', () => {   // 19/11 : la copie audio ne répond pas :
   const t = S.t, was = S.playing; if (!audioSuivante()) return;
   A.src = tr.remote; A.playbackRate = S.rate; if (t) seekWhenReady(t); if (was) A.play().catch(() => {});
 });
-A.addEventListener('playing', () => { audioEchecs = 0; posVoulue(); });
+A.addEventListener('playing', () => { audioEchecs = 0; posVoulue(true); });
 const okDur = (tr, d) => isFinite(d) && d > 0 && (!tr.yt || !tr.dur || Math.abs(d - tr.dur) < tr.dur * 0.2);
-A.addEventListener('loadedmetadata', () => { const tr = curTrack(); if (tr && au(tr) && okDur(tr, A.duration)) tr.dur = A.duration; posVoulue(); });
-A.addEventListener('canplay', () => posVoulue());
+A.addEventListener('loadedmetadata', () => { const tr = curTrack(); if (tr && au(tr) && okDur(tr, A.duration)) tr.dur = A.duration; posVoulue(true); });
+A.addEventListener('canplay', () => posVoulue(true));
 /* 22/11 : le bouton suit toujours le vrai état du son (iOS coupe parfois le son lui-même : appel, Siri, autre appli) */
 A.addEventListener('pause', () => { if (S.playing && A.paused && !A.ended && au(curTrack())) { S.playing = false; updateUI(); } });
 A.addEventListener('play', () => { if (!S.playing && au(curTrack())) { S.playing = true; simLast = performance.now(); updateUI(); } });
@@ -2325,7 +2325,9 @@ function play() {
   const tr = curTrack(); if (!tr) return;
   S.playing = true; simLast = performance.now();
   if (au(tr)) {
-    if (veut == null && Math.abs(A.currentTime - S.t) > 1.5) vouloir(S.t);   // iOS a vidé le son en arrière-plan : on repart d'où l'écran en est
+    // 22/11 : on repart toujours d'où l'écran en est (reprise au lancement, iOS qui a vidé le son). La demande est relancée
+    // à chaque lecture : celle faite à l'ouverture de l'appli expirait au bout de 15 s, et le son partait alors de 0:00
+    if (Math.abs(A.currentTime - S.t) > 1.5) vouloir(S.t);
     else posVoulue();
     A.playbackRate = S.rate;
     A.play().catch(err => { if (err && err.name === 'AbortError') return; if (A.paused) { S.playing = false; updateUI(); } });   // un autre chant lancé entre-temps : ne pas éteindre le bouton
@@ -2346,13 +2348,13 @@ function seek(t) {
    seconde tant que le son n'a pas suivi ; rien pendant qu'il cherche ; abandon au bout de 15 s. */
 let veut = null, veutDepuis = 0, veutDonne = 0;
 function vouloir(t) { veut = t; veutDepuis = performance.now(); veutDonne = 0; posVoulue(); }
-function posVoulue() {
+function posVoulue(pret) {   // pret : le son vient de pouvoir prendre un temps (chargé, prêt, lancé) : on le lui donne tout de suite
   if (veut == null) return;
   if (!au(curTrack())) { veut = null; return; }
   const now = performance.now();
   if (A.readyState >= 1 && !A.seeking && Math.abs(A.currentTime - veut) < 1) { veut = null; return; }
-  if (now - veutDepuis > 15000) { veut = null; return; }   // le son refuse ce temps : ne pas figer les paroles
-  if (A.seeking || now - veutDonne < 1000) return;
+  if (!A.paused && now - veutDepuis > 15000) { veut = null; return; }   // le son refuse ce temps : ne pas figer les paroles (en pause, on garde la demande)
+  if (A.seeking || (!pret && now - veutDonne < 1000)) return;
   veutDonne = now; try { A.currentTime = veut; } catch (e) {}
 }
 A.addEventListener('seeked', () => posVoulue());
