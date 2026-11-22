@@ -1501,7 +1501,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 7e6c00b29f'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · 43e52ad531'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2238,9 +2238,19 @@ const okDur = (tr, d) => isFinite(d) && d > 0 && (!tr.yt || !tr.dur || Math.abs(
 A.addEventListener('loadedmetadata', () => { const tr = curTrack(); if (tr && au(tr) && okDur(tr, A.duration)) tr.dur = A.duration; posVoulue(true); });
 A.addEventListener('canplay', () => posVoulue(true));
 /* 22/11 : le bouton suit toujours le vrai état du son (iOS coupe parfois le son lui-même : appel, Siri, autre appli) */
-A.addEventListener('pause', () => { if (S.playing && A.paused && !A.ended && au(curTrack())) { S.playing = false; updateUI(); } });
+/* 22/11 (après-midi) : écran verrouillé ou appli en fond, l'image ne tourne plus : le chrono et les paroles restaient au moment
+   du verrouillage pendant que le son avançait. Au retour, l'écran montrait un temps faux, et Lecture (ou Pause puis Lecture
+   sur l'écran verrouillé) ramenait le son en arrière, à ce vieux temps. Le temps de l'écran suit maintenant le vrai son
+   dès que l'image ne tourne pas (en fond, en pause) ; sauf pendant un saut demandé ou quand iOS a vidé le son (pas chargé). */
+function suivreSon() {
+  if (veut != null || !au(curTrack()) || A.readyState < 1 || A.seeking || !isFinite(A.currentTime)) return false;
+  if (A.currentTime < 0.5 && S.t > 2) return false;   // son revenu à 0:00 sans qu'on l'ait demandé (rechargé par iOS) : l'écran a raison
+  if (Math.abs(A.currentTime - S.t) > 0.05) { S.t = A.currentTime; clk.ct = -1; if (LY) LY.uKey = null; }
+  return true;
+}
+A.addEventListener('pause', () => { suivreSon(); if (S.playing && A.paused && !A.ended && au(curTrack())) { S.playing = false; updateUI(); } });
 A.addEventListener('play', () => { if (!S.playing && au(curTrack())) { S.playing = true; simLast = performance.now(); updateUI(); } });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && au(curTrack()) && S.playing === A.paused) { S.playing = !A.paused; updateUI(); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && au(curTrack())) { suivreSon(); if (S.playing === A.paused) { S.playing = !A.paused; updateUI(); } } });
 let simLast = performance.now();
 
 /* ---------- Comptage des écoutes (statistiques du propriétaire, dans son bilan privé) ----------
@@ -2281,7 +2291,10 @@ const EC = {
     });
   }
 };
-A.addEventListener('timeupdate', () => { EC.avance(A.currentTime, A.duration); verifPassage(A.currentTime); });
+A.addEventListener('timeupdate', () => {
+  EC.avance(A.currentTime, A.duration); verifPassage(A.currentTime);
+  if (document.hidden || A.paused) { suivreSon(); posEcran(performance.now()); }   // l'image ne tourne pas : le temps suit le son
+});
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && EC.cur) store.set('ecEnCours', EC.cur); else EC.envoyer(); });
 // L'appli peut rester ouverte plusieurs jours sur l'iPhone : la date copte et la période sont calculées au lancement,
 // donc on recharge au retour si le jour a changé (pas pendant une écoute).
@@ -2298,6 +2311,7 @@ const LONG = 600;
 const posAll = () => store.get('positions', {});
 function posNoter() {
   const tr = curTrack(); if (!tr) return;
+  if (document.hidden || A.paused) suivreSon();   // en fond, S.t n'avançait plus : la reprise repartait du moment du verrouillage
   const t = Math.round((S.t || 0) * 10) / 10, fin = (tr.dur || 0) - 20;
   store.set('enCours', { id: tr.id, t, key: S.qKey || '' });
   if ((tr.dur || 0) >= LONG) {
@@ -2327,14 +2341,14 @@ function play() {
   if (au(tr)) {
     // 22/11 : on repart toujours d'où l'écran en est (reprise au lancement, iOS qui a vidé le son). La demande est relancée
     // à chaque lecture : celle faite à l'ouverture de l'appli expirait au bout de 15 s, et le son partait alors de 0:00
-    if (Math.abs(A.currentTime - S.t) > 1.5) vouloir(S.t);
+    if (!suivreSon() && Math.abs(A.currentTime - S.t) > 1.5) vouloir(S.t);   // son chargé : c'est lui qui a raison
     else posVoulue();
     A.playbackRate = S.rate;
     A.play().catch(err => { if (err && err.name === 'AbortError') return; if (A.paused) { S.playing = false; updateUI(); } });   // un autre chant lancé entre-temps : ne pas éteindre le bouton
   }
   updateUI(); pokeControls();
 }
-function pause() { S.playing = false; if (au(curTrack())) A.pause(); updateUI(); pokeControls(); posNoter(); }
+function pause() { S.playing = false; if (au(curTrack())) { A.pause(); suivreSon(); } updateUI(); pokeControls(); posNoter(); }
 function toggle() { S.playing ? pause() : play(); }
 function seek(t) {
   const tr = curTrack(); if (!tr) return;
@@ -2903,6 +2917,11 @@ function frame() {
 }
 // Horloge lissée : entre deux mises à jour de currentTime (espacées sur iPhone), on avance au rythme de l'écran, sans jamais reculer d'un cheveu
 const clk = { ct: -1, at: 0 };
+// Temps donné à l'écran verrouillé (au plus une fois par seconde ; aussi depuis « timeupdate » quand l'appli est en fond)
+function posEcran(now) {
+  if (now - lastPos < 1000 || !('mediaSession' in navigator) || !navigator.mediaSession.setPositionState || !isFinite(A.duration) || !au(curTrack())) return;
+  lastPos = now; try { navigator.mediaSession.setPositionState({ duration: A.duration, playbackRate: S.rate, position: Math.min(A.currentTime, A.duration) }); } catch (e) {}
+}
 function smoothTime(now) {
   const ct = A.currentTime, rate = A.playbackRate || 1;
   if (ct !== clk.ct) {
@@ -2919,9 +2938,7 @@ function tick(now) {
     if (S.loopA != null && S.loopB != null && S.t >= S.loopB) seek(S.loopA);
     verifPassage(S.t);
     if (!au(tr) && S.t >= tr.dur) ended();
-    if (au(tr) && now - lastPos > 1000 && 'mediaSession' in navigator && navigator.mediaSession.setPositionState && isFinite(A.duration)) {
-      lastPos = now; try { navigator.mediaSession.setPositionState({ duration: A.duration, playbackRate: S.rate, position: Math.min(A.currentTime, A.duration) }); } catch (e) {}
-    }
+    if (au(tr)) posEcran(now);
   }
   simLast = now;
   frame();
