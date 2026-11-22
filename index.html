@@ -1459,7 +1459,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 573839b67b'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · e522b3407d'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2191,9 +2191,14 @@ A.addEventListener('error', () => {   // 19/11 : la copie audio ne répond pas :
   const t = S.t, was = S.playing; if (!audioSuivante()) return;
   A.src = tr.remote; A.playbackRate = S.rate; if (t) seekWhenReady(t); if (was) A.play().catch(() => {});
 });
-A.addEventListener('playing', () => { audioEchecs = 0; });
+A.addEventListener('playing', () => { audioEchecs = 0; posVoulue(); });
 const okDur = (tr, d) => isFinite(d) && d > 0 && (!tr.yt || !tr.dur || Math.abs(d - tr.dur) < tr.dur * 0.2);
-A.addEventListener('loadedmetadata', () => { const tr = curTrack(); if (tr && au(tr) && okDur(tr, A.duration)) tr.dur = A.duration; });
+A.addEventListener('loadedmetadata', () => { const tr = curTrack(); if (tr && au(tr) && okDur(tr, A.duration)) tr.dur = A.duration; posVoulue(); });
+A.addEventListener('canplay', () => posVoulue());
+/* 22/11 : le bouton suit toujours le vrai état du son (iOS coupe parfois le son lui-même : appel, Siri, autre appli) */
+A.addEventListener('pause', () => { if (S.playing && A.paused && !A.ended && au(curTrack())) { S.playing = false; updateUI(); } });
+A.addEventListener('play', () => { if (!S.playing && au(curTrack())) { S.playing = true; simLast = performance.now(); updateUI(); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && au(curTrack()) && S.playing === A.paused) { S.playing = !A.paused; updateUI(); } });
 let simLast = performance.now();
 
 /* ---------- Comptage des écoutes (statistiques du propriétaire, dans son bilan privé) ----------
@@ -2265,7 +2270,7 @@ addEventListener('pagehide', posNoter);
 function load(id) {
   const tr = TR[id]; if (!tr) return;
   S.sync = null;
-  S.cur = id; S.t = 0; S.loopA = S.loopB = null; S.passage = null;
+  S.cur = id; S.t = 0; S.loopA = S.loopB = null; S.passage = null; veut = null;
   EC.debut(id);   // termine et compte l'écoute précédente
   if (au(tr)) { A.src = au(tr); A.playbackRate = S.rate; } else { A.pause(); A.removeAttribute('src'); A.load(); }
   S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 50); store.set('recent', S.recent);
@@ -2276,21 +2281,33 @@ function load(id) {
 function play() {
   const tr = curTrack(); if (!tr) return;
   S.playing = true; simLast = performance.now();
-  if (au(tr)) { A.playbackRate = S.rate; A.play().catch(() => { S.playing = false; updateUI(); }); }
+  if (au(tr)) {
+    if (veut == null && Math.abs(A.currentTime - S.t) > 1.5) veut = S.t;   // iOS a vidé le son en arrière-plan : on repart d'où l'écran en est
+    posVoulue();
+    A.playbackRate = S.rate;
+    A.play().catch(err => { if (err && err.name === 'AbortError') return; if (A.paused) { S.playing = false; updateUI(); } });   // un autre chant lancé entre-temps : ne pas éteindre le bouton
+  }
   updateUI(); pokeControls();
 }
 function pause() { S.playing = false; if (au(curTrack())) A.pause(); updateUI(); pokeControls(); posNoter(); }
 function toggle() { S.playing ? pause() : play(); }
 function seek(t) {
   const tr = curTrack(); if (!tr) return;
-  S.t = Math.max(0, Math.min(t, Math.max(0, (tr.dur || 0) - 0.05))); if (au(tr)) A.currentTime = S.t;
+  S.t = Math.max(0, Math.min(t, Math.max(0, (tr.dur || 0) - 0.05))); if (au(tr)) { veut = S.t; posVoulue(); }
   if (LY) LY.uKey = null; simLast = performance.now(); clk.ct = -1;
 }
-// Sauter à un temps dès que le fichier est prêt (un chant en ligne qui vient d'être chargé ignore sinon le saut)
-function seekWhenReady(t) {
-  seek(t); const tr = curTrack();
-  if (au(tr) && A.readyState < 1) A.addEventListener('loadedmetadata', () => { if (curTrack() === tr) { A.currentTime = t; S.t = t; } }, { once: true });
+/* 22/11 : position voulue. Tant que le fichier n'est pas prêt (pas encore chargé, ou vidé par iOS), iPhone ignore le saut
+   sans rien dire et repart de 0:00. On garde la position demandée et on la redonne au son dès qu'il peut la prendre. */
+let veut = null, veutPrêt = 0;
+function posVoulue() {
+  if (veut == null) return;
+  if (!au(curTrack())) { veut = null; return; }
+  try { A.currentTime = veut; } catch (e) {}
+  if (A.readyState < 1) { veutPrêt = 0; return; }
+  if (Math.abs(A.currentTime - veut) < 1) { veut = null; return; }
+  const now = performance.now(); if (!veutPrêt) veutPrêt = now; else if (now - veutPrêt > 6000) veut = null;   // le son refuse ce temps : ne pas figer les paroles
 }
+const seekWhenReady = t => seek(t);
 /* ---------- Évangile du jour (veille, matin, messe) ----------
    Références tirées de katameros.app par tools/evangiles_du_jour.py : "mt16:13-19" (plusieurs passages séparés par « ; »).
    On joue le chapitre lu (Boles Malak) du premier verset au dernier, puis on s'arrête. */
@@ -2838,7 +2855,7 @@ function smoothTime(now) {
 function tick(now) {
   const tr = curTrack();
   if (tr && S.playing) {
-    if (au(tr)) S.t = smoothTime(now);
+    if (au(tr)) { if (veut != null) { posVoulue(); if (veut != null) { S.t = veut; clk.ct = -1; } else S.t = smoothTime(now); } else S.t = smoothTime(now); }
     else S.t += (now - simLast) / 1000 * S.rate;
     if (S.loopA != null && S.loopB != null && S.t >= S.loopB) seek(S.loopA);
     verifPassage(S.t);
@@ -2951,7 +2968,7 @@ function setSrc(id, blob) {
     probe.addEventListener('loadedmetadata', () => { if (okDur(tr, probe.duration)) { tr.dur = probe.duration; render(true); } probe.removeAttribute('src'); probe.load(); });
   }
   // en cours de lecture en ligne : on ne coupe pas, la version enregistrée servira à la prochaine lecture
-  if (S.cur === id && !(S.playing && tr.remote && A.src === tr.remote)) { const was = S.playing, t = S.t; A.src = tr.src; A.currentTime = t; if (was) A.play().catch(() => {}); renderPlayer(); }
+  if (S.cur === id && !(S.playing && tr.remote && A.src === tr.remote)) { const was = S.playing, t = S.t; A.src = tr.src; seek(t); if (was) A.play().catch(() => {}); renderPlayer(); }
 }
 function matchTrack(base) {
   const s = slug(base);
