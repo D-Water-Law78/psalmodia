@@ -1224,11 +1224,11 @@ const TRACKS = [
   {id:'psaume-145',dur:127,ti:"Psaume 145 · Loue, mon âme, le Seigneur",cop:'',note:'En arabe',p:'annuel',col:'psaumes',ch:null,yt:'sc:powagih/145-arabic-psalm-145'},
   {id:'psaume-146',dur:140,ti:"Psaume 146 · Louez le Seigneur, car il est doux de chanter",cop:'',note:'En arabe',p:'annuel',col:'psaumes',ch:null,yt:'sc:powagih/146-arabic-psalm-146'},
   {id:'psaume-147',dur:101.12,ti:"Psaume 147 · Loue le Seigneur, Jérusalem",cop:'',note:'En arabe',p:'annuel',col:'psaumes',ch:null,yt:'sc:powagih/147-arabic-psalm-147'},
-  {id:'etude-2samuel-12-25',dur:2979.8,ti:"2 Samuel 12,25",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:1,ch:'abraham'},
-  {id:'etude-2samuel-12-25-13',dur:3404.3,ti:"2 Samuel 12,25 – 13",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:2,ch:'abraham'},
-  {id:'etude-2samuel-13-23-14-21',dur:2989.6,ti:"2 Samuel 13,23 – 14,21",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:3,ch:'abraham'},
-  {id:'etude-2samuel-14-21-15-5',dur:2981.8,ti:"2 Samuel 14,21 – 15,5",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:4,ch:'abraham'},
-  {id:'etude-2samuel-15-5-16',dur:2312.7,ti:"2 Samuel 15,5 – 16",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:5,ch:'abraham'},
+  {id:'etude-2samuel-12-25',dur:2979.8,ti:"2 Samuel 12:25",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:1,ch:'abraham'},
+  {id:'etude-2samuel-12-25-13',dur:3404.3,ti:"2 Samuel 12:25-13",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:2,ch:'abraham'},
+  {id:'etude-2samuel-13-23-14-21',dur:2989.6,ti:"2 Samuel 13:23-14:21",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:3,ch:'abraham'},
+  {id:'etude-2samuel-14-21-15-5',dur:2981.8,ti:"2 Samuel 14:21-15:5",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:4,ch:'abraham'},
+  {id:'etude-2samuel-15-5-16',dur:2312.7,ti:"2 Samuel 15:5-16",cop:'',note:"Étude biblique",p:'annuel',col:'etudes',liv:'2s',n:5,ch:'abraham'},
   {id:'evangile-matthieu-01',dur:383,ti:"Matthieu 1",cop:'',note:"En arabe",p:'annuel',col:'lectures',ev:'mt',glyph:'Ⲙ',ch:'bolesmalak',yt:'zYB9EYa3JrQ'},
   {id:'evangile-matthieu-02',dur:441,ti:"Matthieu 2",cop:'',note:"En arabe",p:'annuel',col:'lectures',ev:'mt',glyph:'Ⲙ',ch:'bolesmalak',yt:'xGmvXFitdIA'},
   {id:'evangile-matthieu-03',dur:313,ti:"Matthieu 3",cop:'',note:"En arabe",p:'annuel',col:'lectures',ev:'mt',glyph:'Ⲙ',ch:'bolesmalak',yt:'7KD78GOYlDA'},
@@ -1448,7 +1448,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 00a7b517cb'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · 571babbdac'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
