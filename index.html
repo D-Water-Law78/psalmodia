@@ -1501,7 +1501,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 9abd010a39'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · ddc67967c8'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -3078,6 +3078,8 @@ async function loadStoredAudioInner() {
   let n = 0, bytes = 0;
   try {
     for (const k of (await DB.keys()) || []) {
+      // 22/11 : études téléchargées d'elles-mêmes (30-40 Mo chacune) : retirées de l'iPhone, elles se lisent en ligne (plantages, écran noir au lancement)
+      if (TR[k] && TR[k].col === 'etudes') { try { const v0 = await DB.get(k); if (v0 && v0.name === k + '.m4a') { await DB.del(k); continue; } } catch (e) {} }
       const v = await DB.get(k); if (!v || !TR[k]) continue;
       const b = v.blob && v.blob.size ? v.blob : v.buf ? new Blob([v.buf], { type: v.type || 'audio/mp4' }) : null;
       // chant téléchargé dont l'audio a été remplacé en ligne depuis : on l'oublie, il sera retéléchargé (un fichier importé par l'utilisateur est gardé)
@@ -3090,6 +3092,7 @@ async function loadStoredAudioInner() {
     for (const req of await c.keys()) {
       const id = decodeURIComponent(new URL(req.url).pathname.split('/audio/')[1] || '');
       if (!TR[id] || TR[id].src) continue;
+      if (TR[id].col === 'etudes') { try { await c.delete(req); } catch (e) {} continue; }
       const b = await (await c.match(req)).blob(); setSrc(id, b); n++; bytes += b.size;
     }
   } catch (e) {}
@@ -3181,7 +3184,8 @@ async function importFiles(files) {
 async function loadStoredCount() {
   let n = 0, bytes = 0;
   try { for (const k of (await DB.keys()) || []) { const v = await DB.get(k); const b = v && (v.blob || v.buf); if (b) { n++; bytes += b.size || b.byteLength || 0; } } } catch (e) {}
-  try { const c = await caches.open(AUDIO_CACHE); for (const req of await c.keys()) { n++; bytes += (await (await c.match(req)).blob()).size; } } catch (e) {}
+  // sans relire les fichiers (un fichier relu passe en entier par la mémoire) : la taille connue du catalogue
+  try { const c = await caches.open(AUDIO_CACHE); for (const req of await c.keys()) { const id = decodeURIComponent(new URL(req.url).pathname.split('/audio/')[1] || ''); n++; bytes += (TR[id] && TR[id].size) || 0; } } catch (e) {}
   S.stored = { n, bytes };
 }
 loadStoredAudio();
