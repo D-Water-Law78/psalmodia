@@ -398,6 +398,8 @@ body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0
   transition:transform .45s var(--spring),opacity .35s ease}
 .ln.now{transform:none;opacity:1}
 .lyr.free .ln{opacity:1}
+/* 22/11 : longues paroles (études) : seules les lignes proches de l'écran sont dessinées (l'iPhone plantait sur 1 000 lignes) */
+.lyr.long .ln{--dist:4;content-visibility:auto;contain-intrinsic-size:auto 96px}
 .lyr.dragging .ln,.lyr.dragging .lyr-in{transition:none!important}
 .vcop{font-family:var(--f-cop);font-weight:700;font-size:var(--lfs);line-height:1.28;display:flex;flex-wrap:wrap;column-gap:.3em;row-gap:.08em}
 .vfr{font-weight:750;font-size:calc(var(--lfs) - 2px);line-height:1.2;letter-spacing:-.01em;display:flex;flex-wrap:wrap;column-gap:.26em}
@@ -1499,7 +1501,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 5badff4ee6'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · 9abd010a39'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2609,7 +2611,8 @@ function renderPBody() {
     return `<div class="ln" data-act="lseek" data-ii="${ii}"><div class="vfr">${v.fr.split(/\s+/).map((w, k) => `<span class="u" data-act="useek" data-vi="${it.vi}" data-k="${k}">${esc(w)}</span>`).join('')}</div></div>`;
   }).join('')}</div></div><div class="hold-pill" id="holdPill" hidden></div>`;
   const box = $('#lyr');
-  LY = { items, lines: $$('.ln', box), ai: -2, si: -2, uKey: null, manual: 0 };
+  LY = { items, lines: $$('.ln', box), ai: -2, si: -2, uKey: null, manual: 0, long: items.length > 200 };
+  box.classList.toggle('long', LY.long);
   LY.ai = activeIdx(L, S.t); LY.si = activeIdx(L, S.t + LEAD);
   box.classList.add('dragging'); placeLines(false);
   requestAnimationFrame(() => requestAnimationFrame(() => box.classList.remove('dragging')));
@@ -2639,7 +2642,14 @@ function placeLines(animate) {
 }
 function markLines() {
   const a = Math.max(0, LY.si);
-  LY.lines.forEach((el, i) => { el.style.setProperty('--dist', Math.min(Math.abs(i - a), 4)); el.classList.toggle('now', i === LY.ai); });
+  if (!LY.long) { LY.lines.forEach((el, i) => { el.style.setProperty('--dist', Math.min(Math.abs(i - a), 4)); el.classList.toggle('now', i === LY.ai); }); return; }
+  // 22/11 : longues paroles (études, 1 000 lignes et plus) : on ne retouche que les lignes autour de l'ancienne et de la nouvelle place
+  const vois = new Set(), add = c => { for (let i = Math.max(0, c - 5); i <= Math.min(LY.lines.length - 1, c + 5); i++) vois.add(i); };
+  (LY.mk || []).forEach(i => vois.add(i)); add(a); if (LY.ai >= 0) add(LY.ai);
+  const mk = [];
+  vois.forEach(i => { const el = LY.lines[i], d = Math.abs(i - a); el.classList.toggle('now', i === LY.ai);
+    if (d < 4 || i === LY.ai) { el.style.setProperty('--dist', Math.min(d, 4)); mk.push(i); } else el.style.setProperty('--dist', 4); });
+  LY.mk = mk;
 }
 let suppressClick = 0, returnT;
 // Défilement manuel borné : la première ligne ne descend pas sous le repère, la dernière ne monte pas au-dessus (petit rebond)
@@ -3088,7 +3098,10 @@ async function loadStoredAudioInner() {
 }
 /* ---------- Téléchargement des chants en ligne (pour l'écoute hors connexion) ---------- */
 const DL = { active: false, i: 0, n: 0, got: 0, cur: 0, total: 0, name: '' };
-const missing = () => TRACKS.filter(t => t.remote && !t.src);
+/* 22/11 : les études et les longues écoutes (≥ 20 min, 30 à 40 Mo) ne se téléchargent plus d'elles-mêmes : chaque fichier passait
+   en entier par la mémoire de l'iPhone et Safari plantait (surtout pendant les études). Elles se lisent en ligne. */
+const tropLong = t => t.col === 'etudes' || (t.dur || 0) >= 1200;
+const missing = () => TRACKS.filter(t => t.remote && !t.src && !tropLong(t));
 const missingBytes = () => missing().reduce((a, t) => a + (t.size || 0), 0);
 async function downloadMissing() {
   if (DL.active) return;
