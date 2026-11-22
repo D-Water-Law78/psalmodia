@@ -314,7 +314,7 @@ body.dk .pl-acts{max-width:420px}
 .mbtn{width:42px;height:42px;display:grid;place-items:center;flex:none;border-radius:50%}
 .mbtn:active{background:rgba(var(--wash),.1)}
 .tabrow{display:flex;gap:10px;align-items:center}
-.tabcap{flex:1;display:grid;grid-template-columns:repeat(4,1fr);height:62px;border-radius:31px;padding:4px}
+.tabcap{flex:1;display:grid;grid-template-columns:repeat(5,1fr);height:62px;border-radius:31px;padding:4px}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10.5px;font-weight:500;color:var(--ivory);border-radius:27px;transition:background .25s,color .25s}
 .tab.on{color:var(--gold);background:rgba(var(--wash),.1)}
 .srch{width:62px;height:62px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--ivory)}
@@ -677,8 +677,8 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
       <button class="tab" data-act="tab" data-tab="periods" id="tab-periods"></button>
       <button class="tab" data-act="tab" data-tab="etudes" id="tab-etudes"></button>
       <button class="tab" data-act="tab" data-tab="library" id="tab-library"></button>
+      <button class="tab" data-act="tab" data-tab="search" id="tab-search"></button>
     </div>
-    <button class="srch glass" data-act="tab" data-tab="search" id="tab-search" aria-label="Recherche"></button>
   </nav>
 </div>
 
@@ -1448,7 +1448,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · cd46a2d027'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · 00a7b517cb'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -3556,7 +3556,7 @@ $('#tab-home').innerHTML = ic('home') + 'Accueil';
 $('#tab-periods').innerHTML = ic('periods') + 'Périodes';
 $('#tab-etudes').innerHTML = ic('etudes') + 'Études';
 $('#tab-library').innerHTML = ic('library') + 'Bibliothèque';
-$('#tab-search').innerHTML = ic('search', 24);
+$('#tab-search').innerHTML = ic('search') + 'Recherche';   // 22/11 : dans la barre, plus de bouton rond à part
 S.queue = listIds('period:annuel'); S.qi = 0; S.qFrom = PERIODS.annuel.name;
 if (EC.cur) EC.fin();
 load(S.recent.find(id => TR[id]) || S.queue[0]);
