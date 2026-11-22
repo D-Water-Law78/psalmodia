@@ -357,6 +357,7 @@ body.dk .pl-acts{max-width:420px}
 @keyframes fadein{from{opacity:0}}
 .p-art{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:12px 0}
 .p-art .art{width:min(100%,48vh,420px);aspect-ratio:1;border-radius:12px;box-shadow:0 26px 60px rgba(0,0,0,.45);transition:transform .7s cubic-bezier(.34,1.42,.64,1),box-shadow .5s}
+.p-art .art.entier{width:auto;height:100%;max-height:min(58vh,620px);max-width:100%;aspect-ratio:991/1494;border-radius:10px}   /* icône du livre en entier, en hauteur */
 body:not(.playing) .p-art .art{transform:scale(.8);box-shadow:0 12px 30px rgba(0,0,0,.35)}
 
 #pCtl{order:3;flex:none;display:flex;flex-direction:column;transition:opacity .4s ease,transform .4s ease}
@@ -860,7 +861,7 @@ const EVANG = {mt:{cop:'Ⲙⲁⲧⲑⲉⲟⲥ',fr:'Matthieu',l:'Ⲙ',img:'evangi
 const UNIVS = [['chants','Hymnes'],['liturgie','Liturgie'],['psaumes','Psaumes'],['lectures','Évangiles'],['taranim','Chant']];
 const horsChants = t => t.col === 'psaumes' || t.col === 'lectures' || t.col === 'taranim' || t.col === 'etudes';
 // 22/11 : études bibliques (onglet Études) : livres étudiés, dans l'ordre de la Bible ; liv = livre, n = numéro de l'étude dans le livre
-const ETUDES = {'1s':{fr:'1 Samuel',t:'Premier livre de Samuel',l:'Ⲥ',num:'1',c:['#22336f','#060a1c'],img:'etudes/samuel.jpg'}, '2s':{fr:'2 Samuel',t:'Deuxième livre de Samuel',l:'Ⲥ',num:'2',c:['#22336f','#060a1c'],img:'etudes/samuel.jpg'}};   // icône du prophète Samuel (envoyée par le user, recadrée)   // bleu nuit, lettrine blanche, pas de doré (choix du user, 22/11)
+const ETUDES = {'1s':{fr:'1 Samuel',t:'Premier livre de Samuel',l:'Ⲥ',num:'1',c:['#22336f','#060a1c'],img:'etudes/samuel.jpg',entier:'etudes/samuel-entier.jpg'}, '2s':{fr:'2 Samuel',t:'Deuxième livre de Samuel',l:'Ⲥ',num:'2',c:['#22336f','#060a1c'],img:'etudes/samuel.jpg',entier:'etudes/samuel-entier.jpg'}};   // icône du prophète Samuel (envoyée par le user, recadrée)   // bleu nuit, lettrine blanche, pas de doré (choix du user, 22/11)
 const ETUDES_PAR = 'abraham';   // celui qui donne les études
 const OFFICES = {vepres:'Vêpres',tasbeha:'Tasbeha',matines:'Matines',liturgie:'Liturgie',mariage:'Mariage',bapteme:'Baptême',funerailles:'Funérailles'};
 const initials = n => String(n).split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -1448,7 +1449,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · b81c95f154'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · 5f9d9623a8'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2502,7 +2503,7 @@ function renderPBody() {
   const tr = curTrack(), b = $('#pBody'), pl = $('#player');
   pl.dataset.view = S.pview; LY = null;
   b.style.animation = 'none'; b.offsetHeight; b.style.animation = '';
-  if (S.pview === 'art') { b.innerHTML = `<div class="p-art">${trArt(tr, 'big')}</div>`; return; }
+  if (S.pview === 'art') { const E = tr.liv && ETUDES[tr.liv] && ETUDES[tr.liv].entier; b.innerHTML = `<div class="p-art">${E ? `<div class="art big entier" style="background:url(${E}) center/cover" aria-hidden="true"></div>` : trArt(tr, 'big')}</div>`; return; }   // études : l'icône entière (user, 22/11)
   if (S.pview === 'queue') {
     const rest = S.queue.slice(S.qi + 1);
     const qe = S.qEdit && rest.length > 1;
