@@ -1448,7 +1448,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '22.11.2026 · 5d2a871367'; // remplacé par tools/build.sh
+const APP_VERSION = '22.11.2026 · b81c95f154'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2234,6 +2234,23 @@ document.addEventListener('visibilitychange', () => {
 });
 addEventListener('online', () => EC.envoyer());
 
+/* 22/11 : reprise de la lecture là où on s'est arrêté (chaque appareil garde la sienne).
+   « enCours » : chant, liste et position au moment de fermer ; « positions » : position de chaque écoute longue (≥ 10 min). */
+const LONG = 600;
+const posAll = () => store.get('positions', {});
+function posNoter() {
+  const tr = curTrack(); if (!tr) return;
+  const t = Math.round((S.t || 0) * 10) / 10, fin = (tr.dur || 0) - 20;
+  store.set('enCours', { id: tr.id, t, key: S.qKey || '' });
+  if ((tr.dur || 0) >= LONG) {
+    const P = posAll(); if (t > 15 && t < fin) P[tr.id] = t; else delete P[tr.id];
+    const k = Object.keys(P); if (k.length > 60) delete P[k[0]];
+    store.set('positions', P);
+  }
+}
+setInterval(() => { if (S.playing) posNoter(); }, 4000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') posNoter(); });
+addEventListener('pagehide', posNoter);
 function load(id) {
   const tr = TR[id]; if (!tr) return;
   S.sync = null;
@@ -2243,6 +2260,7 @@ function load(id) {
   S.recent = [id, ...S.recent.filter(x => x !== id)].slice(0, 50); store.set('recent', S.recent);
   if (!tr.L && (S.pview === 'lyrics' || S.pview === 'find')) S.pview = 'art';
   renderPlayer(); setMediaSession(tr);
+  if ((tr.dur || 0) >= LONG) { const p = posAll()[id]; if (p) seekWhenReady(p); }   // étude, messe entière : on reprend où on en était
 }
 function play() {
   const tr = curTrack(); if (!tr) return;
@@ -2250,7 +2268,7 @@ function play() {
   if (au(tr)) { A.playbackRate = S.rate; A.play().catch(() => { S.playing = false; updateUI(); }); }
   updateUI(); pokeControls();
 }
-function pause() { S.playing = false; if (au(curTrack())) A.pause(); updateUI(); pokeControls(); }
+function pause() { S.playing = false; if (au(curTrack())) A.pause(); updateUI(); pokeControls(); posNoter(); }
 function toggle() { S.playing ? pause() : play(); }
 function seek(t) {
   const tr = curTrack(); if (!tr) return;
@@ -2370,7 +2388,7 @@ function prev() {
   if (S.t > 3 || S.qi === 0) { seek(0); return; }
   S.qi--; load(S.queue[S.qi]); if (S.playing) play(); render(true);
 }
-function ended() { EC.fin(true); if (S.repeat === 2) { seek(0); EC.debut(S.cur); play(); } else next(true); }
+function ended() { { const P = posAll(); if (S.cur in P) { delete P[S.cur]; store.set('positions', P); } } EC.fin(true); if (S.repeat === 2) { seek(0); EC.debut(S.cur); play(); } else next(true); }
 
 /* ---------- Paroles : calcul du mot et de la lettre en cours ---------- */
 const GAP = 2.5;
@@ -3559,7 +3577,12 @@ $('#tab-library').innerHTML = ic('library') + 'Bibliothèque';
 $('#tab-search').innerHTML = ic('search') + 'Recherche';   // 22/11 : dans la barre, plus de bouton rond à part
 S.queue = listIds('period:annuel'); S.qi = 0; S.qFrom = PERIODS.annuel.name;
 if (EC.cur) EC.fin();
-load(S.recent.find(id => TR[id]) || S.queue[0]);
+{ const E = store.get('enCours', null);
+  if (E && TR[E.id]) {
+    let q = []; try { q = E.key ? listIds(E.key) : []; } catch (e) {}
+    if (q.includes(E.id)) { S.queue = q; S.qi = q.indexOf(E.id); S.qKey = E.key; S.qFrom = listName(E.key); }
+    load(E.id); if (E.t > 2) seekWhenReady(E.t);
+  } else load(S.recent.find(id => TR[id]) || S.queue[0]); }
 EC.envoyer();
 syncDesk();
 applyTheme();
