@@ -1506,7 +1506,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '24.11.2026 · 96cc29e963'; // remplacé par tools/build.sh
+const APP_VERSION = '24.11.2026 · 8621224bc8'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1625,12 +1625,12 @@ function recentIds() {
 
 /* ---------- Onglet Liturgie : le fil de la messe (Offrande, Catéchumènes, Croyants) ---------- */
 // place de chaque chant dans la messe (livre du diacre, Messe V3.9)
-const FINE = ['Offrande de l’Agneau', 'Intercessions', 'Après l’épître de Paul', 'Avant le Praxis', 'Après le Praxis', 'Oraison de l’Évangile',
+const FINE = ['Offrande de l’Agneau', 'Intercessions', 'Après l’épître de Paul', 'Avant le Praxis', 'Après le Praxis', 'Trisagion', 'Oraison de l’Évangile',
   'Prière de réconciliation', 'Aspasmos', 'Anaphore', 'Agios', 'Récit de l’institution', 'Épiclèse', 'Oraisons', 'Commémoration des saints',
   'Introduction à la fraction', 'Fraction', 'Confession', 'Communion', 'Canon final'];
 const M2F = {offertoire:'Offrande de l’Agneau', reconciliation:'Prière de réconciliation', anaphore:'Anaphore', agios:'Agios', institution:'Récit de l’institution', epiclese:'Épiclèse', oraisons:'Oraisons', commemoration:'Commémoration des saints', intro:'Introduction à la fraction', fraction:'Fraction', confession:'Confession', communion:'Communion', fin:'Canon final'};
 const HYM = {'pouro-nativite-seminaire':'Intercessions', 'pihmot-gar-long':'Après l’épître de Paul', 'oraison-evangile-luka-maher':'Oraison de l’Évangile', 'ontos-villejuif':'Avant le Praxis',
-  'evlogimenos-rameaux':'Après le Praxis', 'evlogimenos':'Après le Praxis', 'meghalo-ayad':'Après le Praxis', 'ya-kol-al-soufouf':'Après le Praxis', 'ya-kol-al-soufouf-seminaire':'Après le Praxis',
+  'evlogimenos-rameaux':'Après le Praxis', 'evlogimenos':'Après le Praxis', 'meghalo-ayad':'Après le Praxis', 'ya-kol-al-soufouf':'Après le Praxis', 'ya-kol-al-soufouf-seminaire':'Après le Praxis', 'genethlion-nativite-villejuif':'Après le Praxis', 'apenchois-nativite-villejuif':'Après le Praxis', 'agios-nativite-villejuif':'Trisagion',
   'aspasmos-watos-careme':'Aspasmos', 'aspasmos-watos-careme-ayad':'Aspasmos', 'pchois-efnouti-ayad':'Aspasmos', 'pek-laos-gar':'Oraisons',
   'atai-parthenos-villejuif':'Communion', 'atai-parthenos-seminaire':'Communion', 'ana-awal-kalami':'Communion', 'paramoun-noel-cantique':'Communion', 'ana-awal-kalami-muharraq':'Communion'};
 const fineOf = id => HYM[id] || M2F[TR[id].m] || '';
@@ -1641,7 +1641,7 @@ const litDe = id => {   // basile | gregoire | cyrille | commun
   if (/Grégoire|grégorien/i.test(s)) return 'gregoire';
   if (/Cyrille/.test(s)) return 'cyrille';
   if (COMMUN_ANA.has(id) || f === 'Fraction') return 'commun';   // fractions communes aux trois (PPT 254)
-  if (i >= 6 && i <= 14) return 'basile';   // texte de saint Basile quand rien n'est précisé
+  if (i >= FINE.indexOf('Prière de réconciliation') && i <= FINE.indexOf('Introduction à la fraction')) return 'basile';   // texte de saint Basile quand rien n'est précisé
   return 'commun';
 };
 const LITC = {basile:['#f5c542', '#b8860b'], gregoire:['#fff8e7', '#e6d6b4'], cyrille:['#d62839', '#8b0d1c']};   // 19/11 : exactement les couleurs de l'étiquette « Liturgies entières » (#b8860b, #f5c542, #fff8e7, #d62839, #8b0d1c)   // usage copte : or (tous les jours), blanc (grandes fêtes), rouge (saint Marc, martyr)
@@ -1654,7 +1654,7 @@ const LITP = [['offrande', 'Offrande', ['#e0bc6a', '#6a4a14']], ['catechumenes',
 const LITS = [   // partie, clé, nom, lettre, moments
   ['offrande', 'offrande', 'Action de grâces', 'Ⲟ', ['Offrande de l’Agneau']],
   ['catechumenes', 'intercessions', 'Intercessions', 'Ⲓ', ['Intercessions']],
-  ['catechumenes', 'hymnes', 'Hymnes', 'Ϩ', ['Après l’épître de Paul', 'Avant le Praxis', 'Après le Praxis']],
+  ['catechumenes', 'hymnes', 'Hymnes', 'Ϩ', ['Après l’épître de Paul', 'Avant le Praxis', 'Après le Praxis', 'Trisagion']],
   ['catechumenes', 'oraison', 'Oraison de l’Évangile', 'Ⲉ', ['Oraison de l’Évangile']],
   ['croyants', 'reconciliation', 'Réconciliation', 'R', ['Prière de réconciliation', 'Aspasmos']],
   ['croyants', 'anaphore', 'Anaphore', 'Ⲁ', ['Anaphore', 'Agios', 'Récit de l’institution', 'Épiclèse']],
