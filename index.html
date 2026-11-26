@@ -218,7 +218,6 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .nosnd{font-size:10px;letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
 .fav{width:36px;height:36px;display:grid;place-items:center;color:var(--faint);flex:none}
 .fav.on{color:var(--gold)}
-.leq{position:relative;flex:none;display:block}.leq .eqo{position:absolute;inset:0;display:grid;place-items:center;border-radius:8px;background:rgba(0,0,0,.5)}
 .eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px}
 .eq i{width:3px;height:40%;background:var(--gold);border-radius:1px;animation:eq .9s ease-in-out infinite}
 .eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
@@ -1527,7 +1526,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.11.2026 · 2435f75b02'; // remplacé par tools/build.sh
+const APP_VERSION = '26.11.2026 · 203e6f7f5d'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1543,13 +1542,9 @@ function artHTML(pid, glyph, cls) {
 const evImg = tr => tr.ev && EVANG[tr.ev] && EVANG[tr.ev].img || tr.liv && ETUDES[tr.liv] && ETUDES[tr.liv].img;
 const trArt = (tr, cls) => evImg(tr) ? `<div class="art ${cls}" style="background:url(${evImg(tr)}) center top/cover" aria-hidden="true"></div>` : artHTML(teinteDe(tr), glyphOf(tr), cls);
 const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
-// 26/11 : photo du chantre en vignette dans toutes les listes (sans chantre connu : la lettrine ; Évangiles et études : leur image)
-const chPhoto = tr => { const c = CH[tr.ch]; return c && c.img && !evImg(tr) ? `<div class="art sm ph" style="background:url(${c.img}) center/cover no-repeat" aria-hidden="true"></div>` : ''; };
 function rowHTML(tr, list, i, numbered, grip) {
   const cur = S.cur === tr.id;
-  // page d'une période (numérotée) : la vignette prend la place du numéro ; chant en cours : l'égaliseur posé sur la vignette
-  const art = chPhoto(tr) || trArt(tr, 'sm');
-  const lead = numbered && cur ? `<span class="leq">${art}<span class="eqo">${eq()}</span></span>` : art;
+  const lead = numbered ? `<span class="num">${cur ? eq() : i + 1}</span>` : trArt(tr, 'sm');
   const sub = [titleSub(tr) || (tr.note ? esc(tr.ch === 'draveil' ? sansLangue(tr.note) : tr.note) : ''), esc(chName(tr))].filter(Boolean).join(' · ');
   return `<div class="row${cur ? ' is-cur' : ''}" data-act="play" data-list="${list}" data-i="${i}" role="button" tabindex="0">
     ${lead}<div class="meta"><div class="t1 ell">${titleTop(tr)}${audioTag(tr)}</div><div class="t2 ell">${sub}</div></div>
@@ -1711,7 +1706,6 @@ function litQui(ids) {   // prêtres célébrants de l'étape : photo, nombre de
 function litRow(id, list, i) {   // sceau de la messe sur l'image ; traduction, puis photo + chantre dessous
   const tr = TR[id], l = litDe(id), c = LITC[l];
   let h = rowHTML(tr, list, i);
-  const ph = chPhoto(tr); if (ph) h = h.replace(ph, trArt(tr, 'sm'));   // 26/11 : ici la lettrine garde le sceau de la messe, la photo est sous le titre
   if (c) h = h.replace('<svg class="xc">', `<i class="lvc" data-l="${l}" style="--c1:${c[0]};--c2:${c[1]}">${LITL[l]}</i><svg class="xc">`);
   const per = (tr.p === 'annuel' && tr.p2 && PERIODS[tr.p2] ? `<i class="tg pr" style="--c1:${PERIODS.annuel.c[0]}">Annuel</i>` : '')   // de toute l'année, avec un temps à lui : deux étiquettes
     + [tr.p, tr.p2].filter(p => p && p !== 'annuel' && PERIODS[p]).map(p => `<i class="tg pr" style="--c1:${PERIODS[p].c[0]}">${PERIODS[p].name}</i>`).join('');
