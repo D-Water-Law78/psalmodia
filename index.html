@@ -366,6 +366,15 @@ body.am-col:not(.am-sea) .am-lp{opacity:1;pointer-events:auto}
 #player[data-view="lyrics"] #pTop .gfind,#player[data-view="find"] #pTop .gfind{display:grid}
 #player[data-view="find"] #pCtl{display:none}
 #pTop .art{width:58px;height:58px;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+/* 26/11 (variante I) : photo ronde du chantre, lettrine du chant dans le coin, points des autres versions sous son nom */
+.pv-w{position:relative;flex:none;display:block;touch-action:pan-y}
+#pTop .pv-ph{border-radius:50%}
+.pv-lt{position:absolute;right:-4px;bottom:-4px;display:block;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.3);line-height:0}
+#pTop .pv-lt .art{width:25px;height:25px;border-radius:50%;box-shadow:none}
+.pv-dots{display:flex;gap:1px;align-items:center;margin:2px 0 -6px -2px}
+.pv-dots button{width:11px;height:19px;padding:0 2px;display:flex;align-items:center;flex:none;transition:width .25s}
+.pv-dots button::before{content:"";flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.42);transition:background-color .25s}
+.pv-dots button.on{width:24px}.pv-dots button.on::before{background:#fff}
 .tt{flex:1;min-width:0}
 .tt1{font-size:17px;font-weight:650}
 .tt2{font-size:15px;color:rgba(255,255,255,.62);margin-top:1px}
@@ -1526,7 +1535,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.11.2026 · 203e6f7f5d'; // remplacé par tools/build.sh
+const APP_VERSION = '26.11.2026 · 38d12f4306'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -2559,6 +2568,44 @@ const itemStart = (it, L) => it.k === 'gap' ? it.s : vStart(L.v[it.vi]);
 const activeL = tr => S.sync ? S.sync.L : tr && tr.L;
 
 /* ---------- Lecteur : rendu ---------- */
+/* 26/11 : un même chant par plusieurs chantres (même titre copte ; extraits de messe : même moment et même messe ; jamais les liturgies entières) */
+const versCle = t => t && t.cop && t.m !== 'entiere' && !horsChants(t) ? canon(t.cop) + '|' + (t.col === 'messe' ? momentOf(t) + litOf(t) : '') : '';
+const versDe = tr => { const k = versCle(tr); return k ? TRACKS.filter(t => au(t) && versCle(t) === k) : []; };
+const versMots = v => v.w ? v.w.map(w => canon(w.x)) : [];
+const chRond = tr => { const c = CH[tr.ch]; if (!c || !c.img || evImg(tr)) return trArt(tr, 'sm');
+  return `<span class="pv-w" data-pvw="1"><div class="art sm pv-ph" style="background:url(${c.img}) center/cover no-repeat" aria-hidden="true"></div><span class="pv-lt">${trArt(tr, 'xs')}</span></span>`; };
+function versPoints(tr) {
+  const vs = versDe(tr); if (vs.length < 2) return '';
+  return `<div class="pv-dots" role="group" aria-label="${vs.length} chantres">${vs.map(t => `<button class="${t.id === tr.id ? 'on' : ''}" data-vers="${t.id}" aria-label="${esc(chName(t) || 'Autre version')}"></button>`).join('')}</div>`;
+}
+function versChanger(id) {   // autre chantre, sur la même phrase (la ligne qui a les mêmes premiers mots, au même endroit du chant)
+  const a = curTrack(), b = TR[id]; if (!a || !b || a === b) return;
+  const now = au(a) && A.readyState >= 1 ? A.currentTime : S.t;
+  let k = -1; if (a.L) a.L.v.forEach((v, i) => { const s0 = vStart(v); if (s0 != null && s0 <= now + 0.001) k = i; });
+  let t = 0, trouve = k < 0;
+  if (k >= 0 && b.L) {
+    const mots = versMots(a.L.v[k]), rel = k / a.L.v.length;
+    for (const cle of [mots.slice(0, 2).join(''), mots[0] || '']) {
+      if (cle.length < 4) continue;
+      let best = -1, bd = 9;
+      b.L.v.forEach((v, i) => { if (vStart(v) == null) return; if (versMots(v).join('').includes(cle)) { const d = Math.abs(i / b.L.v.length - rel); if (d < bd) { bd = d; best = i; } } });
+      if (best >= 0) { t = vStart(b.L.v[best]); trouve = true; break; }
+    }
+  }
+  const jouait = S.playing;
+  S.queue[S.qi] = id; load(id); seekWhenReady(Math.max(0, t - 0.1)); if (jouait) play();
+  render(true); updateUI();
+  toast(trouve ? `${chName(b) || 'Autre version'} · même phrase` : `${chName(b) || 'Autre version'} · reprise au début`);
+}
+document.addEventListener('click', e => { const d = e.target.closest('[data-vers]'); if (!d) return; e.preventDefault(); e.stopPropagation(); versChanger(d.dataset.vers); }, true);
+{ let x0 = null, y0 = 0;   // glisser sur la photo : chantre suivant ou précédent
+  document.addEventListener('touchstart', e => { x0 = e.target.closest('[data-pvw]') ? e.touches[0].clientX : null; y0 = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
+    const tr = curTrack(), vs = versDe(tr), i = vs.indexOf(tr); if (vs.length < 2 || i < 0) return;
+    versChanger(vs[(i + (dx < 0 ? 1 : -1) + vs.length) % vs.length].id);
+  }, { passive: true }); }
 function renderPlayer() {
   const tr = curTrack(); if (!tr) return;
   const P = teinteDe(tr), pl = $('#player');
@@ -2569,8 +2616,9 @@ function renderPlayer() {
   const sub = [titleSub(tr), esc(chName(tr) || P.name)].filter(Boolean).join(' — ');
   const btns = `<button class="gbtn${fav ? ' on' : ''}" data-act="fav" data-id="${tr.id}" aria-label="${fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ic(fav ? 'starf' : 'star', 18)}</button><button class="gbtn" data-act="menu" aria-label="Plus d’options">${ic('more', 18)}</button>`;
   const findB = tr.L ? `<button class="gbtn gfind${S.pview === 'find' ? ' on' : ''}" data-act="lfind" aria-label="Chercher dans ce chant">${ic('search', 18)}</button>` : '';
-  $('#pTop').innerHTML = `${trArt(tr, 'sm')}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${findB}${btns}`;
-  $('#pTitle').innerHTML = `<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${sub}</div></div>${btns}`;
+  const qui = chName(tr) ? esc(chName(tr)) : sub, pts = versPoints(tr);   // 26/11 : le chantre sous le titre, pour tous les chants
+  $('#pTop').innerHTML = `${chRond(tr)}<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${qui}</div>${pts}</div>${findB}${btns}`;
+  $('#pTitle').innerHTML = `<div class="tt"><div class="tt1 ell">${titleTop(tr)}</div><div class="tt2 ell">${qui}</div>${pts}</div>${btns}`;
   $('#mArt').innerHTML = trArt(tr, 'xs');
   $('#mT1').innerHTML = titleTop(tr);
   $('#mT2').textContent = tr.cop ? tr.ti : (chName(tr) || P.name);
