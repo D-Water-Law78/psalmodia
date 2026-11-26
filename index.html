@@ -215,7 +215,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .row.is-cur .t1{color:var(--gold)}
 .num{width:24px;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;display:grid;place-items:center}
 .dur{color:var(--faint);font-size:13px;font-variant-numeric:tabular-nums}
-.dur.durl{display:flex;flex-direction:column;align-items:flex-end;gap:0;line-height:1.12}.dur.durl small{font-size:11px;line-height:1.1;font-weight:600;color:var(--gold);font-variant-numeric:normal;white-space:nowrap}   /* 26/11 : langue(s) chantée(s) sous la durée */
+.dur.durl{display:flex;flex-direction:column;align-items:center;gap:0;line-height:1.12}.dur.durl small{font-size:11px;line-height:1.1;font-weight:600;color:var(--gold);font-variant-numeric:normal;white-space:nowrap}   /* 26/11 : langue(s) chantée(s) sous la durée */
 .nosnd{font-size:10px;letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
 .fav{width:36px;height:36px;display:grid;place-items:center;color:var(--faint);flex:none}
 .fav.on{color:var(--gold)}
@@ -368,7 +368,7 @@ body.am-col:not(.am-sea) .am-lp{opacity:1;pointer-events:auto}
 #player[data-view="find"] #pCtl{display:none}
 #pTop .art{width:58px;height:58px;border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
 /* 26/11 (variante I) : photo ronde du chantre, lettrine du chant dans le coin, points des autres versions sous son nom */
-.pv-w{position:relative;flex:none;display:block;touch-action:pan-y}
+.pv-w{position:relative;flex:none;display:block;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #pTop .pv-ph{border-radius:50%}
 .pv-lt{position:absolute;right:-4px;bottom:-4px;display:block;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.3);line-height:0}
 #pTop .pv-lt .art{width:25px;height:25px;border-radius:50%;box-shadow:none}
@@ -1536,7 +1536,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.11.2026 · 4fec5b73cf'; // remplacé par tools/build.sh
+const APP_VERSION = '26.11.2026 · 622e29a2c3'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1554,7 +1554,7 @@ const trArt = (tr, cls) => evImg(tr) ? `<div class="art ${cls}" style="backgroun
 const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
 // 26/11 : langues d'une version, lues dans ses paroles calées (copte = lignes à mots coptes, arabe, français chanté), en part du temps chanté ;
 // moins de 10 % = répons (Kyrie, Amen) : pas affiché. Grec : d'après la description. Sans paroles : la description.
-const LANGN = { cop: 'Copte', ar: 'AR', fr: 'FR', gr: 'GR', en: 'EN' }, LANGC = {};   // demande du user (26/11) : le copte en toutes lettres, les autres en abrégé
+const LANGN = { cop: 'COPTE', ar: 'AR', fr: 'FR', gr: 'GR', en: 'EN' }, LANGC = {};   // demande du user (26/11) : le copte en toutes lettres, les autres en abrégé
 function langsDe(tr) {
   if (LANGC[tr.id]) return LANGC[tr.id];
   const txt = ((tr.note || '') + ' ' + (tr.ti || '')).toLowerCase(), grec = /grec/.test(txt) && !/copte/.test(txt);
@@ -2602,7 +2602,7 @@ const activeL = tr => S.sync ? S.sync.L : tr && tr.L;
 const versCle = t => t && t.cop && t.m !== 'entiere' && !horsChants(t) ? canon(t.cop) + '|' + (t.col === 'messe' ? momentOf(t) + litOf(t) : '') : '';
 const versDe = tr => { const k = versCle(tr); return k ? TRACKS.filter(t => au(t) && versCle(t) === k) : []; };
 const versMots = v => v.w ? v.w.map(w => canon(w.x)) : [];
-const chRond = tr => { const c = CH[tr.ch]; if (!c || !c.img || evImg(tr)) return trArt(tr, 'sm');
+const chRond = tr => { const c = CH[tr.ch]; if (!c || !c.img || evImg(tr) || versDe(tr).length < 2) return trArt(tr, 'sm');   // une seule version : la lettrine carrée, comme avant
   return `<span class="pv-w" data-pvw="1"><div class="art sm pv-ph" style="background:url(${c.img}) center/cover no-repeat" aria-hidden="true"></div><span class="pv-lt">${trArt(tr, 'xs')}</span></span>`; };
 function versPoints(tr) {
   const vs = versDe(tr); if (vs.length < 2) return '';
@@ -2628,13 +2628,15 @@ function versChanger(id) {   // autre chantre, sur la même phrase (la ligne qui
   toast(trouve ? `${chName(b) || 'Autre version'} · même phrase` : `${chName(b) || 'Autre version'} · reprise au début`);
 }
 document.addEventListener('click', e => { const d = e.target.closest('[data-vers]'); if (!d) return; e.preventDefault(); e.stopPropagation(); versChanger(d.dataset.vers); }, true);
+const versSuivant = d => { const tr = curTrack(), vs = versDe(tr), i = vs.indexOf(tr); if (vs.length > 1 && i >= 0) versChanger(vs[(i + d + vs.length) % vs.length].id); };
+let versGlisse = 0;
+document.addEventListener('click', e => { if (!e.target.closest('[data-pvw]')) return; e.preventDefault(); e.stopPropagation(); if (Date.now() - versGlisse > 500) versSuivant(1); }, true);   // toucher la photo : la version suivante
 { let x0 = null, y0 = 0;   // glisser sur la photo : chantre suivant ou précédent
   document.addEventListener('touchstart', e => { x0 = e.target.closest('[data-pvw]') ? e.touches[0].clientX : null; y0 = e.touches[0].clientY; }, { passive: true });
   document.addEventListener('touchend', e => {
     if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
     if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
-    const tr = curTrack(), vs = versDe(tr), i = vs.indexOf(tr); if (vs.length < 2 || i < 0) return;
-    versChanger(vs[(i + (dx < 0 ? 1 : -1) + vs.length) % vs.length].id);
+    versGlisse = Date.now(); versSuivant(dx < 0 ? 1 : -1);
   }, { passive: true }); }
 function renderPlayer() {
   const tr = curTrack(); if (!tr) return;
