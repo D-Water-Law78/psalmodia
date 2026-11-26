@@ -215,6 +215,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .row.is-cur .t1{color:var(--gold)}
 .num{width:24px;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;display:grid;place-items:center}
 .dur{color:var(--faint);font-size:13px;font-variant-numeric:tabular-nums}
+.dur.durl{display:flex;flex-direction:column;align-items:flex-end;gap:0;line-height:1.12}.dur.durl small{font-size:11px;line-height:1.1;font-weight:600;color:var(--gold);font-variant-numeric:normal;white-space:nowrap}   /* 26/11 : langue(s) chantée(s) sous la durée */
 .nosnd{font-size:10px;letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
 .fav{width:36px;height:36px;display:grid;place-items:center;color:var(--faint);flex:none}
 .fav.on{color:var(--gold)}
@@ -371,10 +372,10 @@ body.am-col:not(.am-sea) .am-lp{opacity:1;pointer-events:auto}
 #pTop .pv-ph{border-radius:50%}
 .pv-lt{position:absolute;right:-4px;bottom:-4px;display:block;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.3);line-height:0}
 #pTop .pv-lt .art{width:25px;height:25px;border-radius:50%;box-shadow:none}
-.pv-dots{display:flex;gap:1px;align-items:center;margin:2px 0 -6px -2px}
-.pv-dots button{width:11px;height:19px;padding:0 2px;display:flex;align-items:center;flex:none;transition:width .25s}
-.pv-dots button::before{content:"";flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.42);transition:background-color .25s}
-.pv-dots button.on{width:24px}.pv-dots button.on::before{background:#fff}
+.pv-dots{display:flex;align-items:center;margin:1px 0 -5px -3px}
+.pv-dots button{padding:6px 3px;border:0;background:none;-webkit-appearance:none;appearance:none;display:block;line-height:0;flex:none}
+.pv-dots i{display:block;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:width .25s,background-color .25s}
+.pv-dots button.on i{width:16px;border-radius:3px;background:#fff}
 .tt{flex:1;min-width:0}
 .tt1{font-size:17px;font-weight:650}
 .tt2{font-size:15px;color:rgba(255,255,255,.62);margin-top:1px}
@@ -1535,7 +1536,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.11.2026 · 38d12f4306'; // remplacé par tools/build.sh
+const APP_VERSION = '26.11.2026 · 04675bbdbe'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1551,13 +1552,42 @@ function artHTML(pid, glyph, cls) {
 const evImg = tr => tr.ev && EVANG[tr.ev] && EVANG[tr.ev].img || tr.liv && ETUDES[tr.liv] && ETUDES[tr.liv].img;
 const trArt = (tr, cls) => evImg(tr) ? `<div class="art ${cls}" style="background:url(${evImg(tr)}) center top/cover" aria-hidden="true"></div>` : artHTML(teinteDe(tr), glyphOf(tr), cls);
 const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
+// 26/11 : langues d'une version, lues dans ses paroles calées (copte = lignes à mots coptes, arabe, français chanté), en part du temps chanté ;
+// moins de 10 % = répons (Kyrie, Amen) : pas affiché. Grec : d'après la description. Sans paroles : la description.
+const LANGN = { cop: 'Copte', ar: 'Arabe', fr: 'Français', gr: 'Grec', en: 'Anglais' }, LANGC = {};
+function langsDe(tr) {
+  if (LANGC[tr.id]) return LANGC[tr.id];
+  const txt = ((tr.note || '') + ' ' + (tr.ti || '')).toLowerCase(), grec = /grec/.test(txt) && !/copte/.test(txt);
+  let r = [];
+  try {
+    const raw = LYRICS[tr.id], L = tr.L || (raw && raw !== 1 && typeof raw === 'object' ? prepL(raw) : null);
+    if (L && L.v && L.v.length) {
+      const c = {}, ord = [];
+      L.v.forEach(v => {
+        let k, d;
+        if (v.w && v.w.length) { k = grec ? 'gr' : 'cop'; d = (v.e ?? v.w.at(-1).t) - v.w[0].t; }
+        else if (v.ar) { k = 'ar'; d = (v.e ?? v.t) - v.t; }
+        else if (v.wt) { k = 'fr'; d = (v.e ?? v.t) - v.t; }
+        else return;
+        if (!(k in c)) { c[k] = 0; ord.push(k); }
+        c[k] += Math.max(.5, d || .5);
+      });
+      const tot = ord.reduce((a, k) => a + c[k], 0) || 1;
+      r = ord.filter(k => c[k] / tot >= .1);
+    }
+  } catch (e) { r = []; }
+  if (!r.length && !horsChants(tr)) { const M = { copte: 'cop', arabe: 'ar', 'français': 'fr', grec: 'gr', anglais: 'en' }; r = [...new Set([...txt.matchAll(/(copte|arabe|français|grec|anglais)/g)].map(x => M[x[1]]))]; }
+  return LANGC[tr.id] = r;
+}
+const durHTML = tr => { const L = horsChants(tr) ? [] : langsDe(tr), d = tr.dur ? fmt(tr.dur) : ''; const l = L.map(k => LANGN[k]), ls = l.length > 2 ? [l[0], l.slice(1).join(' · ')] : l;   // deux lignes au plus : la hauteur des lignes ne change pas
+  return L.length ? `<span class="dur durl">${d}${ls.map(x => `<small>${x}</small>`).join('')}</span>` : `<span class="dur">${d}</span>`; };
 function rowHTML(tr, list, i, numbered, grip) {
   const cur = S.cur === tr.id;
   const lead = numbered ? `<span class="num">${cur ? eq() : i + 1}</span>` : trArt(tr, 'sm');
   const sub = [titleSub(tr) || (tr.note ? esc(tr.ch === 'draveil' ? sansLangue(tr.note) : tr.note) : ''), esc(chName(tr))].filter(Boolean).join(' · ');
   return `<div class="row${cur ? ' is-cur' : ''}" data-act="play" data-list="${list}" data-i="${i}" role="button" tabindex="0">
     ${lead}<div class="meta"><div class="t1 ell">${titleTop(tr)}${audioTag(tr)}</div><div class="t2 ell">${sub}</div></div>
-    <span class="dur">${tr.dur ? fmt(tr.dur) : ''}</span>
+    ${durHTML(tr)}
     <button class="fav${isFav(tr.id) ? ' on' : ''}" data-act="fav" data-id="${tr.id}" aria-label="${isFav(tr.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${ic(isFav(tr.id) ? 'heartf' : 'heart', 18)}</button>${grip ? gripHTML : ''}
   </div>`;
 }
@@ -2576,7 +2606,7 @@ const chRond = tr => { const c = CH[tr.ch]; if (!c || !c.img || evImg(tr)) retur
   return `<span class="pv-w" data-pvw="1"><div class="art sm pv-ph" style="background:url(${c.img}) center/cover no-repeat" aria-hidden="true"></div><span class="pv-lt">${trArt(tr, 'xs')}</span></span>`; };
 function versPoints(tr) {
   const vs = versDe(tr); if (vs.length < 2) return '';
-  return `<div class="pv-dots" role="group" aria-label="${vs.length} chantres">${vs.map(t => `<button class="${t.id === tr.id ? 'on' : ''}" data-vers="${t.id}" aria-label="${esc(chName(t) || 'Autre version')}"></button>`).join('')}</div>`;
+  return `<div class="pv-dots" role="group" aria-label="${vs.length} chantres">${vs.map(t => `<button class="${t.id === tr.id ? 'on' : ''}" data-vers="${t.id}" aria-label="${esc(chName(t) || 'Autre version')}"><i></i></button>`).join('')}</div>`;
 }
 function versChanger(id) {   // autre chantre, sur la même phrase (la ligne qui a les mêmes premiers mots, au même endroit du chant)
   const a = curTrack(), b = TR[id]; if (!a || !b || a === b) return;
