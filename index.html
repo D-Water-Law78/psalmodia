@@ -1536,7 +1536,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '26.11.2026 · 04675bbdbe'; // remplacé par tools/build.sh
+const APP_VERSION = '26.11.2026 · 4fec5b73cf'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1554,7 +1554,7 @@ const trArt = (tr, cls) => evImg(tr) ? `<div class="art ${cls}" style="backgroun
 const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
 // 26/11 : langues d'une version, lues dans ses paroles calées (copte = lignes à mots coptes, arabe, français chanté), en part du temps chanté ;
 // moins de 10 % = répons (Kyrie, Amen) : pas affiché. Grec : d'après la description. Sans paroles : la description.
-const LANGN = { cop: 'Copte', ar: 'Arabe', fr: 'Français', gr: 'Grec', en: 'Anglais' }, LANGC = {};
+const LANGN = { cop: 'Copte', ar: 'AR', fr: 'FR', gr: 'GR', en: 'EN' }, LANGC = {};   // demande du user (26/11) : le copte en toutes lettres, les autres en abrégé
 function langsDe(tr) {
   if (LANGC[tr.id]) return LANGC[tr.id];
   const txt = ((tr.note || '') + ' ' + (tr.ti || '')).toLowerCase(), grec = /grec/.test(txt) && !/copte/.test(txt);
