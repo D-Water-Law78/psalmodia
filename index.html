@@ -218,6 +218,7 @@ h1{font-family:var(--f-display);font-weight:400;font-size:34px;letter-spacing:.0
 .nosnd{font-size:10px;letter-spacing:.04em;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
 .fav{width:36px;height:36px;display:grid;place-items:center;color:var(--faint);flex:none}
 .fav.on{color:var(--gold)}
+.leq{position:relative;flex:none;display:block}.leq .eqo{position:absolute;inset:0;display:grid;place-items:center;border-radius:8px;background:rgba(0,0,0,.5)}
 .eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px}
 .eq i{width:3px;height:40%;background:var(--gold);border-radius:1px;animation:eq .9s ease-in-out infinite}
 .eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
@@ -319,6 +320,26 @@ body.dk .pl-acts{max-width:420px}
 .tab.on{color:var(--gold);background:rgba(var(--wash),.1)}
 .srch{width:62px;height:62px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--ivory)}
 .srch.on{color:var(--gold)}
+/* 26/11 : barre façon Apple Music (sans verre liquide) : en descendant elle se replie (onglet en rond · mini-lecteur · loupe),
+   en remontant elle se rouvre. Ordre des onglets : Accueil à gauche, Périodes au centre de l'écran. */
+#dock{--pl:max(14px,env(safe-area-inset-left,0px));--pr:max(14px,env(safe-area-inset-right,0px));--pb:max(8px,calc(env(safe-area-inset-bottom,0px) - 6px));
+  --ease:cubic-bezier(.25,1,.3,1);--dur:.34s;display:block;height:calc(var(--pb) + 128px);padding:0}
+#dock .tabrow{display:contents}
+#mini,.tabcap,.am-lp{position:absolute;margin:0;
+  transition:left var(--dur) var(--ease),right var(--dur) var(--ease),bottom var(--dur) var(--ease),width var(--dur) var(--ease),height var(--dur) var(--ease),border-radius var(--dur) var(--ease),padding var(--dur) var(--ease),opacity .25s}
+#mini{left:var(--pl);right:var(--pr);bottom:calc(var(--pb) + 70px)}
+.tabcap{left:var(--pl);bottom:var(--pb);width:calc(100% - var(--pl) - var(--pr));overflow:hidden}
+.tab{position:relative;transition:background .25s,color .25s,opacity .2s;-webkit-tap-highlight-color:transparent}
+.am-lp{right:var(--pr);bottom:var(--pb);width:52px;height:52px;border-radius:26px;display:grid;place-items:center;color:var(--ivory);opacity:0;pointer-events:none}
+#mini .t2,#mNext,#mini .art{transition:opacity .2s,width var(--dur) var(--ease),height var(--dur) var(--ease)}
+body.am-col #mini{left:calc(var(--pl) + 60px);right:calc(var(--pr) + 60px);bottom:var(--pb);height:52px;border-radius:26px}
+body.am-col #mini .t2,body.am-col #mNext{opacity:0;pointer-events:none}
+body.am-col #mini #mNext{position:absolute;right:0}
+body.am-col #mini .art{width:36px;height:36px}
+body.am-col .tabcap{width:52px;height:52px;border-radius:26px;padding:0}
+body.am-col .tab{position:absolute;inset:0;font-size:0;gap:0;border-radius:50%;opacity:0;pointer-events:none;background:none}
+body.am-col .tab.am-show{opacity:1;pointer-events:auto}
+body.am-col:not(.am-sea) .am-lp{opacity:1;pointer-events:auto}
 
 /* ---------- Lecteur plein écran ---------- */
 #player{position:fixed;inset:0;max-width:480px;margin:0 auto;z-index:50;display:flex;flex-direction:column;overflow:hidden;isolation:isolate;color:#fff;background:#120d0a;
@@ -679,9 +700,9 @@ body.dk-big .p-queue,body.dk-big .p-find{padding-top:40px}
   <nav class="tabrow" aria-label="Navigation">
     <div class="tabcap glass">
       <button class="tab" data-act="tab" data-tab="home" id="tab-home"></button>
+      <button class="tab" data-act="tab" data-tab="library" id="tab-library"></button>
       <button class="tab" data-act="tab" data-tab="periods" id="tab-periods"></button>
       <button class="tab" data-act="tab" data-tab="etudes" id="tab-etudes"></button>
-      <button class="tab" data-act="tab" data-tab="library" id="tab-library"></button>
       <button class="tab" data-act="tab" data-tab="search" id="tab-search"></button>
     </div>
   </nav>
@@ -1506,7 +1527,7 @@ const S = {
   fav: new Set(store.get('fav', [])), pl: store.get('playlists', []), recent: store.get('recent', []), results: []
 };
 if (store.get('cfgv', 1) < 2) { S.cfg.holdPill = true; store.set('cfg', S.cfg); store.set('cfgv', 2); }
-const APP_VERSION = '24.11.2026 · 8621224bc8'; // remplacé par tools/build.sh
+const APP_VERSION = '26.11.2026 · 2435f75b02'; // remplacé par tools/build.sh
 const RATES = [1, 0.75, 0.5, 1.25];
 const LSIZES = [25, 30, 35];
 const TRSIZES = [17, 21, 25];   // traduction française sous les paroles : Petit (comme avant), Moyen, Grand
@@ -1522,9 +1543,13 @@ function artHTML(pid, glyph, cls) {
 const evImg = tr => tr.ev && EVANG[tr.ev] && EVANG[tr.ev].img || tr.liv && ETUDES[tr.liv] && ETUDES[tr.liv].img;
 const trArt = (tr, cls) => evImg(tr) ? `<div class="art ${cls}" style="background:url(${evImg(tr)}) center top/cover" aria-hidden="true"></div>` : artHTML(teinteDe(tr), glyphOf(tr), cls);
 const eq = () => '<span class="eq"><i></i><i></i><i></i></span>';
+// 26/11 : photo du chantre en vignette dans toutes les listes (sans chantre connu : la lettrine ; Évangiles et études : leur image)
+const chPhoto = tr => { const c = CH[tr.ch]; return c && c.img && !evImg(tr) ? `<div class="art sm ph" style="background:url(${c.img}) center/cover no-repeat" aria-hidden="true"></div>` : ''; };
 function rowHTML(tr, list, i, numbered, grip) {
   const cur = S.cur === tr.id;
-  const lead = numbered ? `<span class="num">${cur ? eq() : i + 1}</span>` : trArt(tr, 'sm');
+  // page d'une période (numérotée) : la vignette prend la place du numéro ; chant en cours : l'égaliseur posé sur la vignette
+  const art = chPhoto(tr) || trArt(tr, 'sm');
+  const lead = numbered && cur ? `<span class="leq">${art}<span class="eqo">${eq()}</span></span>` : art;
   const sub = [titleSub(tr) || (tr.note ? esc(tr.ch === 'draveil' ? sansLangue(tr.note) : tr.note) : ''), esc(chName(tr))].filter(Boolean).join(' · ');
   return `<div class="row${cur ? ' is-cur' : ''}" data-act="play" data-list="${list}" data-i="${i}" role="button" tabindex="0">
     ${lead}<div class="meta"><div class="t1 ell">${titleTop(tr)}${audioTag(tr)}</div><div class="t2 ell">${sub}</div></div>
@@ -1686,11 +1711,12 @@ function litQui(ids) {   // prêtres célébrants de l'étape : photo, nombre de
 function litRow(id, list, i) {   // sceau de la messe sur l'image ; traduction, puis photo + chantre dessous
   const tr = TR[id], l = litDe(id), c = LITC[l];
   let h = rowHTML(tr, list, i);
+  const ph = chPhoto(tr); if (ph) h = h.replace(ph, trArt(tr, 'sm'));   // 26/11 : ici la lettrine garde le sceau de la messe, la photo est sous le titre
   if (c) h = h.replace('<svg class="xc">', `<i class="lvc" data-l="${l}" style="--c1:${c[0]};--c2:${c[1]}">${LITL[l]}</i><svg class="xc">`);
   const per = (tr.p === 'annuel' && tr.p2 && PERIODS[tr.p2] ? `<i class="tg pr" style="--c1:${PERIODS.annuel.c[0]}">Annuel</i>` : '')   // de toute l'année, avec un temps à lui : deux étiquettes
     + [tr.p, tr.p2].filter(p => p && p !== 'annuel' && PERIODS[p]).map(p => `<i class="tg pr" style="--c1:${PERIODS[p].c[0]}">${PERIODS[p].name}</i>`).join('');
   const tra = titleSub(tr) || (tr.note ? esc(tr.ch === 'draveil' ? sansLangue(tr.note) : tr.note) : ''), nom = esc(chName(tr));
-  return h.replace(/<div class="t2 ell">[^<]*<\/div>/, () => (per || tra ? `<div class="t2 ell">${per}${tra}</div>` : '') + (nom ? `<div class="t3 ell">${chPics(tr)}${nom}</div>` : ''));
+  return h.replace(/<div class="t2 ell">[\s\S]*?<\/div>/, () => (per || tra ? `<div class="t2 ell">${per}${tra}</div>` : '') + (nom ? `<div class="t3 ell">${chPics(tr)}${nom}</div>` : ''));
 }
 function renderLiturgie() {
   const ids0 = litOrdre(), autres = listIds('univ:liturgie').filter(id => !litStepOf(id));
@@ -3668,6 +3694,33 @@ $('#tab-periods').innerHTML = ic('periods') + 'Périodes';
 $('#tab-etudes').innerHTML = ic('etudes') + 'Études';
 $('#tab-library').innerHTML = ic('library') + 'Bibliothèque';
 $('#tab-search').innerHTML = ic('search') + 'Recherche';   // 22/11 : dans la barre, plus de bouton rond à part
+
+/* 26/11 : la barre se replie quand on descend, se rouvre quand on remonte (façon Apple Music) */
+let AM_COL = false;
+const amLp = document.createElement('button');
+amLp.className = 'am-lp glass'; amLp.dataset.act = 'tab'; amLp.dataset.tab = 'search'; amLp.setAttribute('aria-label', 'Recherche'); amLp.innerHTML = ic('search', 22);
+$('#dock').append(amLp);
+function amCollapse(on) { if (on === AM_COL) return; AM_COL = on; document.body.classList.toggle('am-col', on); }
+function amSync() {   // l'onglet montré dans le rond quand la barre est repliée
+  const t = S.route.tab;
+  ['home', 'library', 'periods', 'etudes', 'search'].forEach(n => $('#tab-' + n).classList.toggle('am-show', n === t));
+  document.body.classList.toggle('am-sea', t === 'search');
+}
+render = (o => function (keep) { o(keep); amSync(); })(render);
+amSync();
+{ let lastY = scrollY, acc = 0;
+  addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    if (scrollY > max - 2 && scrollY > 40) { lastY = scrollY; return; }   // rebond en bas de page : la barre reste comme elle est
+    const y = scrollY, d = y - lastY; lastY = y;
+    if (y < 40) { acc = 0; amCollapse(false); return; }
+    if (Math.sign(d) !== Math.sign(acc)) acc = 0;
+    acc += d;
+    if (acc > 24) amCollapse(true); else if (acc < -24) amCollapse(false);
+  }, { passive: true }); }
+document.addEventListener('click', e => {   // rond replié : le toucher rouvre la barre
+  if (AM_COL && e.target.closest('.tabcap')) { e.preventDefault(); e.stopPropagation(); amCollapse(false); }
+}, true);
 S.queue = listIds('period:annuel'); S.qi = 0; S.qFrom = PERIODS.annuel.name;
 if (EC.cur) EC.fin();
 // 24/11 : à l'ouverture, le dernier chant écouté, au début (aucune position gardée)
